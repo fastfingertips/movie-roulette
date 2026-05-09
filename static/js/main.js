@@ -96,12 +96,19 @@ const detectFieldType = (inputEl) => {
         return;
     }
 
-    // Strict validation: No trailing slashes, clean parts only
+    // Strict validation: Incomplete paths (user/) are invalid, but full paths or watchlist paths with trailing slashes are OK
     let val = rawVal.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
     const parts = val.split('/').filter(p => p);
     
-    // If it ends with a slash or has messy structure, it's invalid
-    if (rawVal.endsWith('/') || (parts.length > 1 && !val.includes('/list/') && parts.length !== 2)) {
+    const isExplicitWatchlist = val.includes('/watchlist/');
+    const isExplicitList = val.includes('/list/');
+
+    // Invalid if:
+    // 1. Single word + slash (e.g. nmcassa/)
+    // 2. Ends with /list/ (incomplete)
+    const isIncomplete = (parts.length === 1 && rawVal.endsWith('/')) || rawVal.endsWith('/list/');
+    
+    if (isIncomplete || (parts.length > 1 && !isExplicitList && parts.length !== 2)) {
         statusEl.textContent = 'Invalid';
         statusEl.classList.add('is-visible', 'is-invalid');
         return;

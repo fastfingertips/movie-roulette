@@ -46,9 +46,9 @@ export const formatListUrl = (url) => {
     // Format: user/watchlist (Watchlist)
     if (parts.length === 2 && parts[1] === "watchlist") return { name: parts[0], type: 'Watchlist' };
     // Format: user/list/slug (user's slug)
-    if (parts.length >= 3 && parts[1] === "list") return { name: parts[0], type: parts[2] };
+    if (parts.length >= 3 && parts[1] === "list") return { name: parts[0], type: 'List' };
     // Format: user/slug (user's slug)
-    if (parts.length === 2) return { name: parts[0], type: parts[1] };
+    if (parts.length === 2) return { name: parts[0], type: 'List' };
     
     return { name: url, type: '' };
 };
