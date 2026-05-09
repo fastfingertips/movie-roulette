@@ -76,10 +76,36 @@ const toggleTheme = (e) => {
 
 initTheme();
 
+const detectFieldType = (inputEl) => {
+    const val = inputEl.value.trim().toLowerCase();
+    const statusEl = inputEl.nextElementSibling;
+    if (!statusEl || !statusEl.classList.contains('field__status')) return;
+    
+    if (!val) {
+        statusEl.classList.remove('is-visible');
+        return;
+    }
+    
+    const hasSlashes = val.includes('/');
+    const isExplicitList = val.includes('/list/');
+    const isExplicitWatchlist = val.includes('/watchlist/');
+    
+    if (isExplicitList) {
+        statusEl.textContent = 'List';
+        statusEl.classList.add('is-visible');
+    } else if (isExplicitWatchlist || !hasSlashes) {
+        statusEl.textContent = 'Watchlist';
+        statusEl.classList.add('is-visible');
+    } else {
+        statusEl.classList.remove('is-visible');
+    }
+};
+
 // --- Global UI Logic ---
 
 const updateUI = () => {
     renderHistory(handleUseList);
+    document.querySelectorAll('.field__input').forEach(detectFieldType);
 };
 
 const handleUseList = (url) => {
