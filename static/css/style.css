@@ -293,7 +293,9 @@
             word-break: break-all;
             margin: 0;
             text-align: left;
+            transition: var(--transition);
         }
+        [data-theme="light"] .stats-json { background: #f1f5f9; color: #1e293b; }
         .result-stats span { color: var(--color-text-secondary); }
 
 
