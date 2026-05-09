@@ -386,6 +386,13 @@ elements.copyStatsBtn.addEventListener('click', () => {
     });
 });
 
+const handleAddField = () => {
+    addField(updateUI);
+    const inputs = document.querySelectorAll('.field__input');
+    const lastInput = inputs[inputs.length - 1];
+    if (lastInput) lastInput.focus();
+};
+
 $('randomize-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideError();
@@ -401,9 +408,19 @@ $('randomize-form').addEventListener('submit', async (e) => {
 });
 
 $('try-again-btn').addEventListener('click', () => performRandomize(currentUrlsForRetry));
-$('back-btn').addEventListener('click', () => setView('form'));
+$('add-url-btn').addEventListener('click', () => handleAddField());
 
-// Init
-updateUI();
+// --- Keyboard Shortcuts ---
+document.addEventListener('keydown', (e) => {
+    if (e.shiftKey && e.key === 'Enter') {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.classList.contains('field__input')) {
+            e.preventDefault();
+            handleAddField();
+        }
+    }
+});
+
+// --- Initialization ---
 checkUrlParams((urls) => performRandomize(urls));
 if (window.lucide) window.lucide.createIcons();
