@@ -33,3 +33,22 @@ export const checkUrlParams = (onReady) => {
         onReady(urlsToRun);
     }
 };
+
+export const formatListUrl = (url) => {
+    if (!url) return '';
+    let val = url.trim().replace(/\/$/, "");
+    val = val.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
+    
+    const parts = val.split("/").filter(p => p);
+    
+    // Format: user (Watchlist)
+    if (parts.length === 1) return `${parts[0]} (Watchlist)`;
+    // Format: user/watchlist (Watchlist)
+    if (parts.length === 2 && parts[1] === "watchlist") return `${parts[0]} (Watchlist)`;
+    // Format: user/list/slug (user's slug)
+    if (parts.length >= 3 && parts[1] === "list") return `${parts[0]}'s ${parts[2]}`;
+    // Format: user/slug (user's slug)
+    if (parts.length === 2) return `${parts[0]}'s ${parts[1]}`;
+    
+    return url;
+};
