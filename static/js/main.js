@@ -9,6 +9,22 @@ import { CONFIG } from './constants.js';
 let bgIntervals = { slot: null, prg: null };
 let currentUrlsForRetry = [];
 
+// --- Theme Logic ---
+const initTheme = () => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+};
+
+const toggleTheme = () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (window.lucide) window.lucide.createIcons();
+};
+
+initTheme();
+
 // --- Global UI Logic ---
 
 const updateUI = () => {
@@ -232,6 +248,8 @@ elements.statsBtn.addEventListener('click', () => {
         setView('stats');
     }
 });
+
+$('theme-toggle').addEventListener('click', toggleTheme);
 
 $('close-stats-btn').addEventListener('click', () => setView('result'));
 elements.statsModal.addEventListener('click', (e) => { 
