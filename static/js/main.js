@@ -77,7 +77,7 @@ const toggleTheme = (e) => {
 initTheme();
 
 const detectFieldType = (inputEl) => {
-    const val = inputEl.value.trim().toLowerCase();
+    let val = inputEl.value.trim().toLowerCase();
     const statusEl = inputEl.nextElementSibling;
     if (!statusEl || !statusEl.classList.contains('field__status')) return;
     
@@ -85,16 +85,19 @@ const detectFieldType = (inputEl) => {
         statusEl.classList.remove('is-visible');
         return;
     }
+
+    // Strip domain if present to analyze path parts
+    val = val.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
+    const parts = val.split('/').filter(p => p);
     
-    const hasSlashes = val.includes('/');
-    const isExplicitList = val.includes('/list/');
     const isExplicitWatchlist = val.includes('/watchlist/');
+    const isExplicitList = val.includes('/list/');
     
-    if (isExplicitList) {
-        statusEl.textContent = 'List';
-        statusEl.classList.add('is-visible');
-    } else if (isExplicitWatchlist || !hasSlashes) {
+    if (isExplicitWatchlist || parts.length === 1) {
         statusEl.textContent = 'Watchlist';
+        statusEl.classList.add('is-visible');
+    } else if (isExplicitList || parts.length >= 2) {
+        statusEl.textContent = 'List';
         statusEl.classList.add('is-visible');
     } else {
         statusEl.classList.remove('is-visible');
