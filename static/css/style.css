@@ -100,21 +100,25 @@
         @media (max-width: 480px) { .card { padding: 32px 24px; gap: 32px; } }
 
         .hero { 
-            text-align: center; 
+            display: grid;
+            grid-template-columns: 80px 1fr 80px;
+            align-items: center;
             position: relative; 
             margin: -48px -48px 8px; 
-            padding: 40px 48px; 
+            padding: 24px 48px; 
             background: rgba(0, 0, 0, 0.01); 
             border-bottom: 1px solid var(--color-border);
             border-top-left-radius: var(--radius-sharp);
             border-top-right-radius: var(--radius-sharp);
         }
         [data-theme="dark"] .hero { background: rgba(255, 255, 255, 0.01); }
-        .hero__title { font-family: var(--font-serif); font-size: 28px; color: var(--color-text); margin-bottom: 8px; letter-spacing: -0.01em; transition: var(--transition); }
+        .hero__side { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+        .hero__content { text-align: center; }
+        .hero__title { font-family: var(--font-serif); font-size: 28px; color: var(--color-text); margin-bottom: 4px; letter-spacing: -0.01em; transition: var(--transition); }
         [data-theme="dark"] .hero__title { color: #fff; }
-        .hero__desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.5; opacity: 0.8; }
+        .hero__desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.4; opacity: 0.8; }
 
-        .header-actions { position: absolute; top: 24px; right: 24px; display: flex; gap: 8px; }
+        .header-actions { position: static; display: flex; }
         .icon-btn { background: none; border: none; color: var(--color-text-muted); cursor: pointer; transition: var(--transition); padding: 8px; border-radius: var(--radius-sharp); display: flex; align-items: center; justify-content: center; }
         .icon-btn:hover { color: var(--color-text); background: rgba(0,0,0,0.05); }
         [data-theme="dark"] .icon-btn:hover { background: rgba(255,255,255,0.05); }
@@ -442,11 +446,11 @@
             }
             .hero {
                 margin: -32px -24px 8px;
-                padding: 32px 24px;
+                padding: 24px;
+                grid-template-columns: 40px 1fr 40px;
             }
             .header-actions {
-                top: 16px;
-                right: 16px;
+                justify-content: flex-end;
             }
         }
         
