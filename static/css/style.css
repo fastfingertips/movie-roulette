@@ -418,13 +418,13 @@
 
         .credits { 
             margin: 8px -48px -48px; 
-            padding: 24px 48px; 
-            display: grid;
-            grid-template-columns: 100px 1fr 100px;
+            padding: 16px 48px; 
+            display: flex;
+            justify-content: center;
             align-items: center;
             font-size: 11px; 
             color: var(--color-text-secondary); 
-            line-height: 1.6; 
+            line-height: 1; 
             opacity: 0.8; 
             border-top: 1px solid var(--color-border); 
             background: rgba(0, 0, 0, 0.015);
@@ -432,21 +432,21 @@
             border-bottom-right-radius: var(--radius-sharp);
         }
         [data-theme="dark"] .credits { background: rgba(255, 255, 255, 0.01); }
-        .credits__side { width: 100%; }
-        .credits__content { text-align: center; }
+        .credits__content { text-align: center; white-space: nowrap; }
+        .credits__sep { margin: 0 8px; opacity: 0.3; }
         .credits__link { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.15); transition: var(--transition); }
         [data-theme="dark"] .credits__link { border-color: rgba(255,255,255,0.15); }
         .credits__link:hover { color: var(--color-text); border-color: var(--color-text); }
         .credits__link--muted { border-bottom: none; opacity: 0.75; }
-        .credits__source { margin-top: 4px; }
-        .credits__powered { margin-top: 12px; font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em; }
+        .credits__powered { opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
 
         @media (max-width: 480px) {
             .credits { 
                 margin: 8px -24px -32px; 
-                padding: 20px 24px; 
-                grid-template-columns: 20px 1fr 20px;
+                padding: 14px 24px; 
             }
+            .credits__content { white-space: normal; font-size: 10px; line-height: 1.4; }
+            .credits__sep { margin: 0 4px; }
             .hero {
                 margin: -32px -24px 8px;
                 padding: 24px;
