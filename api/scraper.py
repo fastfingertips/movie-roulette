@@ -4,6 +4,7 @@ import random
 from letterboxdpy.constants.project import DOMAIN
 from letterboxdpy.core.scraper import parse_url
 from letterboxdpy.list import List as LBList
+from letterboxdpy.watchlist import Watchlist
 from letterboxdpy.pages.movie_profile import MovieProfile
 from letterboxdpy.utils.movies_extractor import extract_movies_from_vertical_list
 from letterboxdpy.utils.utils_url import get_page_url
@@ -17,13 +18,19 @@ from .utils import progress_step
 def get_list_metadata(user, slug):
     """Returns (lb_instance, title, count)"""
     print(f"DEBUG: [LB] Fetching {user}/{slug} from Letterboxd...")
+    if slug == "watchlist":
+        lb = Watchlist(user)
+        return lb, "Watchlist", lb.get_count()
     lb = LBList(user, slug)
     return lb, lb.title, lb.get_count()
 
 @progress_step("Selecting Random Movie from List")
 def get_random_movie_meta(user, slug, count):
     """Fetches a random page from list and picks a movie slug"""
-    list_url = f"{DOMAIN}/{user}/list/{slug}"
+    if slug == "watchlist":
+        list_url = f"{DOMAIN}/{user}/watchlist"
+    else:
+        list_url = f"{DOMAIN}/{user}/list/{slug}"
 
     total_pages = math.ceil(count / MOVIES_PER_PAGE)
     random_page = random.randint(1, total_pages)

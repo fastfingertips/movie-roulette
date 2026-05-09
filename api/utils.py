@@ -33,20 +33,27 @@ def extract_info(val):
     val = re.sub(r"^letterboxd\.com/", "", val)
 
     parts = [p for p in val.split("/") if p]
+    
+    # Handle single username (treat as watchlist)
+    if len(parts) == 1:
+        if parts[0] not in ("films", "lists", "activity", "members"):
+            return parts[0], "watchlist"
 
     # Format: user/list/slug
     if len(parts) >= 3 and parts[1] == "list":
         return parts[0], parts[2]
-    # Format: user/slug or user//slug
+    # Format: user/slug or user/watchlist
     elif len(parts) >= 2:
-        # ignore generic pages like 'films' or 'followers' to avoid bugs if a user inputs something incomplete
+        # ignore generic pages but ALLOW 'watchlist'
+        if parts[1] == "watchlist":
+            return parts[0], "watchlist"
+            
         if parts[1] not in (
             "films",
             "following",
             "followers",
             "reviews",
             "lists",
-            "watchlist",
         ):
             return parts[0], parts[1]
 
