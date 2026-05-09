@@ -20,7 +20,7 @@ def get_list_metadata(user, slug):
     print(f"DEBUG: [LB] Fetching {user}/{slug} from Letterboxd...")
     if slug == "watchlist":
         lb = Watchlist(user)
-        return lb, "Watchlist", lb.get_count()
+        return lb, f"{user}'s Watchlist", lb.get_count()
     lb = LBList(user, slug)
     return lb, lb.title, lb.get_count()
 
