@@ -267,6 +267,17 @@ export const performRandomize = async (urls) => {
 };
 
 
+// --- Global Events ---
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const isInfoVisible = !elements.infoModal.classList.contains('is-hidden');
+        const isStatsVisible = !elements.statsModal.classList.contains('is-hidden');
+        
+        if (isInfoVisible) setView('form');
+        else if (isStatsVisible) setView('result');
+    }
+});
+
 // --- Listeners & Boots ---
 
 $('add-url-btn').addEventListener('click', () => addField(updateUI));
