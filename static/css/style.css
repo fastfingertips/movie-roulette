@@ -315,7 +315,8 @@
             display: flex;
             opacity: 0.5;
         }
-        .stats-trigger:hover { opacity: 1; background: rgba(255,255,255,0.1); color: #fff; }
+        .stats-trigger:hover { background: rgba(0,0,0,0.05); color: var(--color-text); }
+        [data-theme="dark"] .stats-trigger:hover { background: rgba(255,255,255,0.05); color: #fff; }
         .stats-trigger svg { width: 12px; height: 12px; }
 
         .stats-json {
