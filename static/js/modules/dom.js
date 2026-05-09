@@ -12,6 +12,7 @@ export const elements = {
     resMeta: $('result-meta'),
     resStars: $('result-stars'),
     resPoster: $('result-poster'),
+    resPosterLink: $('result-poster-link'),
     resLink: $('result-link'),
     statPool: $('stat-pool'),
     statProb: $('stat-prob'),

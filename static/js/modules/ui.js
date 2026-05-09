@@ -49,6 +49,7 @@ export const renderResult = (data) => {
     elements.resMovie.textContent = data.movie.name;
     elements.resMeta.innerHTML = `<strong>${data.movie.year || ''}</strong> from ${data.list.title}`;
     elements.resLink.href = data.movie.url;
+    elements.resPosterLink.href = data.movie.url;
     
     // 2. Stars rendering
     if (data.movie.rating) {
