@@ -474,9 +474,32 @@
         .is-active-list:hover .icon-default { display: none; }
         .is-active-list:hover .icon-hover { display: block; color: #fe5a5a; }
 
-        .add-field-trigger { width: 100%; height: 46px; background: rgba(0,0,0,0.05); border: none; border-radius: var(--radius-sharp); color: var(--color-text-muted); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); margin-top: 8px; }
-        [data-theme="dark"] .add-field-trigger { background: rgba(255,255,255,0.02); }
-        [data-theme="light"] .add-field-trigger { background: #fff; }
-        .add-field-trigger:hover { background: rgba(0,0,0,0.08); color: var(--color-text); }
-        [data-theme="dark"] .add-field-trigger:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .add-field-trigger { 
+            width: 100%; 
+            height: 46px; 
+            background: rgba(0,0,0,0.02); 
+            border: 1px dashed var(--color-border); 
+            border-radius: var(--radius-sharp); 
+            color: var(--color-text-muted); 
+            font-size: 12px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: var(--transition); 
+            margin-top: 8px; 
+        }
+        [data-theme="dark"] .add-field-trigger { background: rgba(255,255,255,0.01); }
+        .add-field-trigger:hover { 
+            background: rgba(0,0,0,0.05); 
+            border-color: var(--color-text-muted); 
+            color: var(--color-text); 
+        }
+        [data-theme="dark"] .add-field-trigger:hover { 
+            background: rgba(255,255,255,0.03); 
+            border-color: var(--color-text-secondary); 
+            color: #fff; 
+        }
         .add-field-trigger svg { width: 16px; height: 16px; }
