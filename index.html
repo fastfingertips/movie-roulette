@@ -60,39 +60,39 @@
                     </div>
 
                     <div id="result-panel" class="is-hidden result-view">
-                        <div class="result-hero">
-                            <div class="result-poster-container">
-                                <a id="result-poster-link" target="_blank" rel="noopener">
-                                    <img id="result-poster" src="" alt="Movie Poster" class="result-poster">
-                                </a>
+                        <div class="result-hero-wrapper">
+                            <button class="btn-hero-side" id="back-btn" title="Back">
+                                <i data-lucide="arrow-left"></i>
+                            </button>
+
+                            <div class="result-hero">
+                                <div class="result-poster-container">
+                                    <a id="result-poster-link" target="_blank" rel="noopener">
+                                        <img id="result-poster" src="" alt="Movie Poster" class="result-poster">
+                                    </a>
+                                </div>
+                                <div class="result-info">
+                                    <h2 class="result-title" id="result-movie"></h2>
+                                    <p class="result-meta" id="result-meta"></p>
+                                    <div class="result-stars" id="result-stars"></div>
+                                </div>
                             </div>
-                            <div class="result-info">
-                                <h2 class="result-title" id="result-movie"></h2>
-                                <p class="result-meta" id="result-meta"></p>
-                                <div class="result-stars" id="result-stars"></div>
-                            </div>
+
+                            <button class="btn-hero-side btn-hero-side--accent" id="try-again-btn" title="Spin Again">
+                                <i data-lucide="refresh-cw"></i>
+                            </button>
                         </div>
-                        
-                        <div class="result-stats">
+
+                        <a class="btn-action-main" id="result-link" target="_blank" rel="noopener" style="margin-top: 12px;">
+                            <span>Open Letterboxd</span>
+                            <i data-lucide="external-link"></i>
+                        </a>
+
+                        <div class="result-stats" style="margin-top: 12px;">
                             <i data-lucide="info" style="width: 12px; height: 12px; opacity: 0.5;"></i>
                             <span>Chosen from <span id="stat-pool">0</span> movies (<span id="stat-prob">0</span>%)</span>
                             <button class="stats-trigger" id="stats-btn" title="View Technical Stats">
                                 <i data-lucide="terminal"></i>
-                            </button>
-                        </div>
-
-                        <div class="result-actions-row">
-                            <button class="btn-action-side" id="back-btn" title="New Selection">
-                                <i data-lucide="arrow-left"></i>
-                                <span>Back</span>
-                            </button>
-                            <a class="btn-action-main" id="result-link" target="_blank" rel="noopener">
-                                <span>Open Letterboxd</span>
-                                <i data-lucide="external-link"></i>
-                            </a>
-                            <button class="btn-action-side btn-action-side--accent" id="try-again-btn" title="Spin Again">
-                                <i data-lucide="refresh-cw"></i>
-                                <span>Again</span>
                             </button>
                         </div>
                     </div>
