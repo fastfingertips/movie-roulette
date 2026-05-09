@@ -25,11 +25,11 @@
                     <p class="hero__desc">Paste one or more lists. Fate handles the rest.</p>
                 </div>
                 <div class="hero__side header-actions">
-                    <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+                    <button class="icon-btn" id="theme-toggle" name="theme-toggle" title="Toggle Theme">
                         <i data-lucide="sun" class="sun-icon"></i>
                         <i data-lucide="moon" class="moon-icon"></i>
                     </button>
-                    <button class="icon-btn" id="info-btn" title="How it works">
+                    <button class="icon-btn" id="info-btn" name="show-info" title="How it works">
                         <i data-lucide="info"></i>
                     </button>
                 </div>
@@ -44,14 +44,14 @@
                                     <div class="field__number">1</div>
                                     <div class="field__row">
                                         <input class="field__input" type="text" id="url-1" placeholder="Paste your list URL here…" />
-                                        <button type="button" class="field__remove" id="remove-url-1" title="Remove"><i data-lucide="trash-2"></i></button>
+                                        <button type="button" class="field__remove" id="remove-url-1" name="remove-field" title="Remove"><i data-lucide="trash-2"></i></button>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="add-field-trigger" id="add-url-btn">
+                            <button type="button" class="add-field-trigger" id="add-url-btn" name="add-list">
                                 <i data-lucide="plus"></i> Add another list
                             </button>
-                            <button type="submit" class="action-btn" style="margin-top: 10px;">Spin the wheel</button>
+                            <button type="submit" class="action-btn" name="spin-wheel">Spin the wheel</button>
                         </form>
                     </div>
 
@@ -64,7 +64,7 @@
 
                     <div id="result-panel" class="is-hidden result-view">
                         <div class="result-hero-wrapper">
-                            <button class="btn-hero-side" id="back-btn" title="Back">
+                            <button class="btn-hero-side" id="back-btn" name="view-back" title="Back">
                                 <i data-lucide="arrow-left"></i>
                             </button>
 
@@ -81,20 +81,20 @@
                                 </div>
                             </div>
 
-                            <button class="btn-hero-side btn-hero-side--accent" id="try-again-btn" title="Spin Again">
+                            <button class="btn-hero-side btn-hero-side--accent" id="try-again-btn" name="spin-again" title="Spin Again">
                                 <i data-lucide="refresh-cw"></i>
                             </button>
                         </div>
 
-                        <a class="btn-action-main" id="result-link" target="_blank" rel="noopener" style="margin-top: 12px;">
+                        <a class="btn-action-main" id="result-link" name="open-letterboxd" target="_blank" rel="noopener">
                             <span>Open Letterboxd</span>
                             <i data-lucide="external-link"></i>
                         </a>
 
-                        <div class="result-stats" style="margin-top: 12px;">
-                            <i data-lucide="info" style="width: 12px; height: 12px; opacity: 0.5;"></i>
+                        <div class="result-stats" name="stats-panel">
+                            <i data-lucide="info" name="stats-info-icon"></i>
                             <span>Chosen from <span id="stat-pool">0</span> movies (<span id="stat-prob">0</span>%)</span>
-                            <button class="stats-trigger" id="stats-btn" title="View Technical Stats">
+                            <button class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats">
                                 <i data-lucide="terminal"></i>
                             </button>
                         </div>
@@ -114,7 +114,7 @@
                 <section class="history-section is-hidden" id="history-section">
                     <div class="history-header">
                         <span class="history-label">Last 4 Activity</span>
-                        <button class="btn-link" id="clear-history">Clear</button>
+                        <button class="btn-link" id="clear-history" name="clear-history">Clear</button>
                     </div>
                     <div class="history-list" id="history-list"></div>
                 </section>
@@ -140,7 +140,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">How it Works</h2>
-                <button class="btn-link" id="close-modal-btn">Close</button>
+                <button class="btn-link" id="close-modal-btn" name="close-modal">Close</button>
             </div>
             <div class="workflow">
                 <div class="workflow-step">
@@ -182,11 +182,11 @@
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
                 <h2 class="modal-title">Technical Logs</h2>
-                <button class="btn-link" id="close-stats-btn">Close</button>
+                <button class="btn-link" id="close-stats-btn" name="close-modal">Close</button>
             </div>
             <div class="stats-body">
                 <pre class="stats-json" id="stats-json"></pre>
-                <button class="action-btn action-btn--secondary" id="copy-stats-btn" style="width: 100%; margin-top: 16px;">
+                <button class="action-btn action-btn--secondary" id="copy-stats-btn" name="copy-logs">
                     <i data-lucide="copy" style="width: 14px; margin-right: 4px;"></i> Copy Technical Logs
                 </button>
             </div>
