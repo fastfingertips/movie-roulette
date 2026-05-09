@@ -15,12 +15,45 @@ const initTheme = () => {
     document.documentElement.setAttribute('data-theme', savedTheme);
 };
 
-const toggleTheme = () => {
+const toggleTheme = (e) => {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    if (window.lucide) window.lucide.createIcons();
+    
+    // Ripple Effect Logic
+    const toggleBtn = $('theme-toggle');
+    const rect = toggleBtn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.background = newTheme === 'light' ? '#f8fafc' : '#12151f';
+    overlay.style.clipPath = `circle(0% at ${x}px ${y}px)`;
+    overlay.style.transition = 'clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    document.body.appendChild(overlay);
+    
+    // Force reflow
+    overlay.offsetWidth;
+    
+    overlay.style.clipPath = `circle(150% at ${x}px ${y}px)`;
+    
+    setTimeout(() => {
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        if (window.lucide) window.lucide.createIcons();
+        
+        // Let the theme apply, then fade out the overlay
+        overlay.style.transition = 'opacity 0.3s ease';
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
+    }, 600);
 };
 
 initTheme();
