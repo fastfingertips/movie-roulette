@@ -45,10 +45,10 @@ export const formatListUrl = (url) => {
     if (parts.length === 1) return { name: parts[0], type: 'Watchlist' };
     // Format: user/watchlist (Watchlist)
     if (parts.length === 2 && parts[1] === "watchlist") return { name: parts[0], type: 'Watchlist' };
-    // Format: user/list/slug (user's slug)
-    if (parts.length >= 3 && parts[1] === "list") return { name: parts[0], type: 'List' };
-    // Format: user/slug (user's slug)
-    if (parts.length === 2) return { name: parts[0], type: 'List' };
+    // Format: user/list/slug (user/slug)
+    if (parts.length >= 3 && parts[1] === "list") return { name: `${parts[0]}/${parts[2]}`, type: 'List' };
+    // Format: user/slug (user/slug)
+    if (parts.length === 2) return { name: `${parts[0]}/${parts[1]}`, type: 'List' };
     
     return { name: url, type: '' };
 };
