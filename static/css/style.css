@@ -132,7 +132,15 @@
         .is-hidden { display: none !important; }
 
         /* Unified Field & UI Elements */
-        .field { margin-bottom: 12px; display: flex; align-items: center; gap: 14px; position: relative; }
+        @keyframes fieldIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .field { 
+            margin-bottom: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            position: relative; 
+            animation: fieldIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
         .field__number { font-size: 10px; font-weight: 800; color: var(--color-text-muted); width: 14px; text-align: right; flex-shrink: 0; opacity: 0.4; font-family: monospace; }
         .field__row { display: flex; gap: 8px; flex: 1; }
         .field__input { width: 100%; padding: 12px 16px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-sharp); color: var(--color-text); outline: none; transition: var(--transition); font-size: 14px; height: 46px; }
