@@ -162,6 +162,7 @@
         }
         [data-theme="dark"] .field__status { background: rgba(255,255,255,0.05); }
         .field__status.is-visible { opacity: 0.5; transform: translateX(0); }
+        .field__status.is-invalid { opacity: 0.8; color: #fe5a5a; background: rgba(254, 90, 90, 0.1); }
         .field__status:not(.is-visible) { transform: translateX(5px); }
         [data-theme="dark"] .field__input { background: rgba(0,0,0,0.3); color: #fff; }
         .field__input:focus { border-color: var(--color-green); background: #fff; box-shadow: 0 0 0 4px var(--color-green-glow); }

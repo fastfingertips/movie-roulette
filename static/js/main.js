@@ -77,22 +77,34 @@ const toggleTheme = (e) => {
 initTheme();
 
 const detectFieldType = (inputEl) => {
-    let val = inputEl.value.trim().toLowerCase();
+    let rawVal = inputEl.value.trim().toLowerCase();
     const statusEl = inputEl.nextElementSibling;
     if (!statusEl || !statusEl.classList.contains('field__status')) return;
     
-    if (!val) {
-        statusEl.classList.remove('is-visible');
+    if (!rawVal) {
+        statusEl.classList.remove('is-visible', 'is-invalid');
         return;
     }
 
-    // Strip domain if present to analyze path parts
-    val = val.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
+    // Identify external domains (not letterboxd)
+    const isUrl = rawVal.includes('.') || rawVal.includes('http');
+    const isLetterboxd = rawVal.includes('letterboxd.com');
+    
+    if (isUrl && !isLetterboxd) {
+        statusEl.textContent = 'Invalid';
+        statusEl.classList.add('is-visible', 'is-invalid');
+        return;
+    }
+
+    // Analyze Letterboxd path
+    let val = rawVal.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
     const parts = val.split('/').filter(p => p);
     
     const isExplicitWatchlist = val.includes('/watchlist/');
     const isExplicitList = val.includes('/list/');
     
+    statusEl.classList.remove('is-invalid');
+
     if (isExplicitWatchlist || parts.length === 1) {
         statusEl.textContent = 'Watchlist';
         statusEl.classList.add('is-visible');
