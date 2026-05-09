@@ -109,14 +109,18 @@ const detectFieldType = (inputEl) => {
 
     statusEl.classList.remove('is-invalid');
 
-    if (val.includes('/watchlist/') || parts.length === 1) {
+    // Letterboxd identifiers (usernames/slugs) are alphanumeric + underscores/dashes
+    const isValidIdentifier = (s) => /^[a-z0-9_-]+$/.test(s);
+
+    if (val.includes('/watchlist/') || (parts.length === 1 && isValidIdentifier(parts[0]))) {
         statusEl.textContent = 'Watchlist';
         statusEl.classList.add('is-visible');
-    } else if (val.includes('/list/') || parts.length === 2) {
+    } else if (val.includes('/list/') || (parts.length === 2 && parts.every(isValidIdentifier))) {
         statusEl.textContent = 'List';
         statusEl.classList.add('is-visible');
     } else {
-        statusEl.classList.remove('is-visible');
+        statusEl.textContent = 'Invalid';
+        statusEl.classList.add('is-visible', 'is-invalid');
     }
 };
 
