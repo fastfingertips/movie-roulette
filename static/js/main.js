@@ -96,19 +96,23 @@ const detectFieldType = (inputEl) => {
         return;
     }
 
-    // Analyze Letterboxd path
+    // Strict validation: No trailing slashes, clean parts only
     let val = rawVal.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
     const parts = val.split('/').filter(p => p);
     
-    const isExplicitWatchlist = val.includes('/watchlist/');
-    const isExplicitList = val.includes('/list/');
-    
+    // If it ends with a slash or has messy structure, it's invalid
+    if (rawVal.endsWith('/') || (parts.length > 1 && !val.includes('/list/') && parts.length !== 2)) {
+        statusEl.textContent = 'Invalid';
+        statusEl.classList.add('is-visible', 'is-invalid');
+        return;
+    }
+
     statusEl.classList.remove('is-invalid');
 
-    if (isExplicitWatchlist || parts.length === 1) {
+    if (val.includes('/watchlist/') || parts.length === 1) {
         statusEl.textContent = 'Watchlist';
         statusEl.classList.add('is-visible');
-    } else if (isExplicitList || parts.length >= 2) {
+    } else if (val.includes('/list/') || parts.length === 2) {
         statusEl.textContent = 'List';
         statusEl.classList.add('is-visible');
     } else {
