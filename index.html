@@ -81,12 +81,19 @@
                             </button>
                         </div>
 
-                        <div style="display: grid; gap: 8px;">
-                            <a class="action-btn" id="result-link" target="_blank" rel="noopener">Open Letterboxd</a>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="action-btn action-btn--secondary" id="back-btn" style="flex: 1;">New Selection</button>
-                                <button class="action-btn action-btn--secondary" id="try-again-btn" style="flex: 1;">Spin Again</button>
-                            </div>
+                        <div class="result-actions-row">
+                            <button class="btn-action-side" id="back-btn" title="New Selection">
+                                <i data-lucide="arrow-left"></i>
+                                <span>Reset</span>
+                            </button>
+                            <a class="btn-action-main" id="result-link" target="_blank" rel="noopener">
+                                <span>Open Letterboxd</span>
+                                <i data-lucide="external-link"></i>
+                            </a>
+                            <button class="btn-action-side btn-action-side--accent" id="try-again-btn" title="Spin Again">
+                                <i data-lucide="refresh-cw"></i>
+                                <span>Again</span>
+                            </button>
                         </div>
                     </div>
                 </div>
