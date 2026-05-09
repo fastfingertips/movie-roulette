@@ -439,7 +439,7 @@
         .credits__link:hover { color: var(--color-text); border-color: var(--color-text); }
         .credits__link--muted { border-bottom: none; opacity: 0.75; }
         .credits__source { margin-top: 4px; }
-        .credits__powered { margin-top: 12px; font-size: 10px; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.1em; }
+        .credits__powered { margin-top: 12px; font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em; }
 
         @media (max-width: 480px) {
             .credits { 
