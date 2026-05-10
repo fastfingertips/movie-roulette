@@ -1,7 +1,8 @@
-        :root {
+:root {
             --font-ui: 'DM Sans', sans-serif;
             --font-serif: 'Lora', serif;
             --color-bg: #f8fafc;
+            --color-bg-rgb: 248, 250, 252;
             --color-surface: rgba(255, 255, 255, 0.7);
             --color-border: rgba(0, 0, 0, 0.05);
             --color-green: #10b981;
@@ -16,6 +17,7 @@
 
         [data-theme="dark"] {
             --color-bg: #0f1117;
+            --color-bg-rgb: 15, 17, 23;
             --color-surface: rgba(22, 27, 34, 0.65);
             --color-border: rgba(255, 255, 255, 0.06);
             --color-green: #3d7e5e; 
@@ -59,19 +61,53 @@
             flex-direction: column;
             -webkit-font-smoothing: antialiased;
             user-select: none;
+            position: relative;
+        }
+
+        .grid-background {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 64px);
+            z-index: -2;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: 
+                linear-gradient(to bottom, transparent, black 150px),
+                radial-gradient(circle at center, black 20%, transparent 90%);
+            -webkit-mask-image: 
+                linear-gradient(to bottom, transparent, black 150px),
+                radial-gradient(circle at center, black 20%, transparent 90%);
+            mask-composite: intersect;
+            -webkit-mask-composite: source-in;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        [data-theme="dark"] .grid-background { 
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.8; 
         }
 
         .backdrop-wrapper {
             position: absolute;
-            top: 0;
+            top: 64px;
             left: 0;
             width: 100%;
             height: 675px;
             z-index: 0;
             overflow: hidden;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 1s ease;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .backdrop-wrapper.loaded {
+            opacity: 1; /* Fade in when ready */
         }
         .backdropimage {
             position: absolute;
@@ -79,16 +115,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-size: cover;
-            background-position: center center;
+            background-size: auto 100%;
+            background-position: center 20%;
+            background-repeat: no-repeat;
         }
         .backdropmask {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to bottom, transparent 30%, var(--color-bg));
+            background: var(--color-bg);
+            opacity: 1;
+            z-index: 1;
+            pointer-events: none;
+            /* We use a mask on the image below instead of a div on top */
+            mix-blend-mode: normal; 
+            display: none; /* Disabling the old mask div */
         }
-        [data-theme="dark"] .backdropmask {
-            background: linear-gradient(to bottom, rgba(15, 17, 23, 0.3) 0%, var(--color-bg) 100%);
+
+        .backdropimage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: auto 100%;
+            background-position: center 20%;
+            background-repeat: no-repeat;
+            
+            /* The real Letterboxd Magic: Masking */
+            -webkit-mask-image: 
+                linear-gradient(to right, transparent, transparent 0.97%, rgba(0,0,0,0.05) 2.08%, rgba(0,0,0,0.12) 3.3%, rgba(0,0,0,0.2) 4.6%, rgba(0,0,0,0.3) 5.97%, rgba(0,0,0,0.4) 7.2%, rgba(0,0,0,0.5) 8.5%, rgba(0,0,0,0.6) 10.16%, rgba(0,0,0,0.7) 11.5%, rgba(0,0,0,0.8) 12.78%, rgba(0,0,0,0.9) 13.96%, rgba(0,0,0,0.95) 15.02%, rgba(0,0,0,0.98) 15.93%, black 16.67%, black 83.33%, rgba(0,0,0,0.98) 84.07%, rgba(0,0,0,0.95) 84.98%, rgba(0,0,0,0.9) 86.04%, rgba(0,0,0,0.8) 87.22%, rgba(0,0,0,0.7) 88.5%, rgba(0,0,0,0.6) 89.84%, rgba(0,0,0,0.5) 91.2%, rgba(0,0,0,0.4) 92.6%, rgba(0,0,0,0.3) 94.03%, rgba(0,0,0,0.2) 95.4%, rgba(0,0,0,0.12) 96.7%, rgba(0,0,0,0.05) 97.92%, transparent 99.03%, transparent),
+                linear-gradient(to top, transparent, transparent 21.48%, rgba(0,0,0,0.02) 23.64%, rgba(0,0,0,0.05) 26.1%, rgba(0,0,0,0.12) 28.81%, rgba(0,0,0,0.2) 31.71%, rgba(0,0,0,0.3) 34.74%, rgba(0,0,0,0.4) 37.8%, rgba(0,0,0,0.5) 40.97%, rgba(0,0,0,0.6) 44.06%, rgba(0,0,0,0.7) 47.05%, rgba(0,0,0,0.8) 49.88%, rgba(0,0,0,0.88) 52.5%, rgba(0,0,0,0.94) 54.85%, rgba(0,0,0,0.98) 56.88%, black 58.52%);
+            
+            -webkit-mask-size: 1200px 100%, 1200px 100%;
+            -webkit-mask-position: center center, center center;
+            -webkit-mask-repeat: no-repeat, no-repeat;
+            -webkit-mask-composite: source-in;
+            mask-composite: intersect;
         }
 
         input { user-select: text; }
@@ -99,6 +161,7 @@
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
+            padding-top: 104px; /* 64px header + 40px base padding */
             position: relative;
             z-index: 1;
         }
@@ -131,26 +194,46 @@
 
         @media (max-width: 480px) { .card { padding: 32px 24px; gap: 32px; } }
 
-        .hero { 
-            display: grid;
-            grid-template-columns: 80px 1fr 80px;
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            padding: 0 32px;
+            display: flex;
             align-items: center;
-            position: relative; 
-            margin: -48px -48px 8px; 
-            padding: 24px 48px; 
-            background: rgba(0, 0, 0, 0.01); 
+            justify-content: space-between;
+            background: var(--color-bg);
             border-bottom: 1px solid var(--color-border);
-            border-top-left-radius: var(--radius-sharp);
-            border-top-right-radius: var(--radius-sharp);
+            z-index: 100;
         }
-        [data-theme="dark"] .hero { background: rgba(255, 255, 255, 0.01); }
-        .hero__side { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
-        .hero__content { text-align: center; }
-        .hero__title { font-family: var(--font-serif); font-size: 28px; color: var(--color-text); margin-bottom: 4px; letter-spacing: -0.01em; transition: var(--transition); }
-        [data-theme="dark"] .hero__title { color: #fff; }
-        .hero__desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.4; opacity: 0.8; }
-
-        .header-actions { position: static; display: flex; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .site-title {
+            font-family: var(--font-serif);
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .site-title { color: #fff; }
+        .site-divider {
+            color: var(--color-text-muted);
+            opacity: 0.3;
+            font-size: 14px;
+        }
+        .site-desc {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+        .header-actions { display: flex; gap: 4px; }
         .icon-btn { 
             background: none; 
             border: none; 
@@ -167,15 +250,15 @@
             color: var(--color-text); 
         }
         [data-theme="dark"] .icon-btn:hover { color: #fff; }
-        .icon-btn svg { width: 20px; height: 20px; }
+        .icon-btn svg { width: 18px; height: 18px; }
+        .sun-icon { color: #f59e0b; }
+        .moon-icon { color: #6366f1; }
+        .icon-btn:hover .sun-icon { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4)); }
+        .icon-btn:hover .moon-icon { filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4)); }
 
-        #theme-toggle .sun-icon { display: block; color: #f59e0b; opacity: 0.8; transition: var(--transition); }
-        #theme-toggle .moon-icon { display: none; color: #818cf8; opacity: 0.8; transition: var(--transition); }
-        #theme-toggle:hover .sun-icon, 
-        #theme-toggle:hover .moon-icon { opacity: 1; filter: drop-shadow(0 0 4px currentColor); }
-        
         [data-theme="dark"] #theme-toggle .sun-icon { display: none; }
         [data-theme="dark"] #theme-toggle .moon-icon { display: block; }
+        #theme-toggle .moon-icon { display: none; }
 
         .is-hidden { display: none !important; }
 

@@ -12,32 +12,34 @@
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
+    <div class="grid-background"></div>
     <div id="backdrop" class="backdrop-wrapper">
         <div class="backdropimage"></div>
         <div class="backdropmask"></div>
     </div>
+    <header class="site-header">
+        <div class="header-left">
+            <h1 class="site-title">Movie Roulette</h1>
+            <span class="site-divider">•</span>
+            <p class="site-desc">Select random movies from your Letterboxd lists</p>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+            <button class="icon-btn" id="info-btn" title="How it works">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </button>
+        </div>
+    </header>
+
     <div class="page-container">
         <div class="card">
             <div class="toast" id="error-msg">
                 <i data-lucide="alert-circle"></i>
                 <span id="error-text"></span>
             </div>
-            <header class="hero">
-                <div class="hero__side"></div> <!-- Balance Spacer -->
-                <div class="hero__content">
-                    <h1 class="hero__title">Movie Roulette</h1>
-                    <p class="hero__desc">Paste one or more lists. Fate handles the rest.</p>
-                </div>
-                <div class="hero__side header-actions">
-                    <button class="icon-btn" id="theme-toggle" name="theme-toggle" title="Toggle Theme">
-                        <i data-lucide="sun" class="sun-icon"></i>
-                        <i data-lucide="moon" class="moon-icon"></i>
-                    </button>
-                    <button class="icon-btn" id="info-btn" name="show-info" title="How it works">
-                        <i data-lucide="info"></i>
-                    </button>
-                </div>
-            </header>
 
             <div class="main-content">
                 <div id="main-area">

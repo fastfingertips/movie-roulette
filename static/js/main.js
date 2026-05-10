@@ -95,18 +95,26 @@ const shortenUrl = (raw) => {
 };
 
 const updateBackdrop = (url) => {
-    if (!elements.backdropImg) return;
+    if (!elements.backdrop || !elements.backdropImg) return;
+    
     if (url) {
-        elements.backdropImg.style.backgroundImage = `url('${url}')`;
-        elements.backdrop.style.transition = 'opacity 1s ease';
-        elements.backdrop.style.opacity = '1';
+        // Start fade out current backdrop if any
+        elements.backdrop.classList.remove('loaded');
+        
+        // Preload new image
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+            elements.backdropImg.style.backgroundImage = `url('${url}')`;
+            elements.backdrop.classList.add('loaded');
+        };
     } else {
-        elements.backdrop.style.opacity = '0';
+        elements.backdrop.classList.remove('loaded');
         setTimeout(() => {
-            if (elements.backdrop.style.opacity === '0') {
+            if (!elements.backdrop.classList.contains('loaded')) {
                 elements.backdropImg.style.backgroundImage = 'none';
             }
-        }, 1000); // Clear image after fade out
+        }, 1000);
     }
 };
 
