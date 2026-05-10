@@ -512,6 +512,40 @@
         .result-stars svg.star-half { fill: none; } /* Lucide's half-star has its own internal fill/path */
         .result-rating-num { font-size: 13px; font-weight: 700; color: var(--color-text); margin-left: 4px; opacity: 0.9; transition: var(--transition); }
         [data-theme="dark"] .result-rating-num { color: #fff; }
+        
+        .result-tagline {
+            font-size: 0.85rem;
+            font-style: italic;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: none; /* Hidden by default if empty */
+        }
+        .result-tagline.is-visible { display: block; }
+
+        .result-description-container {
+            margin-top: 14px;
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-border) transparent;
+        }
+        .result-description-container::-webkit-scrollbar { width: 4px; }
+        .result-description-container::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+
+        .result-description {
+            font-size: 0.825rem;
+            line-height: 1.6;
+            color: var(--color-text-secondary);
+            text-align: left;
+            opacity: 0.85;
+        }
+        [data-theme="dark"] .result-description { color: #cbd5e1; }
+        @media (max-width: 480px) {
+            .result-description { text-align: center; }
+            .result-description-container { padding-right: 0; }
+        }
 
 
 

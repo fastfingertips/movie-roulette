@@ -48,6 +48,18 @@ export const renderResult = (data) => {
     // 1. Text & Links
     elements.resMovie.textContent = data.movie.name;
     elements.resMeta.innerHTML = `<strong>${data.movie.year || ''}</strong> from ${data.list.title}`;
+    
+    // Tagline
+    if (data.movie.tagline) {
+        elements.resTagline.textContent = data.movie.tagline;
+        elements.resTagline.classList.add('is-visible');
+    } else {
+        elements.resTagline.classList.remove('is-visible');
+    }
+
+    // Description
+    elements.resDescription.textContent = data.movie.description || '';
+
     elements.resLink.href = data.movie.url;
     elements.resPosterLink.href = data.movie.url;
     

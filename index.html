@@ -2,7 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f1117" />
+    
+    <title>Movie Roulette</title>
+    <meta name="description" content="Letterboxd List Randomizer" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://movieroulette.vercel.app/" />
+    <meta property="og:title" content="Movie Roulette" />
+    <meta property="og:description" content="Letterboxd List Randomizer" />
+    <meta property="og:image" content="/static/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://movieroulette.vercel.app/" />
+    <meta property="twitter:title" content="Movie Roulette" />
+    <meta property="twitter:description" content="Letterboxd List Randomizer" />
+    <meta property="twitter:image" content="/static/og-image.png" />
+
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -87,7 +107,11 @@
                                 <div class="result-info">
                                     <h2 class="result-title" id="result-movie"></h2>
                                     <p class="result-meta" id="result-meta"></p>
+                                    <p class="result-tagline" id="result-tagline"></p>
                                     <div class="result-stars" id="result-stars"></div>
+                                    <div class="result-description-container">
+                                        <p class="result-description" id="result-description"></p>
+                                    </div>
                                 </div>
                             </div>
 
