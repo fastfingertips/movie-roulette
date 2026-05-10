@@ -76,14 +76,91 @@ const toggleTheme = () => {
 
 initTheme();
 
+// --- Animated URL Shortening ---
+let isAnimating = false;
+
+const shortenUrl = (raw) => {
+    let val = raw.trim().replace(/\/$/, '').toLowerCase();
+    val = val.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, '');
+    const parts = val.split('/').filter(p => p);
+    // user/watchlist -> user
+    if (parts.length === 2 && parts[1] === 'watchlist') return parts[0];
+    // user/list/slug -> user/slug
+    if (parts.length >= 3 && parts[1] === 'list') return `${parts[0]}/${parts[2]}`;
+    // user/slug -> user/slug
+    if (parts.length === 2) return `${parts[0]}/${parts[1]}`;
+    // user -> user
+    if (parts.length === 1) return parts[0];
+    return null;
+};
+
+const animateShorten = (inputEl, shortForm) => {
+    isAnimating = true;
+    const eraseSpeed = 30;
+    const typeSpeed = 80;
+    
+    const wrapper = inputEl.closest('.field__input-wrapper');
+    const metaEl = wrapper ? wrapper.querySelector('.field__meta') : null;
+    const originalValue = inputEl.value;
+
+    if (metaEl) {
+        metaEl.textContent = originalValue;
+        metaEl.classList.add('is-visible');
+        inputEl.classList.add('has-meta');
+    }
+
+    const eraseInterval = setInterval(() => {
+        if (inputEl.value.length > 0) {
+            inputEl.value = inputEl.value.slice(0, -1);
+        } else {
+            clearInterval(eraseInterval);
+            
+            // Small pause before typing
+            setTimeout(() => {
+                let i = 0;
+                const typeInterval = setInterval(() => {
+                    if (i < shortForm.length) {
+                        inputEl.value += shortForm[i];
+                        i++;
+                    } else {
+                        clearInterval(typeInterval);
+                        isAnimating = false;
+                        detectFieldType(inputEl);
+                    }
+                }, typeSpeed);
+            }, 300);
+        }
+    }, eraseSpeed);
+};
+
 const detectFieldType = (inputEl) => {
+    if (isAnimating) return;
+
     let rawVal = inputEl.value.trim().toLowerCase();
-    const statusEl = inputEl.nextElementSibling;
-    if (!statusEl || !statusEl.classList.contains('field__status')) return;
+    const wrapper = inputEl.closest('.field__input-wrapper');
+    const statusEl = wrapper ? wrapper.querySelector('.field__status') : null;
+    const metaEl = wrapper ? wrapper.querySelector('.field__meta') : null;
+    
+    if (!statusEl) return;
     
     if (!rawVal) {
         statusEl.classList.remove('is-visible', 'is-invalid');
+        if (metaEl) {
+            metaEl.classList.remove('is-visible');
+            metaEl.textContent = '';
+        }
+        inputEl.classList.remove('has-meta');
         return;
+    }
+
+    // Detect full Letterboxd URL and trigger animation
+    const isLetterboxdUrl = /^https?:\/\/(www\.)?letterboxd\.com\//.test(rawVal);
+    if (isLetterboxdUrl) {
+        const short = shortenUrl(rawVal);
+        if (short) {
+            animateShorten(inputEl, short);
+            return;
+        }
     }
 
     // Identify external domains (not letterboxd)
@@ -122,12 +199,27 @@ const detectFieldType = (inputEl) => {
     if (val.includes('/watchlist/') || (parts.length === 1 && isValidIdentifier(parts[0]))) {
         statusEl.textContent = 'Watchlist';
         statusEl.classList.add('is-visible');
+        if (metaEl) {
+            const user = parts[0];
+            metaEl.textContent = `https://letterboxd.com/${user}/watchlist/`;
+            metaEl.classList.add('is-visible');
+            inputEl.classList.add('has-meta');
+        }
     } else if (val.includes('/list/') || (parts.length === 2 && parts.every(isValidIdentifier))) {
         statusEl.textContent = 'List';
         statusEl.classList.add('is-visible');
+        if (metaEl) {
+            const user = parts[0];
+            const list = parts[1] || parts[2];
+            metaEl.textContent = `https://letterboxd.com/${user}/list/${list}/`;
+            metaEl.classList.add('is-visible');
+            inputEl.classList.add('has-meta');
+        }
     } else {
         statusEl.textContent = 'Invalid';
         statusEl.classList.add('is-visible', 'is-invalid');
+        if (metaEl) metaEl.classList.remove('is-visible');
+        inputEl.classList.remove('has-meta');
     }
 };
 
