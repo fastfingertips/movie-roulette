@@ -137,8 +137,11 @@
         [data-theme="dark"] .icon-btn:hover { color: #fff; }
         .icon-btn svg { width: 20px; height: 20px; }
 
-        #theme-toggle .sun-icon { display: block; }
-        #theme-toggle .moon-icon { display: none; }
+        #theme-toggle .sun-icon { display: block; color: #f59e0b; opacity: 0.8; transition: var(--transition); }
+        #theme-toggle .moon-icon { display: none; color: #818cf8; opacity: 0.8; transition: var(--transition); }
+        #theme-toggle:hover .sun-icon, 
+        #theme-toggle:hover .moon-icon { opacity: 1; filter: drop-shadow(0 0 4px currentColor); }
+        
         [data-theme="dark"] #theme-toggle .sun-icon { display: none; }
         [data-theme="dark"] #theme-toggle .moon-icon { display: block; }
 
