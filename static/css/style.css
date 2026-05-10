@@ -119,10 +119,23 @@
         .hero__desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.4; opacity: 0.8; }
 
         .header-actions { position: static; display: flex; }
-        .icon-btn { background: none; border: none; color: var(--color-text-muted); cursor: pointer; transition: var(--transition); padding: 8px; border-radius: var(--radius-sharp); display: flex; align-items: center; justify-content: center; }
-        .icon-btn:hover { color: var(--color-text); background: rgba(0,0,0,0.05); }
-        [data-theme="dark"] .icon-btn:hover { background: rgba(255,255,255,0.05); }
-        .icon-btn svg { width: 18px; height: 18px; }
+        .icon-btn { 
+            background: none; 
+            border: none; 
+            color: var(--color-text-muted); 
+            cursor: pointer; 
+            transition: var(--transition); 
+            padding: 4px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            outline: none;
+        }
+        .icon-btn:hover { 
+            color: var(--color-text); 
+        }
+        [data-theme="dark"] .icon-btn:hover { color: #fff; }
+        .icon-btn svg { width: 20px; height: 20px; }
 
         #theme-toggle .sun-icon { display: block; }
         #theme-toggle .moon-icon { display: none; }
@@ -197,8 +210,23 @@
         [data-theme="dark"] .history-item__name { opacity: 0.8; color: #fff; }
         .history-item:hover .history-item__name { opacity: 1; }
 
-        .field__remove { width: 46px; height: 46px; background: transparent; border: none; border-radius: var(--radius-sharp); color: var(--color-text-muted); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .field__remove:hover { color: #fe5a5a; background: rgba(254, 90, 90, 0.05); }
+        .field__remove { 
+            width: 44px; 
+            height: auto;
+            align-self: stretch; 
+            background: transparent; 
+            border: none; 
+            color: var(--color-text-muted); 
+            cursor: pointer; 
+            transition: var(--transition); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-shrink: 0; 
+            outline: none;
+        }
+        .field__remove:hover { color: #fe5a5a; }
+        .field__remove svg { width: 18px; height: 18px; }
         .field:not(.is-optional) .field__input:placeholder-shown + .field__remove { display: none; }
 
         .action-btn { background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
