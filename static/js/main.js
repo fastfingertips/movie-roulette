@@ -408,6 +408,7 @@ $('randomize-form').addEventListener('submit', async (e) => {
 });
 
 $('try-again-btn').addEventListener('click', () => performRandomize(currentUrlsForRetry));
+$('back-btn').addEventListener('click', () => setView('form'));
 $('add-url-btn').addEventListener('click', () => handleAddField());
 
 // --- Keyboard Shortcuts ---
