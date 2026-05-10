@@ -429,17 +429,22 @@ window.addEventListener('keydown', (e) => {
 // --- Listeners & Boots ---
 
 $('remove-url-1').addEventListener('click', () => {
-    if (getUrlCount() > 1) {
-        $('remove-url-1').closest('.field').remove();
+    const input = $('url-1');
+    if (input.value !== '') {
+        input.value = '';
+        renumberFields();
+    } else if (getUrlCount() > 1) {
+        input.closest('.field').remove();
         setUrlCount(getUrlCount() - 1);
         renumberFields();
-    } else {
-        $('url-1').value = '';
     }
     updateUI();
 });
 
-$('url-1').addEventListener('input', () => updateUI());
+$('url-1').addEventListener('input', () => {
+    renumberFields(); // Sync tooltips as user types
+    updateUI();
+});
 
 $('info-btn').addEventListener('click', () => setView('info'));
 $('close-modal-btn').addEventListener('click', () => setView('form'));

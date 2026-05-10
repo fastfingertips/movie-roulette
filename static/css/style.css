@@ -227,7 +227,16 @@
         }
         .field__remove:hover { color: #fe5a5a; }
         .field__remove svg { width: 18px; height: 18px; }
-        .field:not(.is-optional) .field__input:placeholder-shown + .field__remove { display: none; }
+        .is-single-field .field:not(.is-optional) .field__input-wrapper:has(.field__input:placeholder-shown) + .field__remove { display: none; }
+
+        /* Intent Signals: Visual feedback for Clear vs Remove */
+        .field:has(.field__input:not(:placeholder-shown)):has(.field__remove:hover) .field__input {
+            color: #fe5a5a;
+        }
+        .field:has(.field__input:placeholder-shown):has(.field__remove:hover) .field__input {
+            border-color: rgba(254, 90, 90, 0.5);
+            box-shadow: 0 0 0 4px rgba(254, 90, 90, 0.05);
+        }
 
         .action-btn { background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
         .action-btn:hover { filter: brightness(1.1); }
