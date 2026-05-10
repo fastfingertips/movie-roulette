@@ -336,8 +336,6 @@ window.addEventListener('keydown', (e) => {
 
 // --- Listeners & Boots ---
 
-$('add-url-btn').addEventListener('click', () => addField(updateUI));
-
 $('remove-url-1').addEventListener('click', () => {
     if (getUrlCount() > 1) {
         $('remove-url-1').closest('.field').remove();
