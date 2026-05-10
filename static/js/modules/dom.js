@@ -21,7 +21,9 @@ export const elements = {
     statsJson: $('stats-json'),
     copyStatsBtn: $('copy-stats-btn'),
     error: $('error-msg'),
-    errorText: $('error-text')
+    errorText: $('error-text'),
+    backdrop: $('backdrop'),
+    backdropImg: document.querySelector('.backdropimage')
 };
 
 export const setView = (view) => {

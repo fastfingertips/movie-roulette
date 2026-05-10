@@ -54,6 +54,7 @@ def get_movie_details(slug):
         "slug": profile.slug,
         "url": profile.url,
         "poster": profile.get_poster(),
+        "backdrop": profile.get_banner(),
         "rating": profile.get_rating(),
     }
 

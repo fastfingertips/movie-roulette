@@ -94,6 +94,22 @@ const shortenUrl = (raw) => {
     return null;
 };
 
+const updateBackdrop = (url) => {
+    if (!elements.backdropImg) return;
+    if (url) {
+        elements.backdropImg.style.backgroundImage = `url('${url}')`;
+        elements.backdrop.style.transition = 'opacity 1s ease';
+        elements.backdrop.style.opacity = '1';
+    } else {
+        elements.backdrop.style.opacity = '0';
+        setTimeout(() => {
+            if (elements.backdrop.style.opacity === '0') {
+                elements.backdropImg.style.backgroundImage = 'none';
+            }
+        }, 1000); // Clear image after fade out
+    }
+};
+
 const animateShorten = (inputEl, shortForm) => {
     isAnimating = true;
     const eraseSpeed = 30;
@@ -372,6 +388,7 @@ export const performRandomize = async (urls) => {
         }
         const detailData = await detailRes.json();
         Log.success('Details received', detailData);
+        updateBackdrop(detailData.movie.backdrop);
 
         // 4. Finalizing
         Log.step('4. FINALIZING UI');
@@ -503,7 +520,10 @@ $('randomize-form').addEventListener('submit', async (e) => {
 });
 
 $('try-again-btn').addEventListener('click', () => performRandomize(currentUrlsForRetry));
-$('back-btn').addEventListener('click', () => setView('form'));
+$('back-btn').addEventListener('click', () => {
+    setView('form');
+    updateBackdrop(null); // Dim the backdrop when returning to form
+});
 $('add-url-btn').addEventListener('click', () => handleAddField());
 
 // --- Keyboard Shortcuts ---
