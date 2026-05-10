@@ -1,4 +1,4 @@
-import { $, elements } from './dom.js';
+import { $ } from './dom.js';
 import { createUrlField } from '../components/UrlField.js';
 import { CONFIG } from '../constants.js';
 

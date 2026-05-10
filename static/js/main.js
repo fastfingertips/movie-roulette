@@ -15,7 +15,7 @@ const initTheme = () => {
     document.documentElement.setAttribute('data-theme', savedTheme);
 };
 
-const toggleTheme = (e) => {
+const toggleTheme = () => {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     
@@ -100,7 +100,7 @@ const detectFieldType = (inputEl) => {
     let val = rawVal.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
     const parts = val.split('/').filter(p => p);
     
-    const isExplicitWatchlist = val.includes('/watchlist/');
+    
     const isExplicitList = val.includes('/list/');
 
     // Invalid if:
@@ -217,7 +217,7 @@ export const performRandomize = async (urls) => {
             try { 
                 const errData = JSON.parse(text); 
                 errorMessage = errData.error || errorMessage;
-            } catch(e) { 
+            } catch { 
                 errorMessage = `Server Error (${metaRes.status})`; 
             }
             throw { userFacing: true, message: errorMessage };
@@ -245,7 +245,7 @@ export const performRandomize = async (urls) => {
             try { 
                 const errData = JSON.parse(text); 
                 errorMessage = errData.error || errorMessage;
-            } catch(e) { 
+            } catch { 
                 errorMessage = `Server Error (${selectRes.status})`; 
             }
             throw { userFacing: true, message: errorMessage };
@@ -273,7 +273,7 @@ export const performRandomize = async (urls) => {
             try { 
                 const errData = JSON.parse(text); 
                 errorMessage = errData.error || errorMessage;
-            } catch(e) { 
+            } catch { 
                 errorMessage = `Server Error (${detailRes.status})`; 
             }
             throw { userFacing: true, message: errorMessage };
