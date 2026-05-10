@@ -423,5 +423,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 // --- Initialization ---
+updateUI();
 checkUrlParams((urls) => performRandomize(urls));
 if (window.lucide) window.lucide.createIcons();
