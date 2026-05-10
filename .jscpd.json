@@ -1,0 +1,12 @@
+{
+  "threshold": 5,
+  "reporters": ["console"],
+  "ignore": [
+    "node_modules",
+    ".venv",
+    "package-lock.json",
+    ".git"
+  ],
+  "absolute": true,
+  "gitignore": true
+}

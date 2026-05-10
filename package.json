@@ -5,12 +5,14 @@
     "node": "24.x"
   },
   "scripts": {
-    "lint": "eslint \"static/js/**/*.js\""
+    "lint": "eslint \"static/js/**/*.js\"",
+    "cpd": "jscpd ."
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.0.1",
     "eslint-plugin-html": "^8.1.4",
-    "globals": "^17.3.0"
+    "globals": "^17.3.0",
+    "jscpd": "^4.1.0"
   }
 }
