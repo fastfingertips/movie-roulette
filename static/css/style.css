@@ -358,7 +358,8 @@
         }
 
         .action-btn { background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
-        .action-btn:hover { filter: brightness(1.1); }
+        .action-btn:hover:not(:disabled) { filter: brightness(1.1); }
+        .action-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(0.5); pointer-events: none; }
         .action-btn--secondary { background: transparent; border: none; color: var(--color-text-secondary); margin-top: 8px; }
         
         button[name="spin-wheel"] { margin-top: 10px; }

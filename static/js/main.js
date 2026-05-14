@@ -251,7 +251,15 @@ const detectFieldType = (inputEl) => {
 
 const updateUI = () => {
     renderHistory(handleUseList);
-    document.querySelectorAll('.field__input').forEach(detectFieldType);
+    const inputs = document.querySelectorAll('.field__input');
+    inputs.forEach(detectFieldType);
+
+    // Disable spin button if no URLs are entered
+    const hasValue = Array.from(inputs).some(i => i.value.trim() !== '');
+    const submitBtn = elements.formArea.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = !hasValue;
+    }
 };
 
 const handleUseList = (url) => {
@@ -432,9 +440,9 @@ export const performRandomize = async (urls) => {
         showToast(err.message || 'Processing failed');
         Log.error('Randomization Flow Interrupted', err);
     } finally {
-        submitBtn.disabled = false;
         submitBtn.textContent = 'Spin the wheel';
         resultBtns.forEach(btn => { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; });
+        updateUI();
         Log.info('Flow End / Cleaned up.');
     }
 };
