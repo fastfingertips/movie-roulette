@@ -113,6 +113,14 @@
                                         <p class="result-description" id="result-description"></p>
                                     </div>
                                 </div>
+
+                                <div class="result-stats" name="stats-panel">
+                                    <button class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats">
+                                        <i data-lucide="info"></i>
+                                    </button>
+                                    <span id="stat-pool" class="is-hidden"></span>
+                                    <span id="stat-prob" class="is-hidden"></span>
+                                </div>
                             </div>
 
                             <button class="btn-hero-side btn-hero-side--accent" id="try-again-btn" name="spin-again" title="Spin Again">
@@ -124,14 +132,6 @@
                             <span>Open Letterboxd</span>
                             <i data-lucide="external-link"></i>
                         </a>
-
-                        <div class="result-stats" name="stats-panel">
-                            <i data-lucide="info" name="stats-info-icon"></i>
-                            <span>Chosen from <span id="stat-pool">0</span> movies (<span id="stat-prob">0</span>%)</span>
-                            <button class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats">
-                                <i data-lucide="terminal"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

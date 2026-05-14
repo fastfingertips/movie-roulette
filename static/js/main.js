@@ -1,4 +1,4 @@
-import { $, elements, setView, showError, hideError } from './modules/dom.js';
+import { $, elements, setView, showToast, hideToast } from './modules/dom.js';
 import { renderHistory, renderResult } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
@@ -429,7 +429,7 @@ export const performRandomize = async (urls) => {
     } catch (err) {
         clearInterval(bgIntervals.prg);
         setView('form');
-        showError(err.message || 'Processing failed');
+        showToast(err.message || 'Processing failed');
         Log.error('Randomization Flow Interrupted', err);
     } finally {
         submitBtn.disabled = false;
@@ -515,13 +515,13 @@ const handleAddField = () => {
 
 $('randomize-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    hideError();
+    hideToast();
     const urls = Array.from($('randomize-form').querySelectorAll('input'))
         .map(i => i.value.trim())
         .filter(v => v !== '');
     
     if (urls.length === 0) {
-        showError("Please paste at least one list URL to continue.");
+        showToast("Please paste at least one list URL to continue.");
         return;
     }
     await performRandomize(urls);

@@ -1,4 +1,4 @@
-import { $, elements } from './dom.js';
+import { $, elements, showToast } from './dom.js';
 import { getHistory, getLists } from './storage.js';
 import { createHistoryItem } from '../components/HistoryItem.js';
 import { createRecentListItem } from '../components/RecentListItem.js';
@@ -88,8 +88,12 @@ export const renderResult = (data) => {
     }
     
     // 4. Stats
-    elements.statPool.textContent = data.stats.total_pool.toLocaleString();
-    elements.statProb.textContent = data.stats.probability;
+    if (elements.statPool) elements.statPool.textContent = data.stats.total_pool.toLocaleString();
+    if (elements.statProb) elements.statProb.textContent = data.stats.probability;
+
+    // Trigger notification
+    const statsMsg = `Chosen from ${data.stats.total_pool.toLocaleString()} movies (${data.stats.probability}%)`;
+    showToast(statsMsg, 'info');
 
     // 5. Tech Cache
     window.lastResultData = {

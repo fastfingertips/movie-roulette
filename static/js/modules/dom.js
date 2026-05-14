@@ -37,15 +37,26 @@ export const setView = (view) => {
 };
 
 
-export const showError = (msg) => {
+export const showToast = (msg, type = 'error') => {
+    if (!elements.error || !elements.errorText) return;
+    
     elements.errorText.textContent = msg;
+    elements.error.classList.remove('type-info', 'type-error');
+    elements.error.classList.add(`type-${type}`);
     elements.error.classList.add('is-active');
-    if (window.errorTimeout) clearTimeout(window.errorTimeout);
-    window.errorTimeout = setTimeout(() => {
+    
+    const icon = elements.error.querySelector('i');
+    if (icon) {
+        icon.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'info');
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    if (window.toastTimeout) clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(() => {
         elements.error.classList.remove('is-active');
     }, 4000);
 };
 
-export const hideError = () => {
-    elements.error.classList.remove('is-active');
+export const hideToast = () => {
+    if (elements.error) elements.error.classList.remove('is-active');
 };
