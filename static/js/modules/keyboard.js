@@ -42,5 +42,21 @@ export const initKeyboardShortcuts = (handlers) => {
                 handlers.onAddField();
             }
         }
+
+        // Global Enter: Spin the wheel (if form is valid and not already submitting)
+        if (e.key === 'Enter' && !e.shiftKey) {
+            const isFormVisible = !elements.formArea.classList.contains('is-hidden');
+            const submitBtn = elements.formArea.querySelector('button[type="submit"]');
+            
+            // Only trigger if form is visible and submit button is enabled (at least one URL)
+            if (isFormVisible && submitBtn && !submitBtn.disabled) {
+                // If focus is already on an input/button, browser handles it; 
+                // but if focus is on body/elsewhere, we trigger it manually.
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    if (handlers.onSubmit) handlers.onSubmit();
+                }
+            }
+        }
     });
 };

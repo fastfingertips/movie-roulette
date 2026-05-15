@@ -569,8 +569,7 @@ const handleAddField = () => {
     if (lastInput) lastInput.focus();
 };
 
-$('randomize-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+const handleFormSubmit = async () => {
     hideToast();
     const urls = Array.from($('randomize-form').querySelectorAll('input'))
         .map(i => i.value.trim())
@@ -581,6 +580,11 @@ $('randomize-form').addEventListener('submit', async (e) => {
         return;
     }
     await performRandomize(urls);
+};
+
+$('randomize-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleFormSubmit();
 });
 
 $('try-again-btn').addEventListener('click', () => performRandomize(currentUrlsForRetry));
@@ -601,7 +605,8 @@ initKeyboardShortcuts({
         const link = $('result-link');
         if (link && link.href) window.open(link.href, '_blank');
     },
-    onAddField: () => handleAddField()
+    onAddField: () => handleAddField(),
+    onSubmit: () => handleFormSubmit()
 });
 
 updateUI();
