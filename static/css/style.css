@@ -118,28 +118,6 @@
             background-size: auto 100%;
             background-position: center 20%;
             background-repeat: no-repeat;
-        }
-        .backdropmask {
-            position: absolute;
-            inset: 0;
-            background: var(--color-bg);
-            opacity: 1;
-            z-index: 1;
-            pointer-events: none;
-            /* We use a mask on the image below instead of a div on top */
-            mix-blend-mode: normal; 
-            display: none; /* Disabling the old mask div */
-        }
-
-        .backdropimage {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: auto 100%;
-            background-position: center 20%;
-            background-repeat: no-repeat;
             
             /* The real Letterboxd Magic: Masking */
             -webkit-mask-image: 
@@ -187,12 +165,9 @@
             backface-visibility: hidden;
             will-change: transform, opacity;
         }
-        .card { box-shadow: 0 20px 60px rgba(0,0,0,0.03); }
         [data-theme="dark"] .card { box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
 
         .main-content { max-width: 540px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 20px; }
-
-        @media (max-width: 480px) { .card { padding: 32px 24px; gap: 24px; } }
 
         .site-header {
             position: fixed;
@@ -247,7 +222,6 @@
             outline: none;
         }
         .icon-btn:hover { 
-            color: var(--color-text); 
             color: var(--color-text); 
         }
         [data-theme="dark"] .icon-btn:hover { color: #fff; }
@@ -877,18 +851,7 @@
             opacity: 0.85;
         }
         [data-theme="dark"] .result-description { color: #cbd5e1; }
-        @media (max-width: 480px) {
-            .result-description { text-align: center; }
-            .result-description-container { padding-right: 0; }
-        }
 
-
-
-        @media (max-width: 480px) {
-            .result-hero { flex-direction: column; text-align: center; gap: 16px; }
-            .result-poster-container { width: 125px; height: 187px; }
-            .result-title { font-size: 22px; }
-        }
         
 
 
@@ -1047,22 +1010,7 @@
         .credits__link--muted { border-bottom: none; opacity: 0.75; }
         .credits__powered { opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
 
-        @media (max-width: 480px) {
-            .credits { 
-                margin: 8px -24px -32px; 
-                padding: 14px 24px; 
-            }
-            .credits__content { white-space: normal; font-size: 10px; line-height: 1.4; }
-            .credits__sep { margin: 0 4px; }
-            .hero {
-                margin: -32px -24px 8px;
-                padding: 24px;
-                grid-template-columns: 40px 1fr 40px;
-            }
-            .header-actions {
-                justify-content: flex-end;
-            }
-        }
+
         
         /* Active State for Recent Lists */
         .history-item.is-active-list .history-item__name { color: var(--color-green); opacity: 0.6 !important; }
@@ -1103,3 +1051,26 @@
             color: #fff; 
         }
         .add-field-trigger svg { width: 16px; height: 16px; }
+
+        @media (max-width: 480px) {
+            .card { padding: 32px 24px; gap: 24px; }
+            .result-description { text-align: center; }
+            .result-description-container { padding-right: 0; }
+            .result-hero { flex-direction: column; text-align: center; gap: 16px; }
+            .result-poster-container { width: 125px; height: 187px; }
+            .result-title { font-size: 22px; }
+            .credits { 
+                margin: 8px -24px -32px; 
+                padding: 14px 24px; 
+            }
+            .credits__content { white-space: normal; font-size: 10px; line-height: 1.4; }
+            .credits__sep { margin: 0 4px; }
+            .hero {
+                margin: -32px -24px 8px;
+                padding: 24px;
+                grid-template-columns: 40px 1fr 40px;
+            }
+            .header-actions {
+                justify-content: flex-end;
+            }
+        }
