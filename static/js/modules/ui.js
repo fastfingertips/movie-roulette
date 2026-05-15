@@ -1,4 +1,4 @@
-import { $, elements, showToast } from './dom.js';
+import { $, elements } from './dom.js';
 import { getHistory, getLists } from './storage.js';
 import { createHistoryItem } from '../components/HistoryItem.js';
 import { createRecentListItem } from '../components/RecentListItem.js';

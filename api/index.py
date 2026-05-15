@@ -12,8 +12,6 @@ from .scraper import (
 from .utils import extract_info, get_error_msg
 
 
-
-
 app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
 
 
@@ -25,7 +23,6 @@ def index():
 @app.route("/api/metadata", methods=["POST"])
 @app.route("/metadata", methods=["POST"])
 def api_metadata():
-
     try:
         urls = [u.strip() for u in (request.json or {}).get("urls", []) if u.strip()]
         print(f"DEBUG: [START] api_metadata with {len(urls)} urls")
@@ -64,11 +61,9 @@ def api_metadata():
         return jsonify({"error": get_error_msg(e)}), 500
 
 
-
 @app.route("/api/select", methods=["POST"])
 @app.route("/select", methods=["POST"])
 def api_select():
-
     try:
         lists = request.json.get("lists", [])
         total = request.json.get("total", 0)
@@ -99,11 +94,9 @@ def api_select():
         return jsonify({"error": get_error_msg(e)}), 500
 
 
-
 @app.route("/api/details", methods=["POST"])
 @app.route("/details", methods=["POST"])
 def api_details():
-
     try:
         slug = request.json.get("slug")
         if not slug:

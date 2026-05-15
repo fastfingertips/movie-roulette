@@ -13,7 +13,6 @@ from .constants import MOVIES_PER_PAGE
 from .utils import progress_step
 
 
-
 @progress_step("Fetching List Metadata")
 def get_list_metadata(user, slug):
     """Returns (lb_instance, title, count)"""
@@ -23,6 +22,7 @@ def get_list_metadata(user, slug):
         return lb, f"{user}'s Watchlist", lb.get_count()
     lb = LBList(user, slug)
     return lb, lb.title, lb.get_count()
+
 
 @progress_step("Selecting Random Movie from List")
 def get_random_movie_meta(user, slug, count):

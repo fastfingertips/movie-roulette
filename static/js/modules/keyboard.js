@@ -1,4 +1,4 @@
-import { $, elements, setView } from './dom.js';
+import { elements, setView } from './dom.js';
 
 /**
  * Initializes global keyboard shortcuts
