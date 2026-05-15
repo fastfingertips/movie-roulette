@@ -5,6 +5,7 @@ import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './
 import { addField, renumberFields, getUrlCount, setUrlCount } from './modules/fields.js';
 import { checkUrlParams } from './modules/utils.js';
 import { CONFIG } from './constants.js';
+import { initKeyboardShortcuts } from './modules/keyboard.js';
 
 let bgIntervals = { slot: null, prg: null };
 let currentUrlsForRetry = [];
@@ -506,48 +507,6 @@ export const performRandomize = async (urls) => {
 };
 
 
-// --- Global Events ---
-window.addEventListener('keydown', (e) => {
-    // Navigation & Modal Controls
-    if (e.key === 'Escape') {
-        const isInfoVisible = !elements.infoModal.classList.contains('is-hidden');
-        const isStatsVisible = !elements.statsModal.classList.contains('is-hidden');
-        const isResultVisible = !elements.resultArea.classList.contains('is-hidden');
-        
-        if (isInfoVisible) setView('form');
-        else if (isStatsVisible) setView('result');
-        else if (isResultVisible) {
-            setView('form');
-            updateBackdrop(null);
-        }
-    }
-
-    // Result View Shortcuts
-    const isResultActive = !elements.resultArea.classList.contains('is-hidden');
-    if (isResultActive) {
-        if (e.key.toLowerCase() === 'r') {
-            performRandomize(currentUrlsForRetry);
-        }
-        if (e.key.toLowerCase() === 'l') {
-            const link = $('result-link');
-            if (link && link.href) window.open(link.href, '_blank');
-        }
-    }
-
-    // Shift + Enter: Add another list
-    if (e.shiftKey && e.key === 'Enter') {
-        // If the button itself is focused, let its own click listener handle it
-        if (e.target.id === 'add-url-btn') return;
-
-        const isFormVisible = !elements.formArea.classList.contains('is-hidden');
-        if (isFormVisible) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            handleAddField();
-        }
-    }
-});
-
 // --- Listeners & Boots ---
 
 $('remove-url-1').addEventListener('click', () => {
@@ -632,6 +591,19 @@ $('back-btn').addEventListener('click', () => {
 $('add-url-btn').addEventListener('click', () => handleAddField());
 
 // --- Initialization ---
+initKeyboardShortcuts({
+    onBack: () => {
+        setView('form');
+        updateBackdrop(null);
+    },
+    onRetry: () => performRandomize(currentUrlsForRetry),
+    onOpen: () => {
+        const link = $('result-link');
+        if (link && link.href) window.open(link.href, '_blank');
+    },
+    onAddField: () => handleAddField()
+});
+
 updateUI();
 checkUrlParams((urls) => performRandomize(urls));
 if (window.lucide) window.lucide.createIcons();
