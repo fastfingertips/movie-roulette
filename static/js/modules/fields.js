@@ -32,10 +32,10 @@ export const renumberFields = () => {
         
         if (i === 0) {
             field.classList.remove('is-optional');
-            input.placeholder = "Paste your list URL here…";
+            input.placeholder = "URL, username, or user/list-slug…";
         } else {
             field.classList.add('is-optional');
-            input.placeholder = "(Optional) Another list URL…";
+            input.placeholder = "(Optional) URL, username, or slug…";
         }
 
         const isEmpty = input.value.trim() === '';
