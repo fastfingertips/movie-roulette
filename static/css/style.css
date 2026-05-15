@@ -479,18 +479,18 @@
         /* Notifications / Toast */
         .toast { 
             position: absolute; 
-            top: 0; 
+            top: 20px; 
             left: 50%; 
-            transform: translateX(-50%) translateY(0); 
-            background: var(--color-surface); 
+            transform: translateX(-50%) translateY(-20px) scale(0.95); 
+            background: rgba(255, 255, 255, 0.7); 
             backdrop-filter: blur(20px) saturate(180%); 
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid var(--color-border); 
-            color: var(--color-text); 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            font-weight: 700; 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            color: #000; 
+            padding: 10px 18px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            font-weight: 600; 
             z-index: 1000; 
             opacity: 0; 
             pointer-events: none; 
@@ -498,28 +498,24 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             white-space: nowrap;
         }
-        .toast.type-error {
-            background: rgba(254, 90, 90, 0.08); 
-            border-color: rgba(254, 90, 90, 0.3); 
-            color: #fe5a5a; 
+        [data-theme="dark"] .toast { 
+            background: rgba(30, 30, 30, 0.75); 
+            border-color: rgba(255, 255, 255, 0.1); 
+            color: #fff; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        [data-theme="dark"] .toast.type-error {
-            background: rgba(40, 15, 15, 0.85); 
+        .toast.type-error svg { color: #fe5a5a; }
+        .toast.type-info svg { color: var(--color-green); }
+        
+        .toast.is-active { 
+            opacity: 1; 
+            transform: translateX(-50%) translateY(0) scale(1); 
+            pointer-events: auto; 
         }
-        .toast.type-info {
-            background: var(--color-green-glow); 
-            border-color: rgba(0, 224, 84, 0.15); 
-            color: var(--color-green); 
-        }
-        [data-theme="dark"] .toast.type-info {
-            background: rgba(15, 30, 20, 0.85); 
-            border-color: rgba(0, 224, 84, 0.2);
-        }
-        .toast.is-active { opacity: 1; transform: translateX(-50%) translateY(-50%); pointer-events: auto; }
-        .toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .toast svg { width: 14px; height: 14px; flex-shrink: 0; }
 
         .modal-content { 
             background: var(--color-bg); 

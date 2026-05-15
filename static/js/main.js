@@ -600,7 +600,7 @@ const handleShareMix = () => {
 
     navigator.clipboard.writeText(shareUrl).then(() => {
         const isMix = urls.length > 1;
-        showToast(`${isMix ? 'Mix' : 'Link'} copied to clipboard!`);
+        showToast(`${isMix ? 'Mix' : 'Link'} copied to clipboard!`, 'info');
         
         const shareBtn = $('share-blend-btn');
         const btnTextNode = shareBtn.querySelector('.btn-text');
