@@ -248,6 +248,27 @@ const detectFieldType = (inputEl) => {
     }
 };
 
+// --- URL Sync ---
+let urlSyncTimer = null;
+
+const syncUrlToAddressBar = () => {
+    clearTimeout(urlSyncTimer);
+    urlSyncTimer = setTimeout(() => {
+        const inputs = document.querySelectorAll('.field__input');
+        const urls = Array.from(inputs)
+            .map(i => i.value.trim())
+            .filter(v => v !== '');
+        
+        const url = new URL(window.location.href);
+        if (urls.length > 0) {
+            url.searchParams.set('url', urls.join(','));
+        } else {
+            url.searchParams.delete('url');
+        }
+        window.history.replaceState({}, '', url.toString());
+    }, 300);
+};
+
 // --- Global UI Logic ---
 
 const updateUI = () => {
@@ -261,6 +282,8 @@ const updateUI = () => {
     if (submitBtn) {
         submitBtn.disabled = !hasValue;
     }
+
+    syncUrlToAddressBar();
 };
 
 const handleUseList = (url) => {

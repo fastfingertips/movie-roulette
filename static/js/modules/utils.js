@@ -7,7 +7,7 @@ export const checkUrlParams = (onReady) => {
     
     const shouldRun = params.get('run') !== '0' && params.get('auto') !== '0';
 
-    ['url', 'urls', 'list', 'lists'].forEach(key => {
+    ['url', 'urls', 'src', 'sources', 'list', 'lists'].forEach(key => {
         params.getAll(key).forEach(val => {
             val.split(',').forEach(v => {
                 if (v.trim()) providedUrls.add(v.trim());
