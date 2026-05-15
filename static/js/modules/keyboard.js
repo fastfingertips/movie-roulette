@@ -28,6 +28,9 @@ export const initKeyboardShortcuts = (handlers) => {
             if (e.key.toLowerCase() === 'l' && handlers.onOpen) {
                 handlers.onOpen();
             }
+            if (e.key.toLowerCase() === 's' && handlers.onShare) {
+                handlers.onShare();
+            }
         }
 
         // Shift + Enter: Add another list

@@ -5,6 +5,8 @@ export const checkUrlParams = (onReady) => {
     const params = new URLSearchParams(window.location.search);
     const providedUrls = new Set();
     
+    const shouldRun = params.get('run') !== '0' && params.get('auto') !== '0';
+
     ['url', 'urls', 'list', 'lists'].forEach(key => {
         params.getAll(key).forEach(val => {
             val.split(',').forEach(v => {
@@ -29,8 +31,8 @@ export const checkUrlParams = (onReady) => {
         // Clean up URL to prevent accidental re-runs on refresh
         window.history.replaceState({}, document.title, window.location.pathname);
         
-        // Trigger the callback with the extracted URLs
-        onReady(urlsToRun);
+        // Trigger the callback with extracted data
+        onReady({ urls: urlsToRun, shouldRun });
     }
 };
 

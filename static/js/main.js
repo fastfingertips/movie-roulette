@@ -487,6 +487,7 @@ export const performRandomize = async (urls) => {
 
         Log.info('Rendering result...', finalData);
         renderResult(finalData);
+        updateShareButtonText();
         setView('result');
         saveHistory(finalData);
         saveRecentLists(urls);
@@ -587,6 +588,47 @@ $('randomize-form').addEventListener('submit', (e) => {
     handleFormSubmit();
 });
 
+const handleShareMix = () => {
+    const urls = Array.from($('randomize-form').querySelectorAll('input'))
+        .map(i => i.value.trim())
+        .filter(v => v !== '');
+    
+    if (urls.length === 0) return;
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?url=${encodeURIComponent(urls.join(','))}`;
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        const isMix = urls.length > 1;
+        showToast(`${isMix ? 'Mix' : 'Link'} copied to clipboard!`);
+        
+        const shareBtn = $('share-blend-btn');
+        const btnTextNode = shareBtn.querySelector('.btn-text');
+        if (btnTextNode) {
+            const originalText = btnTextNode.textContent;
+            btnTextNode.textContent = 'Copied!';
+            setTimeout(() => {
+                btnTextNode.textContent = originalText;
+            }, 2000);
+        }
+    });
+};
+
+const updateShareButtonText = () => {
+    const urls = Array.from($('randomize-form').querySelectorAll('input'))
+        .map(i => i.value.trim())
+        .filter(v => v !== '');
+    
+    const shareBtn = $('share-blend-btn');
+    const btnTextNode = shareBtn.querySelector('.btn-text');
+    if (shareBtn && btnTextNode) {
+        const isMix = urls.length > 1;
+        btnTextNode.textContent = isMix ? 'Share this Mix' : 'Share';
+        shareBtn.title = isMix ? 'Share this Mix' : 'Share';
+    }
+};
+
+$('share-blend-btn').addEventListener('click', () => handleShareMix());
 $('try-again-btn').addEventListener('click', () => performRandomize(currentUrlsForRetry));
 $('back-btn').addEventListener('click', () => {
     setView('form');
@@ -605,10 +647,13 @@ initKeyboardShortcuts({
         const link = $('result-link');
         if (link && link.href) window.open(link.href, '_blank');
     },
+    onShare: () => handleShareMix(),
     onAddField: () => handleAddField(),
     onSubmit: () => handleFormSubmit()
 });
 
 updateUI();
-checkUrlParams((urls) => performRandomize(urls));
+checkUrlParams(({ urls, shouldRun }) => {
+    if (shouldRun) performRandomize(urls);
+});
 if (window.lucide) window.lucide.createIcons();

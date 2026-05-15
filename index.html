@@ -134,10 +134,16 @@
                         </div>
 
                         <a class="btn-action-main" id="result-link" name="open-letterboxd" target="_blank" rel="noopener">
-                            <span>Open Letterboxd</span>
+                            <span class="btn-text">Open Letterboxd</span>
                             <i data-lucide="external-link"></i>
                             <span class="btn-hint">L</span>
                         </a>
+
+                        <button class="btn-action-main btn-action-main--share" id="share-blend-btn" title="Share this Mix">
+                            <span class="btn-text">Share this Mix</span>
+                            <i data-lucide="share-2"></i>
+                            <span class="btn-hint">S</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -181,38 +187,102 @@
 
     <!-- How it Works Popup -->
     <div id="info-modal" class="modal-overlay is-hidden">
-        <div class="modal-content">
+        <div class="modal-content modal-content--wide">
             <div class="modal-header">
                 <h2 class="modal-title">How it Works</h2>
                 <button class="btn-link" id="close-modal-btn" name="close-modal">Close</button>
             </div>
-            <div class="workflow">
-                <div class="workflow-step">
-                    <div class="step-num">1</div>
-                    <div class="step-body">
-                        <h4>Input Lists</h4>
-                        <p>Paste a Letterboxd list URL, type a username for their Watchlist, or use a shorthand like <code>user/list-slug</code>. You can combine up to 5 sources. Press <code>Shift + Enter</code> to quickly add more fields.</p>
+            <div class="modal-grid">
+                <div class="modal-panel">
+                    <div class="workflow">
+                        <div class="workflow-step">
+                            <div class="step-num">1</div>
+                            <div class="step-body">
+                                <h4>Input Methods</h4>
+                                <p>You can add up to 5 sources using different formats:</p>
+                                <ul class="step-list">
+                                    <li><strong>Username:</strong> <a href="https://letterboxd.com/bugracoskun/" target="_blank" class="inline-link">bugracoskun</a> → spins from their Watchlist.</li>
+                                    <li><strong>Shorthand:</strong> <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" class="inline-link">official/letterboxds-top-500-films</a> → loads a specific list.</li>
+                                    <li><strong>Full URL:</strong> Paste any link like <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" class="inline-link">letterboxd.com/official/list/top-500...</a> directly.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-num">2</div>
+                            <div class="step-body">
+                                <h4>Field Detection</h4>
+                                <p>Each field is validated as you type:</p>
+                                <ul class="step-list">
+                                    <li>Shows a <strong>Watchlist</strong> or <strong>List</strong> badge instantly next to the field.</li>
+                                    <li>Marks <strong>Invalid</strong> entries (wrong domains, incomplete paths) with a red indicator.</li>
+                                    <li>Displays the resolved full URL below the input for confirmation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-num">3</div>
+                            <div class="step-body">
+                                <h4>How Selection Works</h4>
+                                <p>When you hit spin:</p>
+                                <ul class="step-list">
+                                    <li>A random page is picked from the list, then a random film from that page.</li>
+                                    <li>Works with lists of any size, including 5,000+ entries.</li>
+                                    <li>Film details (poster, rating, backdrop) are fetched separately.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-num">4</div>
+                            <div class="step-body">
+                                <h4>Auto-Shorten</h4>
+                                <p>When you paste a full Letterboxd URL:</p>
+                                <ul class="step-list">
+                                    <li>The URL is erased character by character with a typewriter effect.</li>
+                                    <li>Then the short form (e.g. <code>bugracoskun/turkish</code>) is typed back in.</li>
+                                    <li>The original full URL is preserved below the input as a reference.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="workflow-step">
-                    <div class="step-num">2</div>
-                    <div class="step-body">
-                        <h4>Smart Selection</h4>
-                        <p>Our optimized engine picks a random page and film instantly. This keeps things lightning-fast, even for lists with 5,000+ movies.</p>
-                    </div>
-                </div>
-                <div class="workflow-step">
-                    <div class="step-num">3</div>
-                    <div class="step-body">
-                        <h4>Quick Shortcuts</h4>
-                        <p>Bypass the UI by adding <code>?url=username</code> or <code>?url=user/list/slug</code> to the address bar for instant spins.</p>
-                    </div>
-                </div>
-                <div class="workflow-step">
-                    <div class="step-num">4</div>
-                    <div class="step-body">
-                        <h4>Local History</h4>
-                        <p>Your recent choices are saved locally on your device. We never store your data on our servers.</p>
+                <div class="modal-panel">
+                    <div class="workflow">
+                        <div class="workflow-step">
+                            <div class="step-num">5</div>
+                            <div class="step-body">
+                                <h4>Sharing & Mix</h4>
+                                <p>Create shareable links from your list combinations:</p>
+                                <ul class="step-list">
+                                    <li><strong>Share Link:</strong> Generates a unique URL containing all your current lists — recipients get an instant spin.</li>
+                                    <li><strong>URL Format:</strong> <code>?url=bugracoskun/turkish,bugracoskun</code> — supports up to 5 comma-separated sources.</li>
+                                    <li><strong>Browse-only:</strong> Append <code>&run=0</code> to load lists without auto-spinning.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-num">6</div>
+                            <div class="step-body">
+                                <h4>History & Quick Access</h4>
+                                <p>Your lists and results are saved locally:</p>
+                                <ul class="step-list">
+                                    <li><strong>Recent Lists:</strong> Previously used lists appear below the form — click any to instantly load it.</li>
+                                    <li><strong>Activity Log:</strong> Your last 4 spins are saved with timestamps, film names, and poster art.</li>
+                                    <li><strong>One-Click Reuse:</strong> Tap a recent list to auto-fill it into the next available field.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-num">7</div>
+                            <div class="step-body">
+                                <h4>Privacy & Security</h4>
+                                <p>All data is stored in your browser:</p>
+                                <ul class="step-list">
+                                    <li><strong>100% Local:</strong> All history and mixes are stored in your browser's localStorage.</li>
+                                    <li><strong>No Tracking:</strong> No analytics, no cookies, no server-side storage of any kind.</li>
+                                    <li><strong>Open Source:</strong> The entire codebase is <a href="https://github.com/fastfingertips/movie-roulette" target="_blank" style="color: var(--color-green);">publicly available</a> for inspection.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
