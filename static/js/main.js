@@ -299,16 +299,77 @@ const Log = {
 
 // --- API Execution ---
 
+// --- Sequential Cleanup ---
+
+const cleanEmptyFields = async () => {
+    const fields = Array.from(document.querySelectorAll('.field'));
+    const emptyFields = fields.filter(f => f.querySelector('input').value.trim() === '');
+    
+    // Don't remove if it's the only field
+    if (emptyFields.length === 0 || fields.length === 1) return;
+
+    Log.info(`Cleaning ${emptyFields.length} empty fields sequentially...`);
+
+    // Remove empty fields one-by-one with staggered animation
+    for (const f of emptyFields) {
+        f.classList.add('is-removing');
+        renumberFields();
+        updateUI();
+
+        f.style.maxHeight = f.scrollHeight + 'px';
+        f.style.overflow = 'hidden';
+        f.style.transition = 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+        f.offsetHeight;
+
+        requestAnimationFrame(() => {
+            f.style.opacity = '0';
+            f.style.transform = 'translateX(60px) scale(0.9)';
+            f.style.filter = 'blur(20px)';
+            f.style.maxHeight = '0';
+            f.style.marginTop = '0';
+            f.style.marginBottom = '0';
+            f.style.paddingTop = '0';
+            f.style.paddingBottom = '0';
+            f.style.pointerEvents = 'none';
+        });
+
+        await new Promise(r => setTimeout(r, 600));
+    }
+
+    await new Promise(r => setTimeout(r, 700));
+
+    emptyFields.forEach(f => f.remove());
+    setUrlCount(document.querySelectorAll('.field').length);
+    renumberFields();
+    
+    await new Promise(r => setTimeout(r, 600));
+};
+
 export const performRandomize = async (urls) => {
+    // 0. Start UI Cleanup AND Metadata Fetch in parallel
+    const cleanupTask = cleanEmptyFields();
+    
+    // Start Step 1 fetch immediately (optimistic start)
+    const metaFetchPromise = fetch('/api/metadata', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ urls }) 
+    });
+
     Log.info('Booting Randomizer...', { urls });
     currentUrlsForRetry = urls;
     const submitBtn = elements.formArea.querySelector('button[type="submit"]');
     const resultBtns = elements.resultArea.querySelectorAll('.action-btn');
     
-    // UI Loading state
+    // UI Loading state (button only for now)
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Processing...';
+    const btnTextNode = submitBtn.querySelector('.btn-text');
+    if (btnTextNode) btnTextNode.textContent = 'Processing...';
     resultBtns.forEach(btn => { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; });
+
+    // WAIT for the animation to finish before showing the full loading view
+    await cleanupTask;
+
     elements.bar.style.width = '0%';
     setView('loading');
     
@@ -321,16 +382,12 @@ export const performRandomize = async (urls) => {
     try {
         const startTime = Date.now();
 
-        // 1. Fetch Metadata (Honest Progress)
+        // 1. Await Metadata (Started earlier)
         Log.step('1. FETCH METADATA');
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[1];
-        Log.info('Requesting metadata...', { urls });
+        Log.info('Awaiting metadata fetch result...');
         
-        const metaRes = await fetch('/api/metadata', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ urls }) 
-        });
+        const metaRes = await metaFetchPromise;
         
         Log.info(`Response Status: ${metaRes.status}`);
         
@@ -440,7 +497,8 @@ export const performRandomize = async (urls) => {
         showToast(err.message || 'Processing failed');
         Log.error('Randomization Flow Interrupted', err);
     } finally {
-        submitBtn.textContent = 'Spin the wheel';
+        const btnTextNode = submitBtn.querySelector('.btn-text');
+        if (btnTextNode) btnTextNode.textContent = 'Spin the wheel';
         resultBtns.forEach(btn => { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; });
         updateUI();
         Log.info('Flow End / Cleaned up.');
@@ -450,12 +508,43 @@ export const performRandomize = async (urls) => {
 
 // --- Global Events ---
 window.addEventListener('keydown', (e) => {
+    // Navigation & Modal Controls
     if (e.key === 'Escape') {
         const isInfoVisible = !elements.infoModal.classList.contains('is-hidden');
         const isStatsVisible = !elements.statsModal.classList.contains('is-hidden');
+        const isResultVisible = !elements.resultArea.classList.contains('is-hidden');
         
         if (isInfoVisible) setView('form');
         else if (isStatsVisible) setView('result');
+        else if (isResultVisible) {
+            setView('form');
+            updateBackdrop(null);
+        }
+    }
+
+    // Result View Shortcuts
+    const isResultActive = !elements.resultArea.classList.contains('is-hidden');
+    if (isResultActive) {
+        if (e.key.toLowerCase() === 'r') {
+            performRandomize(currentUrlsForRetry);
+        }
+        if (e.key.toLowerCase() === 'l') {
+            const link = $('result-link');
+            if (link && link.href) window.open(link.href, '_blank');
+        }
+    }
+
+    // Shift + Enter: Add another list
+    if (e.shiftKey && e.key === 'Enter') {
+        // If the button itself is focused, let its own click listener handle it
+        if (e.target.id === 'add-url-btn') return;
+
+        const isFormVisible = !elements.formArea.classList.contains('is-hidden');
+        if (isFormVisible) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            handleAddField();
+        }
     }
 });
 
@@ -541,17 +630,6 @@ $('back-btn').addEventListener('click', () => {
     updateBackdrop(null); // Dim the backdrop when returning to form
 });
 $('add-url-btn').addEventListener('click', () => handleAddField());
-
-// --- Keyboard Shortcuts ---
-document.addEventListener('keydown', (e) => {
-    if (e.shiftKey && e.key === 'Enter') {
-        const activeEl = document.activeElement;
-        if (activeEl && activeEl.classList.contains('field__input')) {
-            e.preventDefault();
-            handleAddField();
-        }
-    }
-});
 
 // --- Initialization ---
 updateUI();

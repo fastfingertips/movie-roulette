@@ -9,9 +9,24 @@ export const setUrlCount = (val) => { urlCount = val; };
 export const getUrlCount = () => urlCount;
 
 export const renumberFields = () => {
-    const fields = $('url-fields').querySelectorAll('.field');
+    const fields = Array.from($('url-fields').querySelectorAll('.field'))
+        .filter(f => !f.classList.contains('is-removing'));
     fields.forEach((field, i) => {
-        field.querySelector('.field__number').textContent = i + 1;
+        const numEl = field.querySelector('.field__number');
+        const newNum = i + 1;
+        const oldNum = parseInt(numEl.textContent);
+
+        // Trigger shift-up arrow animation if position changed
+        if (oldNum && oldNum !== newNum) {
+            numEl.classList.add('is-shifting');
+            setTimeout(() => {
+                numEl.textContent = newNum;
+                numEl.classList.remove('is-shifting');
+            }, 800); 
+        } else if (!oldNum || oldNum !== newNum) {
+            numEl.textContent = newNum;
+        }
+
         const input = field.querySelector('input');
         const btn = field.querySelector('.field__remove');
         

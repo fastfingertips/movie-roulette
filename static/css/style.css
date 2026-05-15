@@ -273,7 +273,39 @@
             position: relative; 
             animation: fieldIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .field__number { font-size: 10px; font-weight: 800; color: var(--color-text-muted); width: 14px; text-align: right; flex-shrink: 0; opacity: 0.4; font-family: monospace; }
+        .field__number { 
+            font-size: 10px; 
+            font-weight: 800; 
+            color: var(--color-text-muted); 
+            width: 24px; 
+            text-align: right; 
+            flex-shrink: 0; 
+            opacity: 0.4; 
+            font-family: monospace; 
+            position: relative;
+            transition: opacity 0.2s, color 0.2s;
+            z-index: 2;
+        }
+        .field__number.is-shifting {
+            color: transparent;
+            opacity: 0.8;
+        }
+        .field__number.is-shifting::after {
+            content: '↑';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--color-green);
+            animation: shiftUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            font-size: 18px;
+            font-weight: 900;
+        }
+        @keyframes shiftUp {
+            0% { opacity: 0; transform: translate(-50%, 30%); }
+            50% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -130%); }
+        }
         .field__row { display: flex; gap: 8px; flex: 1; }
         .field__input-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
         .field__meta {
@@ -357,12 +389,33 @@
             box-shadow: 0 0 0 4px rgba(254, 90, 90, 0.05);
         }
 
-        .action-btn { background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
+        .action-btn { position: relative; background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
         .action-btn:hover:not(:disabled) { filter: brightness(1.1); }
         .action-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(0.5); pointer-events: none; }
         .action-btn--secondary { background: transparent; border: none; color: var(--color-text-secondary); margin-top: 8px; }
         
         button[name="spin-wheel"] { margin-top: 10px; }
+        .add-field-trigger { position: relative; width: 100%; padding: 12px 16px; background: transparent; border: 1px dashed var(--color-border); border-radius: var(--radius-sharp); color: var(--color-text-muted); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; }
+        
+        /* Keyboard Shortcut Hints */
+        .btn-hint { 
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px; 
+            opacity: 0.5; 
+            padding: 2px 6px; 
+            background: rgba(0,0,0,0.08); 
+            border-radius: 4px; 
+            font-family: monospace; 
+            text-transform: none; 
+            letter-spacing: 0;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        [data-theme="dark"] .btn-hint { background: rgba(255,255,255,0.1); }
+        
         button[name="copy-logs"] { width: 100%; margin-top: 16px; }
         a[name="open-letterboxd"] { margin-top: 12px; }
         div[name="stats-panel"] { margin-top: 12px; }
@@ -370,17 +423,24 @@
 
         /* Result View Actions Row */
         .result-actions-row { display: flex; gap: 8px; margin-top: 8px; }
-        .btn-action-main { width: 100%; height: 46px; background: var(--color-green); color: #fff; border: none; border-radius: var(--radius-sharp); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition); }
+        .btn-action-main { position: relative; width: 100%; height: 46px; background: var(--color-green); color: #fff; border: none; border-radius: var(--radius-sharp); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition); }
         .btn-action-main:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-action-main svg { width: 16px; height: 16px; opacity: 0.8; }
 
         .result-hero-wrapper { display: flex; align-items: stretch; gap: 8px; margin-bottom: 0; }
-        .btn-hero-side { width: 44px; background: rgba(0,0,0,0.05); border: none; border-radius: var(--radius-sharp); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
+        .btn-hero-side { position: relative; width: 44px; background: rgba(0,0,0,0.05); border: none; border-radius: var(--radius-sharp); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
         [data-theme="dark"] .btn-hero-side { background: rgba(255,255,255,0.03); }
         .btn-hero-side:hover { background: rgba(0,0,0,0.08); color: var(--color-text); }
         [data-theme="dark"] .btn-hero-side:hover { background: rgba(255,255,255,0.08); color: #fff; }
         .btn-hero-side svg { width: 18px; height: 18px; }
         .btn-hero-side--accent { color: var(--color-green); }
+        .btn-hero-side .btn-hint {
+            right: 4px;
+            top: 4px;
+            transform: none;
+            font-size: 8px;
+            padding: 1px 3px;
+        }
         .btn-hero-side--accent:hover { background: var(--color-green-glow); }
 
         /* Modal / Overlay */
