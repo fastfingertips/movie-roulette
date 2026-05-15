@@ -91,9 +91,34 @@ export const renderResult = (data) => {
     if (elements.statPool) elements.statPool.textContent = data.stats.total_pool.toLocaleString();
     if (elements.statProb) elements.statProb.textContent = data.stats.probability;
 
-    // Trigger notification
-    const statsMsg = `Chosen from ${data.stats.total_pool.toLocaleString()} movies (${data.stats.probability}%)`;
-    showToast(statsMsg, 'info');
+    // Trigger contextual notification from stats button with a slight delay
+    const popToast = $('stats-pop-toast');
+    if (popToast) {
+        popToast.textContent = `Chosen from ${data.stats.total_pool.toLocaleString()} movies (${data.stats.probability}%)`;
+        popToast.classList.remove('is-active', 'is-closing');
+        
+        if (window.statsPopTimeout) clearTimeout(window.statsPopTimeout);
+        
+        // Wait for result view transition to finish
+        setTimeout(() => {
+            popToast.classList.add('is-active');
+            
+            window.statsPopTimeout = setTimeout(() => {
+                popToast.classList.remove('is-active');
+                popToast.classList.add('is-closing');
+                
+                // Trigger swallow/gulp effect on the icon when toast arrives
+                setTimeout(() => {
+                    const btn = $('stats-btn');
+                    if (btn) {
+                        btn.classList.add('is-gulping');
+                        setTimeout(() => btn.classList.remove('is-gulping'), 600);
+                    }
+                    popToast.classList.remove('is-closing');
+                }, 450);
+            }, 4000);
+        }, 400);
+    }
 
     // 5. Tech Cache
     window.lastResultData = {
