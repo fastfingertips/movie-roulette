@@ -1066,6 +1066,7 @@
         .is-active-list:hover .icon-hover { display: block; color: #fe5a5a; }
 
         .add-field-trigger { 
+            position: relative;
             width: 100%; 
             height: 46px; 
             background: rgb(0,0,0,0.02); 
