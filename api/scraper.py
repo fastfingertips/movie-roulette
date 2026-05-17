@@ -48,6 +48,28 @@ def get_random_movie_meta(user, slug, count):
 def get_movie_details(slug):
     """Uses MovieProfile to get high-speed rich data"""
     profile = MovieProfile(slug)
+
+    # Extract director from crew (include name and url)
+    crew = profile.get_crew()
+    directors = [
+        {"name": d["name"], "url": d.get("url")} for d in crew.get("director", [])
+    ]
+
+    # Extract top cast (limit to 5, include name and url)
+    cast_raw = profile.get_cast()
+    cast = [
+        {"name": c["name"], "role_name": c.get("role_name"), "url": c.get("url")}
+        for c in cast_raw[:5]
+    ]
+
+    # Extract genre names (only actual genres, include name and url)
+    genres_raw = profile.get_genres()
+    genres = [
+        {"name": g["name"], "url": g.get("url")}
+        for g in genres_raw
+        if g.get("type") == "genre"
+    ]
+
     return {
         "name": profile.get_title(),
         "year": profile.get_year(),
@@ -58,6 +80,9 @@ def get_movie_details(slug):
         "rating": profile.get_rating(),
         "description": profile.get_description(),
         "tagline": profile.get_tagline(),
+        "genres": genres,
+        "cast": cast,
+        "directors": directors,
     }
 
 

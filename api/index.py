@@ -125,5 +125,5 @@ def legacy_api():
 
 
 if __name__ == "__main__":
-    print(f"🚀 Starting server from: {ROOT_DIR}")
+    print(f"[SERVER] Starting server from: {ROOT_DIR}")
     app.run(port=PORT, debug=True)

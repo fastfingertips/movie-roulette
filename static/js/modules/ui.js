@@ -46,9 +46,23 @@ export const renderHistory = (useListCallback) => {
 
 export const renderResult = (data) => {
     // 1. Text & Links
-    elements.resMovie.textContent = data.movie.name;
-    elements.resMeta.innerHTML = `<strong>${data.movie.year || ''}</strong> from ${data.list.title}`;
+    // Render name and year inline (like Letterboxd)
+    elements.resMovie.innerHTML = `${data.movie.name} <span class="result-year">${data.movie.year || ''}</span>`;
+    elements.resMeta.innerHTML = `from ${data.list.title}`;
     
+    // Director (immediately under meta, styled inline/beautifully)
+    if (elements.resDirector) {
+        if (data.movie.directors?.length) {
+            const directorLinks = data.movie.directors.map(d => 
+                d.url ? `<a href="${d.url}" target="_blank" rel="noopener" class="detail-link">${d.name}</a>` : d.name
+            ).join(', ');
+            elements.resDirector.innerHTML = `<span class="detail-label">Directed by</span> ${directorLinks}`;
+            elements.resDirector.classList.remove('is-hidden');
+        } else {
+            elements.resDirector.classList.add('is-hidden');
+        }
+    }
+
     // Tagline
     if (data.movie.tagline) {
         elements.resTagline.textContent = data.movie.tagline;
@@ -59,6 +73,35 @@ export const renderResult = (data) => {
 
     // Description
     elements.resDescription.textContent = data.movie.description || '';
+
+    // Director, Cast, Genres section toggle
+    const hasDetails = data.movie.cast?.length || data.movie.genres?.length;
+    if (elements.resDetails) {
+        elements.resDetails.classList.toggle('is-hidden', !hasDetails);
+    }
+
+    if (elements.resCast) {
+        if (data.movie.cast?.length) {
+            const castLinks = data.movie.cast.map(c => 
+                c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="detail-link">${c.name}</a>` : c.name
+            ).join(', ');
+            elements.resCast.innerHTML = `<span class="detail-label">Cast</span> ${castLinks}`;
+            elements.resCast.classList.remove('is-hidden');
+        } else {
+            elements.resCast.classList.add('is-hidden');
+        }
+    }
+
+    if (elements.resGenres) {
+        if (data.movie.genres?.length) {
+            elements.resGenres.innerHTML = data.movie.genres.map(g =>
+                g.url ? `<a href="${g.url}" target="_blank" rel="noopener" class="genre-pill">${g.name}</a>` : `<span class="genre-pill">${g.name}</span>`
+            ).join('');
+            elements.resGenres.classList.remove('is-hidden');
+        } else {
+            elements.resGenres.classList.add('is-hidden');
+        }
+    }
 
     elements.resLink.href = data.movie.url;
     elements.resPosterLink.href = data.movie.url;
