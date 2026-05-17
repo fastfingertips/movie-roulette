@@ -129,6 +129,15 @@ export const renderResult = (data) => {
         elements.resPoster.src = '';
         elements.resPoster.classList.add('is-hidden');
     }
+
+    // 4. Layout adjustment when no details are present (to horizontally center the poster)
+    const hasAnyDetails = !!(data.movie.tagline || data.movie.description || data.movie.cast?.length || data.movie.genres?.length);
+    if (elements.resInfo) {
+        elements.resInfo.classList.toggle('is-hidden', !hasAnyDetails);
+    }
+    if (elements.resBodyBlock) {
+        elements.resBodyBlock.classList.toggle('has-no-details', !hasAnyDetails);
+    }
     
     // 4. Stats
     if (elements.statPool) elements.statPool.textContent = data.stats.total_pool.toLocaleString();

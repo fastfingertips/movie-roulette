@@ -801,6 +801,24 @@
         .card:has(#result-view:not(.is-hidden)) {
             max-width: 760px;
             padding: 24px 32px; /* Snug fit to prevent page overflows */
+            transition: max-width 0.3s ease;
+        }
+
+        /* If there are no details, keep the card narrow, compact, and perfectly centered */
+        .card:has(#result-body-block.has-no-details) {
+            max-width: 480px;
+        }
+        .card:has(#result-body-block.has-no-details) .result-header-block {
+            text-align: center;
+            border-bottom: none; /* Seamless poster transition */
+            padding-bottom: 0;
+        }
+        .card:has(#result-body-block.has-no-details) .result-title {
+            justify-content: center;
+        }
+        .card:has(#result-body-block.has-no-details) .result-hero {
+            align-items: center; /* Center director line */
+            gap: 16px;
         }
 
         .result-hero {
@@ -832,6 +850,9 @@
             width: 100%;
             align-items: center; /* Centered vertically relative to the movie details card */
         }
+        .result-body-block.has-no-details {
+            justify-content: center;
+        }
 
         .result-poster-container {
             width: 120px;
@@ -840,6 +861,13 @@
             flex-direction: column;
             align-items: center; /* Horizontally center poster and stars */
             justify-content: center; /* Vertically center content */
+        }
+
+        .result-body-block.has-no-details .result-poster-container,
+        .result-body-block.has-no-details .result-poster,
+        .result-body-block.has-no-details #result-poster-link {
+            width: 140px;
+            height: 210px;
         }
 
         .result-poster {
