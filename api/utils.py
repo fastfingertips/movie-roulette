@@ -4,6 +4,12 @@ import time
 from functools import wraps
 
 
+LETTERBOXD_UNAVAILABLE_MESSAGE = (
+    "Don't worry—this isn't an issue on your side. Letterboxd is temporarily "
+    "blocking requests from our server. Please try again later."
+)
+
+
 def progress_step(name):
     """Decorator to log and time specific backend operations"""
 
@@ -28,6 +34,11 @@ def progress_step(name):
 
 def extract_info(val):
     val = val.strip().lower()
+    if re.match(r"^https?://", val) and not re.match(
+        r"^https?://(www\.)?letterboxd\.com/", val
+    ):
+        return None, None
+
     # Clean up standard URL prefixes
     val = re.sub(r"^https?://(www\.)?letterboxd\.com/", "", val)
     val = re.sub(r"^letterboxd\.com/", "", val)
@@ -62,6 +73,11 @@ def extract_info(val):
 
 def get_error_msg(e):
     msg = str(e)
+    if any(
+        marker in msg.lower()
+        for marker in ("ip or vpn blocked", "letterboxd is blocking this request")
+    ):
+        return LETTERBOXD_UNAVAILABLE_MESSAGE
     try:
         # Check if the message itself is a JSON string
         data = json.loads(msg)

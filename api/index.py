@@ -31,24 +31,25 @@ def api_metadata():
 
         list_data = []
         for url in urls:
-            try:
-                user, slug = extract_info(url)
-                if user:
-                    print(f"DEBUG: [FETCH] Metadata for {user}/{slug}...")
-                    # We only need the counts and names here
-                    _, title, count = get_list_metadata(user, slug)
-                    if count > 0:
-                        list_data.append(
-                            {"user": user, "slug": slug, "title": title, "count": count}
-                        )
-                    print(f"DEBUG: [RESULT] Found {count} items in {title}")
-            except Exception as e:
-                print(f"DEBUG: [ERROR] Skipping {url} - {str(e)}")
-                continue
+            user, slug = extract_info(url)
+            if not user:
+                return jsonify({"error": "Invalid list URL"}), 400
 
-        if not list_data:
-            print("DEBUG: [FINISH] api_metadata -> No valid lists found")
-            return jsonify({"error": "No valid movies found in provided lists"}), 404
+            try:
+                print(f"DEBUG: [FETCH] Metadata for {user}/{slug}...")
+                # We only need the counts and names here
+                _, title, count = get_list_metadata(user, slug)
+            except Exception as e:
+                print(f"DEBUG: [ERROR] Metadata failed for {url} - {str(e)}")
+                return jsonify({"error": get_error_msg(e)}), 500
+
+            if count <= 0:
+                return jsonify({"error": "One of the lists is empty"}), 422
+
+            list_data.append(
+                {"user": user, "slug": slug, "title": title, "count": count}
+            )
+            print(f"DEBUG: [RESULT] Found {count} items in {title}")
 
         print(f"DEBUG: [FINISH] api_metadata -> Success ({len(list_data)} lists)")
         return jsonify(

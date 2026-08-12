@@ -1,5 +1,5 @@
 flask==3.1.3
-letterboxdpy
+letterboxdpy==6.5.7
 beautifulsoup4==4.14.3
 requests==2.33.1
 curl-cffi==0.15.0
