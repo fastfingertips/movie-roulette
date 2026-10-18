@@ -51,9 +51,16 @@ export const showToast = (msg, type = 'error') => {
     elements.error.classList.add(`type-${type}`);
     elements.error.classList.add('is-active');
     
-    const icon = elements.error.querySelector('i');
+    const iconName = type === 'error' ? 'alert-circle' : 'info';
+    const icon = elements.error.querySelector('[data-lucide], svg.lucide');
     if (icon) {
-        icon.setAttribute('data-lucide', type === 'error' ? 'alert-circle' : 'info');
+        if (icon.tagName.toLowerCase() === 'svg') {
+            const newIcon = document.createElement('i');
+            newIcon.setAttribute('data-lucide', iconName);
+            icon.replaceWith(newIcon);
+        } else {
+            icon.setAttribute('data-lucide', iconName);
+        }
         if (window.lucide) window.lucide.createIcons();
     }
 
