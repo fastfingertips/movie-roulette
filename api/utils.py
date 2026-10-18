@@ -82,16 +82,7 @@ def extract_info(val):
 def get_error_response(e):
     """Maps exceptions to user-facing messages and HTTP status codes."""
     if isinstance(e, PrivateRouteError):
-        raw_msg = e.message if hasattr(e, "message") and e.message else ""
-        if (
-            not raw_msg
-            or any(
-                marker in raw_msg.lower()
-                for marker in ("falken", "game", "classified", "permission denied")
-            )
-        ):
-            return "This user's watchlist or list is private on Letterboxd.", 403
-        return raw_msg, 403
+        return "This user's watchlist or list is private on Letterboxd.", 403
 
     if isinstance(e, ResourceNotFoundError):
         return "The requested list or user could not be found on Letterboxd.", 404
@@ -114,8 +105,3 @@ def get_error_response(e):
             return json.loads(msg.split("\n")[0]).get("message", msg), 500
         except Exception:
             return msg, 500
-
-
-def get_error_msg(e):
-    """Backward-compatible helper returning only the message string."""
-    return get_error_response(e)[0]
