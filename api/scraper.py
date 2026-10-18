@@ -28,10 +28,10 @@ def get_list_metadata(user, slug):
 def get_random_movie_meta(user, slug, count):
     """Fetches a random page from list and picks a movie slug"""
     if slug == "watchlist":
-        list_url = f"{DOMAIN}/{user}/watchlist"
+        list_url = f"{DOMAIN}/{user}/watchlist/"
         per_page = MOVIES_PER_PAGE_WATCHLIST
     else:
-        list_url = f"{DOMAIN}/{user}/list/{slug}"
+        list_url = f"{DOMAIN}/{user}/list/{slug}/"
         per_page = MOVIES_PER_PAGE_LIST
 
     total_pages = math.ceil(count / per_page)
