@@ -34,6 +34,9 @@ def progress_step(name):
 
 def extract_info(val):
     val = val.strip().lower()
+    # Strip query parameters and URL fragments
+    val = re.sub(r"[?#].*$", "", val)
+
     if re.match(r"^https?://", val) and not re.match(
         r"^https?://(www\.)?letterboxd\.com/", val
     ):
