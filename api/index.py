@@ -9,7 +9,7 @@ from .scraper import (
     get_movie_details,
     get_random_movie_meta,
 )
-from .utils import extract_info, get_error_msg
+from .utils import extract_info, get_error_response
 
 
 app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
@@ -41,7 +41,8 @@ def api_metadata():
                 _, title, count = get_list_metadata(user, slug)
             except Exception as e:
                 print(f"DEBUG: [ERROR] Metadata failed for {url} - {str(e)}")
-                return jsonify({"error": get_error_msg(e)}), 500
+                msg, status = get_error_response(e)
+                return jsonify({"error": msg}), status
 
             if count <= 0:
                 return jsonify({"error": "One of the lists is empty"}), 422
@@ -59,7 +60,8 @@ def api_metadata():
     except Exception as e:
         print("DEBUG: [CRITICAL] api_metadata crashed!")
         traceback.print_exc()
-        return jsonify({"error": get_error_msg(e)}), 500
+        msg, status = get_error_response(e)
+        return jsonify({"error": msg}), status
 
 
 @app.route("/api/select", methods=["POST"])
@@ -87,12 +89,21 @@ def api_select():
         meta = get_random_movie_meta(
             selected["user"], selected["slug"], selected["count"]
         )
+        if not meta:
+            return (
+                jsonify(
+                    {"error": "Failed to pick a movie from the selected list. Please try again."}
+                ),
+                502,
+            )
+
         print(f"DEBUG: [FINISH] api_select -> Success ({meta['name']})")
         return jsonify({"meta": meta, "list": selected})
     except Exception as e:
         print("DEBUG: [CRITICAL] api_select crashed!")
         traceback.print_exc()
-        return jsonify({"error": get_error_msg(e)}), 500
+        msg, status = get_error_response(e)
+        return jsonify({"error": msg}), status
 
 
 @app.route("/api/details", methods=["POST"])
@@ -105,7 +116,8 @@ def api_details():
         movie = get_movie_details(slug)
         return jsonify({"movie": movie})
     except Exception as e:
-        return jsonify({"error": get_error_msg(e)}), 500
+        msg, status = get_error_response(e)
+        return jsonify({"error": msg}), status
 
 
 if __name__ == "__main__":

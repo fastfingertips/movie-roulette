@@ -3,6 +3,11 @@ import re
 import time
 from functools import wraps
 
+from letterboxdpy.core.exceptions import (
+    AccessDeniedError,
+    PrivateRouteError,
+    ResourceNotFoundError,
+)
 
 LETTERBOXD_UNAVAILABLE_MESSAGE = (
     "Don't worry—this isn't an issue on your side. Letterboxd is temporarily "
@@ -74,20 +79,35 @@ def extract_info(val):
     return None, None
 
 
-def get_error_msg(e):
+def get_error_response(e):
+    """Maps exceptions to user-facing messages and HTTP status codes."""
+    if isinstance(e, PrivateRouteError):
+        msg = e.message if hasattr(e, "message") and e.message else "This list or watchlist is private on Letterboxd."
+        return msg, 403
+
+    if isinstance(e, ResourceNotFoundError):
+        return "The requested list or user could not be found on Letterboxd.", 404
+
+    if isinstance(e, AccessDeniedError):
+        return LETTERBOXD_UNAVAILABLE_MESSAGE, 503
+
     msg = str(e)
     if any(
         marker in msg.lower()
         for marker in ("ip or vpn blocked", "letterboxd is blocking this request")
     ):
-        return LETTERBOXD_UNAVAILABLE_MESSAGE
+        return LETTERBOXD_UNAVAILABLE_MESSAGE, 503
+
     try:
-        # Check if the message itself is a JSON string
         data = json.loads(msg)
-        return data.get("message", msg)
+        return data.get("message", msg), 500
     except Exception:
         try:
-            # letterboxdpy sometimes throws JSON-structured errors in the first line
-            return json.loads(msg.split("\n")[0]).get("message", msg)
+            return json.loads(msg.split("\n")[0]).get("message", msg), 500
         except Exception:
-            return msg
+            return msg, 500
+
+
+def get_error_msg(e):
+    """Backward-compatible helper returning only the message string."""
+    return get_error_response(e)[0]
