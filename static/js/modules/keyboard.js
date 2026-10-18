@@ -22,6 +22,10 @@ export const initKeyboardShortcuts = (handlers) => {
         // Result View Shortcuts
         const isResultActive = !elements.resultArea.classList.contains('is-hidden');
         if (isResultActive) {
+            // Prevent overriding native browser shortcuts (e.g. Ctrl+R to reload, Ctrl+L to focus URL bar, Ctrl+S to save)
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
             if (e.key.toLowerCase() === 'r' && handlers.onRetry) {
                 handlers.onRetry();
             }
