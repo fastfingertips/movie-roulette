@@ -1,7 +1,7 @@
 # Movie Roulette 🎬
 
 ![Python](https://img.shields.io/badge/python-3.12-blue?style=flat-square&logo=python)
-![Flask](https://img.shields.io/badge/flask-2.3.3-black?style=flat-square&logo=flask)
+![Flask](https://img.shields.io/badge/flask-3.1.3-black?style=flat-square&logo=flask)
 ![Vercel](https://img.shields.io/badge/vercel-deployed-black?style=flat-square&logo=vercel)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
