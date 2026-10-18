@@ -108,23 +108,6 @@ def api_details():
         return jsonify({"error": get_error_msg(e)}), 500
 
 
-@app.route("/api", methods=["POST"])
-def legacy_api():
-    # Keep original for backward compatibility but use new logic flow
-    # This won't have the granular progress but will still work
-    try:
-        # Reuse internal steps
-        meta_res = api_metadata().get_json()
-        if "error" in meta_res:
-            return jsonify(meta_res), 500
-
-        api_select().get_json()  # Trigger logic even if result unused currently
-        return jsonify({"error": "Please update your client to use granular API"}), 426
-
-    except Exception as e:
-        return jsonify({"error": get_error_msg(e)}), 500
-
-
 if __name__ == "__main__":
     print(f"[SERVER] Starting server from: {ROOT_DIR}")
     app.run(port=PORT, debug=True)

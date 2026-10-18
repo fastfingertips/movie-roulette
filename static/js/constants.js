@@ -1,5 +1,4 @@
 export const CONFIG = {
-    API_ENDPOINT: '/api',
     MAX_URLS: 5,
     MAX_RETRIES: 2,
     RETRY_DELAY_MS: 500,
