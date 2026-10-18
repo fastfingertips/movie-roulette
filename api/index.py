@@ -1,5 +1,4 @@
 import logging
-import random
 
 from flask import Flask, jsonify, request
 
@@ -8,6 +7,7 @@ from .scraper import (
     get_list_metadata,
     get_movie_details,
     get_random_movie_meta,
+    pick_weighted_list,
 )
 from .utils import extract_info, get_error_response
 
@@ -44,7 +44,7 @@ def api_metadata():
 
             try:
                 # We only need the counts and names here
-                _, title, count = get_list_metadata(user, slug)
+                title, count = get_list_metadata(user, slug)
             except Exception as e:
                 logger.warning("Metadata fetch failed for %s - %s", url, e)
                 msg, status = get_error_response(e)
@@ -79,14 +79,9 @@ def api_select():
             return jsonify({"error": "No lists"}), 400
 
         # Pick a list weighted by size
-        target_index = random.randint(0, total - 1)
-        selected = None
-        current_sum = 0
-        for item in lists:
-            current_sum += item["count"]
-            if target_index < current_sum:
-                selected = item
-                break
+        selected = pick_weighted_list(lists, total)
+        if not selected:
+            return jsonify({"error": "Failed to pick a list"}), 400
 
         logger.debug("Selected list: %s/%s", selected["user"], selected["slug"])
         # Get random movie meta

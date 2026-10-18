@@ -14,12 +14,30 @@ from .utils import progress_step
 
 @progress_step("Fetching List Metadata")
 def get_list_metadata(user, slug):
-    """Returns (instance, title, count)"""
+    """Returns (title, count)"""
     if slug == "watchlist":
         watchlist = UserWatchlist(user)
-        return watchlist, f"{user}'s Watchlist", watchlist.get_count()
+        return f"{user}'s Watchlist", watchlist.get_count()
     user_list = UserList(user, slug)
-    return user_list, user_list.get_title(), user_list.get_count()
+    return user_list.get_title(), user_list.get_count()
+
+
+def pick_weighted_list(lists, total=None):
+    """Selects a list item weighted proportionally by its movie count."""
+    if not lists:
+        return None
+    if total is None or total <= 0:
+        total = sum(item.get("count", 0) for item in lists)
+    if total <= 0:
+        return random.choice(lists)
+
+    target_index = random.randint(0, total - 1)
+    current_sum = 0
+    for item in lists:
+        current_sum += item.get("count", 0)
+        if target_index < current_sum:
+            return item
+    return lists[-1]
 
 
 @progress_step("Selecting Random Movie from List")
