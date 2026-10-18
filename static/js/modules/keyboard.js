@@ -1,4 +1,5 @@
-import { elements, setView } from './dom.js';
+import { elements } from './dom.js';
+import { setView } from './ui.js';
 
 /**
  * Initializes global keyboard shortcuts

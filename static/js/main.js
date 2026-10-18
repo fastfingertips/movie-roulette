@@ -1,5 +1,5 @@
-import { $, elements, setView, showToast, hideToast } from './modules/dom.js';
-import { renderHistory, renderResult } from './modules/ui.js';
+import { $, elements } from './modules/dom.js';
+import { renderHistory, renderResult, setView, showToast, hideToast } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType } from './modules/fields.js';
