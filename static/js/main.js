@@ -5,6 +5,7 @@ import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './
 import { addField, renumberFields, getUrlCount, setUrlCount } from './modules/fields.js';
 import { checkUrlParams } from './modules/utils.js';
 import { initTheme, toggleTheme } from './modules/theme.js';
+import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
 import { CONFIG } from './constants.js';
 import { initKeyboardShortcuts } from './modules/keyboard.js';
 
@@ -310,11 +311,7 @@ export const performRandomize = async (urls) => {
     const cleanupTask = cleanEmptyFields();
     
     // Start Step 1 fetch immediately (optimistic start)
-    const metaFetchPromise = fetch('/api/metadata', { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ urls }) 
-    });
+    const metaFetchPromise = startMetadataFetch(urls);
 
     Log.info('Booting Randomizer...', { urls });
     currentUrlsForRetry = urls;
@@ -347,23 +344,7 @@ export const performRandomize = async (urls) => {
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[1];
         Log.info('Awaiting metadata fetch result...');
         
-        const metaRes = await metaFetchPromise;
-        
-        Log.info(`Response Status: ${metaRes.status}`);
-        
-        if (!metaRes.ok) {
-            const text = await metaRes.text();
-            Log.error('Metadata request failed', { status: metaRes.status, response: text });
-            let errorMessage = 'Metadata failed';
-            try { 
-                const errData = JSON.parse(text); 
-                errorMessage = errData.error || errorMessage;
-            } catch { 
-                errorMessage = `Server Error (${metaRes.status})`; 
-            }
-            throw { userFacing: true, message: errorMessage };
-        }
-        const metaData = await metaRes.json();
+        const metaData = await parseApiResponse(metaFetchPromise, 'Metadata failed');
         Log.success('Metadata received', metaData);
         
         // 2. Selection (Honest Progress)
@@ -371,27 +352,7 @@ export const performRandomize = async (urls) => {
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[2];
         Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total });
 
-        const selectRes = await fetch('/api/select', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lists: metaData.lists, total: metaData.total })
-        });
-        
-        Log.info(`Response Status: ${selectRes.status}`);
-
-        if (!selectRes.ok) {
-            const text = await selectRes.text();
-            Log.error('Selection failed', { status: selectRes.status, response: text });
-            let errorMessage = 'Selection failed';
-            try { 
-                const errData = JSON.parse(text); 
-                errorMessage = errData.error || errorMessage;
-            } catch { 
-                errorMessage = `Server Error (${selectRes.status})`; 
-            }
-            throw { userFacing: true, message: errorMessage };
-        }
-        const selectData = await selectRes.json();
+        const selectData = await selectRandomMovie(metaData.lists, metaData.total);
         Log.success('Selection complete', selectData);
         
         // 3. Details (Honest Progress)
@@ -399,27 +360,7 @@ export const performRandomize = async (urls) => {
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[3];
         Log.info(`Requesting details for ${selectData.meta.slug}...`);
 
-        const detailRes = await fetch('/api/details', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slug: selectData.meta.slug })
-        });
-        
-        Log.info(`Response Status: ${detailRes.status}`);
-
-        if (!detailRes.ok) {
-            const text = await detailRes.text();
-            Log.error('Detail fetch failed', { status: detailRes.status, response: text });
-            let errorMessage = 'Details failed';
-            try { 
-                const errData = JSON.parse(text); 
-                errorMessage = errData.error || errorMessage;
-            } catch { 
-                errorMessage = `Server Error (${detailRes.status})`; 
-            }
-            throw { userFacing: true, message: errorMessage };
-        }
-        const detailData = await detailRes.json();
+        const detailData = await fetchMovieDetails(selectData.meta.slug);
         Log.success('Details received', detailData);
         updateBackdrop(detailData.movie.backdrop);
 
