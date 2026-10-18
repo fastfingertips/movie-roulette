@@ -11,11 +11,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.0.1",
-    "eslint-plugin-html": "^8.1.4",
-    "globals": "^17.3.0",
-    "jscpd": "^4.1.0",
-    "stylelint": "^17.11.1",
+    "eslint": "^10.13.0",
+    "eslint-plugin-html": "^8.2.1",
+    "globals": "^17.13.0",
+    "jscpd": "^5.4.1",
+    "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0"
   }
 }
