@@ -1,6 +1,6 @@
 export const createHistoryItem = (item, formatTimeFn) => {
     return `
-        <a href="${item.movie.url}" target="_blank" class="history-item">
+        <a href="${item.movie.url}" target="_blank" rel="noopener" class="history-item">
             <div class="history-item__body">
                 <span class="history-item__name">${item.movie.name}</span>
                 <div class="history-item__sub">
