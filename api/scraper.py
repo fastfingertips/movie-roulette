@@ -6,10 +6,11 @@ from letterboxdpy.core.scraper import parse_url
 from letterboxdpy.list import List as LBList
 from letterboxdpy.watchlist import Watchlist
 from letterboxdpy.pages.movie_profile import MovieProfile
+from letterboxdpy.pages.user_list import UserList
+from letterboxdpy.pages.user_watchlist import UserWatchlist
 from letterboxdpy.utils.movies_extractor import extract_movies_from_vertical_list
 from letterboxdpy.utils.utils_url import get_page_url
 
-from .constants import MOVIES_PER_PAGE_LIST, MOVIES_PER_PAGE_WATCHLIST
 from .utils import progress_step
 
 
@@ -29,10 +30,10 @@ def get_random_movie_meta(user, slug, count):
     """Fetches a random page from list and picks a movie slug"""
     if slug == "watchlist":
         list_url = f"{DOMAIN}/{user}/watchlist/"
-        per_page = MOVIES_PER_PAGE_WATCHLIST
+        per_page = UserWatchlist.FILMS_PER_PAGE
     else:
         list_url = f"{DOMAIN}/{user}/list/{slug}/"
-        per_page = MOVIES_PER_PAGE_LIST
+        per_page = UserList.FILMS_PER_PAGE
 
     total_pages = math.ceil(count / per_page)
     random_page = random.randint(1, total_pages)
@@ -90,12 +91,3 @@ def get_movie_details(slug):
         "cast": cast,
         "directors": directors,
     }
-
-
-def get_random_from_instance(lb, count):
-    """Orchestrates the granular selection steps (internal helper)"""
-    meta = get_random_movie_meta(lb.username, lb.slug, count)
-    if not meta:
-        return None
-
-    return get_movie_details(meta["slug"])
