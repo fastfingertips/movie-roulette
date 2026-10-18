@@ -9,7 +9,7 @@ from letterboxdpy.pages.movie_profile import MovieProfile
 from letterboxdpy.utils.movies_extractor import extract_movies_from_vertical_list
 from letterboxdpy.utils.utils_url import get_page_url
 
-from .constants import MOVIES_PER_PAGE
+from .constants import MOVIES_PER_PAGE_LIST, MOVIES_PER_PAGE_WATCHLIST
 from .utils import progress_step
 
 
@@ -29,14 +29,20 @@ def get_random_movie_meta(user, slug, count):
     """Fetches a random page from list and picks a movie slug"""
     if slug == "watchlist":
         list_url = f"{DOMAIN}/{user}/watchlist"
+        per_page = MOVIES_PER_PAGE_WATCHLIST
     else:
         list_url = f"{DOMAIN}/{user}/list/{slug}"
+        per_page = MOVIES_PER_PAGE_LIST
 
-    total_pages = math.ceil(count / MOVIES_PER_PAGE)
+    total_pages = math.ceil(count / per_page)
     random_page = random.randint(1, total_pages)
     page_dom = parse_url(get_page_url(list_url, random_page))
 
     movies_meta = extract_movies_from_vertical_list(page_dom)
+    if not movies_meta and random_page > 1:
+        page_dom = parse_url(get_page_url(list_url, 1))
+        movies_meta = extract_movies_from_vertical_list(page_dom)
+
     if not movies_meta:
         return None
 
