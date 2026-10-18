@@ -1,11 +1,12 @@
 # Movie Roulette 🎬
 
+[![Website](https://img.shields.io/badge/website-roulette.bugra.co-ff8000?style=flat-square)](https://roulette.bugra.co)
 ![Python](https://img.shields.io/badge/python-3.12-blue?style=flat-square&logo=python)
 ![Flask](https://img.shields.io/badge/flask-3.1.3-black?style=flat-square&logo=flask)
 ![Vercel](https://img.shields.io/badge/vercel-deployed-black?style=flat-square&logo=vercel)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-A simple web application to pick a random movie from Letterboxd lists.
+A simple web application to pick a random movie from Letterboxd lists: **[roulette.bugra.co](https://roulette.bugra.co)**
 
 > [!IMPORTANT]
 > This repository is maintained as a boilerplate/draft. Most requests may fail during web scraping operations. While it works occasionally, it is not consistently stable, likely due to Cloudflare protection, and further optimization has not been prioritized.
