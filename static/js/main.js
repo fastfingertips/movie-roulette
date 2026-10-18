@@ -2,7 +2,7 @@ import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, setView, showToast, hideToast } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
-import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType } from './modules/fields.js';
+import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls } from './modules/fields.js';
 import { checkUrlParams } from './modules/utils.js';
 import { initTheme, toggleTheme } from './modules/theme.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
@@ -47,10 +47,7 @@ let urlSyncTimer = null;
 const syncUrlToAddressBar = () => {
     clearTimeout(urlSyncTimer);
     urlSyncTimer = setTimeout(() => {
-        const inputs = document.querySelectorAll('.field__input');
-        const urls = Array.from(inputs)
-            .map(i => i.value.trim())
-            .filter(v => v !== '');
+        const urls = getActiveUrls();
         
         const url = new URL(window.location.href);
         if (urls.length > 0) {
@@ -70,7 +67,7 @@ const updateUI = () => {
     inputs.forEach(detectFieldType);
 
     // Disable spin button if no URLs are entered
-    const hasValue = Array.from(inputs).some(i => i.value.trim() !== '');
+    const hasValue = getActiveUrls().length > 0;
     const submitBtn = elements.formArea.querySelector('button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = !hasValue;
@@ -328,9 +325,7 @@ const handleAddField = () => {
 
 const handleFormSubmit = async () => {
     hideToast();
-    const urls = Array.from($('randomize-form').querySelectorAll('input'))
-        .map(i => i.value.trim())
-        .filter(v => v !== '');
+    const urls = getActiveUrls();
     
     if (urls.length === 0) {
         showToast("Please paste at least one list URL to continue.");
@@ -345,9 +340,7 @@ $('randomize-form').addEventListener('submit', (e) => {
 });
 
 const handleShareMix = () => {
-    const urls = Array.from($('randomize-form').querySelectorAll('input'))
-        .map(i => i.value.trim())
-        .filter(v => v !== '');
+    const urls = getActiveUrls();
     
     if (urls.length === 0) return;
 
@@ -371,9 +364,7 @@ const handleShareMix = () => {
 };
 
 const updateShareButtonText = () => {
-    const urls = Array.from($('randomize-form').querySelectorAll('input'))
-        .map(i => i.value.trim())
-        .filter(v => v !== '');
+    const urls = getActiveUrls();
     
     const shareBtn = $('share-blend-btn');
     const btnTextNode = shareBtn.querySelector('.btn-text');

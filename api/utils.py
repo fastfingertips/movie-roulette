@@ -4,6 +4,8 @@ import re
 import time
 from functools import wraps
 
+from flask import jsonify
+
 from letterboxdpy.core.exceptions import (
     AccessDeniedError,
     PrivateRouteError,
@@ -108,3 +110,12 @@ def get_error_response(e):
             return json.loads(msg.split("\n")[0]).get("message", msg), 500
         except Exception:
             return msg, 500
+
+
+def json_error(e, log_message=None, logger_func=None):
+    """Maps an exception to a JSON error response and logs it."""
+    if log_message:
+        log = logger_func or logger.exception
+        log(log_message)
+    msg, status = get_error_response(e)
+    return jsonify({"error": msg}), status

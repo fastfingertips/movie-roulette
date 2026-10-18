@@ -9,6 +9,13 @@ let urlCount = 1;
 export const setUrlCount = (val) => { urlCount = val; };
 export const getUrlCount = () => urlCount;
 
+export const getActiveUrls = () => {
+    const inputs = document.querySelectorAll('.field__input');
+    return Array.from(inputs)
+        .map(i => i.value.trim())
+        .filter(v => v !== '');
+};
+
 export const renumberFields = () => {
     const fields = Array.from($('url-fields').querySelectorAll('.field'))
         .filter(f => !f.classList.contains('is-removing'));

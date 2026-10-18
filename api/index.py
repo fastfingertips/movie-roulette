@@ -9,7 +9,7 @@ from .scraper import (
     get_random_movie_meta,
     pick_weighted_list,
 )
-from .utils import extract_info, get_error_response
+from .utils import extract_info, json_error
 
 logger = logging.getLogger("movie_roulette")
 if not logger.handlers:
@@ -46,9 +46,11 @@ def api_metadata():
                 # We only need the counts and names here
                 title, count = get_list_metadata(user, slug)
             except Exception as e:
-                logger.warning("Metadata fetch failed for %s - %s", url, e)
-                msg, status = get_error_response(e)
-                return jsonify({"error": msg}), status
+                return json_error(
+                    e,
+                    f"Metadata fetch failed for {url} - {e}",
+                    logger_func=logger.warning,
+                )
 
             if count <= 0:
                 return jsonify({"error": "One of the lists is empty"}), 422
@@ -63,9 +65,7 @@ def api_metadata():
         return jsonify({"lists": list_data, "total": total_count})
 
     except Exception as e:
-        logger.exception("api_metadata encountered an unexpected error")
-        msg, status = get_error_response(e)
-        return jsonify({"error": msg}), status
+        return json_error(e, "api_metadata encountered an unexpected error")
 
 
 @app.route("/api/select", methods=["POST"])
@@ -99,9 +99,7 @@ def api_select():
         logger.info("api_select picked movie: %s (%s)", meta["name"], meta["slug"])
         return jsonify({"meta": meta, "list": selected})
     except Exception as e:
-        logger.exception("api_select encountered an unexpected error")
-        msg, status = get_error_response(e)
-        return jsonify({"error": msg}), status
+        return json_error(e, "api_select encountered an unexpected error")
 
 
 @app.route("/api/details", methods=["POST"])
@@ -114,9 +112,7 @@ def api_details():
         movie = get_movie_details(slug)
         return jsonify({"movie": movie})
     except Exception as e:
-        logger.exception("api_details failed for slug: %s", request.json.get("slug"))
-        msg, status = get_error_response(e)
-        return jsonify({"error": msg}), status
+        return json_error(e, f"api_details failed for slug: {request.json.get('slug')}")
 
 
 if __name__ == "__main__":
