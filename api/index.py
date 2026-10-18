@@ -1,5 +1,5 @@
+import logging
 import random
-import traceback
 
 from flask import Flask, jsonify, request
 
@@ -11,6 +11,13 @@ from .scraper import (
 )
 from .utils import extract_info, get_error_response
 
+logger = logging.getLogger("movie_roulette")
+if not logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
 
 app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
 
@@ -25,7 +32,7 @@ def index():
 def api_metadata():
     try:
         urls = [u.strip() for u in (request.json or {}).get("urls", []) if u.strip()]
-        print(f"DEBUG: [START] api_metadata with {len(urls)} urls")
+        logger.info("api_metadata requested with %d urls", len(urls))
         if not urls:
             return jsonify({"error": "No URLs"}), 400
 
@@ -36,11 +43,10 @@ def api_metadata():
                 return jsonify({"error": "Invalid list URL"}), 400
 
             try:
-                print(f"DEBUG: [FETCH] Metadata for {user}/{slug}...")
                 # We only need the counts and names here
                 _, title, count = get_list_metadata(user, slug)
             except Exception as e:
-                print(f"DEBUG: [ERROR] Metadata failed for {url} - {str(e)}")
+                logger.warning("Metadata fetch failed for %s - %s", url, e)
                 msg, status = get_error_response(e)
                 return jsonify({"error": msg}), status
 
@@ -50,16 +56,14 @@ def api_metadata():
             list_data.append(
                 {"user": user, "slug": slug, "title": title, "count": count}
             )
-            print(f"DEBUG: [RESULT] Found {count} items in {title}")
+            logger.debug("Found %d items in %s", count, title)
 
-        print(f"DEBUG: [FINISH] api_metadata -> Success ({len(list_data)} lists)")
-        return jsonify(
-            {"lists": list_data, "total": sum(item["count"] for item in list_data)}
-        )
+        total_count = sum(item["count"] for item in list_data)
+        logger.info("api_metadata success (%d lists, %d total movies)", len(list_data), total_count)
+        return jsonify({"lists": list_data, "total": total_count})
 
     except Exception as e:
-        print("DEBUG: [CRITICAL] api_metadata crashed!")
-        traceback.print_exc()
+        logger.exception("api_metadata encountered an unexpected error")
         msg, status = get_error_response(e)
         return jsonify({"error": msg}), status
 
@@ -70,7 +74,7 @@ def api_select():
     try:
         lists = request.json.get("lists", [])
         total = request.json.get("total", 0)
-        print(f"DEBUG: [START] api_select from {len(lists)} lists, total pool: {total}")
+        logger.info("api_select from %d lists, total pool: %d", len(lists), total)
         if not lists:
             return jsonify({"error": "No lists"}), 400
 
@@ -84,7 +88,7 @@ def api_select():
                 selected = item
                 break
 
-        print(f"DEBUG: [ACTION] Selected list: {selected['user']}/{selected['slug']}")
+        logger.debug("Selected list: %s/%s", selected["user"], selected["slug"])
         # Get random movie meta
         meta = get_random_movie_meta(
             selected["user"], selected["slug"], selected["count"]
@@ -97,11 +101,10 @@ def api_select():
                 502,
             )
 
-        print(f"DEBUG: [FINISH] api_select -> Success ({meta['name']})")
+        logger.info("api_select picked movie: %s (%s)", meta["name"], meta["slug"])
         return jsonify({"meta": meta, "list": selected})
     except Exception as e:
-        print("DEBUG: [CRITICAL] api_select crashed!")
-        traceback.print_exc()
+        logger.exception("api_select encountered an unexpected error")
         msg, status = get_error_response(e)
         return jsonify({"error": msg}), status
 
@@ -116,10 +119,11 @@ def api_details():
         movie = get_movie_details(slug)
         return jsonify({"movie": movie})
     except Exception as e:
+        logger.exception("api_details failed for slug: %s", request.json.get("slug"))
         msg, status = get_error_response(e)
         return jsonify({"error": msg}), status
 
 
 if __name__ == "__main__":
-    print(f"[SERVER] Starting server from: {ROOT_DIR}")
+    logger.info("Starting server from: %s on port %s", ROOT_DIR, PORT)
     app.run(port=PORT, debug=True)

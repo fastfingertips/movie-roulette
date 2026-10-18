@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 import time
 from functools import wraps
@@ -8,6 +9,8 @@ from letterboxdpy.core.exceptions import (
     PrivateRouteError,
     ResourceNotFoundError,
 )
+
+logger = logging.getLogger("movie_roulette")
 
 LETTERBOXD_UNAVAILABLE_MESSAGE = (
     "Don't worry—this isn't an issue on your side. Letterboxd is temporarily "
@@ -22,14 +25,14 @@ def progress_step(name):
         @wraps(func)
         def wrapper(*args, **kwargs):
             start = time.time()
-            print(f"DEBUG: Starting step -> {name}")
+            logger.debug("Starting step -> %s", name)
             try:
                 result = func(*args, **kwargs)
                 duration = time.time() - start
-                print(f"DEBUG: Finished step -> {name} ({duration:.2f}s)")
+                logger.debug("Finished step -> %s (%.2fs)", name, duration)
                 return result
             except Exception as e:
-                print(f"DEBUG: FAILED step -> {name} - Error: {str(e)}")
+                logger.warning("FAILED step -> %s - Error: %s", name, e)
                 raise e
 
         return wrapper

@@ -15,7 +15,6 @@ from .utils import progress_step
 @progress_step("Fetching List Metadata")
 def get_list_metadata(user, slug):
     """Returns (instance, title, count)"""
-    print(f"DEBUG: [LB] Fetching {user}/{slug} from Letterboxd...")
     if slug == "watchlist":
         watchlist = UserWatchlist(user)
         return watchlist, f"{user}'s Watchlist", watchlist.get_count()
