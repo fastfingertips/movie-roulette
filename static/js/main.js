@@ -2,8 +2,8 @@ import { $, elements, setView, showToast, hideToast } from './modules/dom.js';
 import { renderHistory, renderResult } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
-import { addField, renumberFields, getUrlCount, setUrlCount } from './modules/fields.js';
-import { checkUrlParams, formatListUrl } from './modules/utils.js';
+import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType } from './modules/fields.js';
+import { checkUrlParams } from './modules/utils.js';
 import { initTheme, toggleTheme } from './modules/theme.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
 import { CONFIG } from './constants.js';
@@ -14,8 +14,6 @@ let currentUrlsForRetry = [];
 
 initTheme();
 
-// --- Animated URL Shortening ---
-let isAnimating = false;
 
 const updateBackdrop = (url) => {
     if (!elements.backdrop || !elements.backdropImg) return;
@@ -41,134 +39,7 @@ const updateBackdrop = (url) => {
     }
 };
 
-const animateShorten = (inputEl, shortForm) => {
-    isAnimating = true;
-    const eraseSpeed = 30;
-    const typeSpeed = 80;
-    
-    const wrapper = inputEl.closest('.field__input-wrapper');
-    const metaEl = wrapper ? wrapper.querySelector('.field__meta') : null;
-    const originalValue = inputEl.value;
 
-    if (metaEl) {
-        metaEl.textContent = originalValue;
-        metaEl.classList.add('is-visible');
-        inputEl.classList.add('has-meta');
-    }
-
-    const eraseInterval = setInterval(() => {
-        if (inputEl.value.length > 0) {
-            inputEl.value = inputEl.value.slice(0, -1);
-        } else {
-            clearInterval(eraseInterval);
-            
-            // Small pause before typing
-            setTimeout(() => {
-                let i = 0;
-                const typeInterval = setInterval(() => {
-                    if (i < shortForm.length) {
-                        inputEl.value += shortForm[i];
-                        i++;
-                    } else {
-                        clearInterval(typeInterval);
-                        isAnimating = false;
-                        detectFieldType(inputEl);
-                    }
-                }, typeSpeed);
-            }, 300);
-        }
-    }, eraseSpeed);
-};
-
-const detectFieldType = (inputEl) => {
-    if (isAnimating) return;
-
-    let rawVal = inputEl.value.trim().toLowerCase();
-    const wrapper = inputEl.closest('.field__input-wrapper');
-    const statusEl = wrapper ? wrapper.querySelector('.field__status') : null;
-    const metaEl = wrapper ? wrapper.querySelector('.field__meta') : null;
-    
-    if (!statusEl) return;
-    
-    if (!rawVal) {
-        statusEl.classList.remove('is-visible', 'is-invalid');
-        if (metaEl) {
-            metaEl.classList.remove('is-visible');
-            metaEl.textContent = '';
-        }
-        inputEl.classList.remove('has-meta');
-        return;
-    }
-
-    // Detect full Letterboxd URL and trigger animation
-    const isLetterboxdUrl = /^https?:\/\/(www\.)?letterboxd\.com\//.test(rawVal);
-    if (isLetterboxdUrl) {
-        const { name: short, type } = formatListUrl(rawVal);
-        if (type && short) {
-            animateShorten(inputEl, short);
-            return;
-        }
-    }
-
-    // Identify external domains (not letterboxd)
-    const isUrl = rawVal.includes('.') || rawVal.includes('http');
-    const isLetterboxd = rawVal.includes('letterboxd.com');
-    
-    if (isUrl && !isLetterboxd) {
-        statusEl.textContent = 'Invalid';
-        statusEl.classList.add('is-visible', 'is-invalid');
-        return;
-    }
-
-    // Strict validation: Incomplete paths (user/) are invalid, but full paths or watchlist paths with trailing slashes are OK
-    let val = rawVal.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
-    const parts = val.split('/').filter(p => p);
-    
-    
-    const isExplicitList = val.includes('/list/');
-
-    // Invalid if:
-    // 1. Single word + slash (e.g. nmcassa/)
-    // 2. Ends with /list/ (incomplete)
-    const isIncomplete = (parts.length === 1 && rawVal.endsWith('/')) || rawVal.endsWith('/list/');
-    
-    if (isIncomplete || (parts.length > 1 && !isExplicitList && parts.length !== 2)) {
-        statusEl.textContent = 'Invalid';
-        statusEl.classList.add('is-visible', 'is-invalid');
-        return;
-    }
-
-    statusEl.classList.remove('is-invalid');
-
-    // Letterboxd identifiers (usernames/slugs) are alphanumeric + underscores/dashes
-    const isValidIdentifier = (s) => /^[a-z0-9_-]+$/.test(s);
-
-    if (val.includes('/watchlist/') || (parts.length === 1 && isValidIdentifier(parts[0]))) {
-        statusEl.textContent = 'Watchlist';
-        statusEl.classList.add('is-visible');
-        if (metaEl) {
-            const user = parts[0];
-            metaEl.textContent = `https://letterboxd.com/${user}/watchlist/`;
-            metaEl.classList.add('is-visible');
-            inputEl.classList.add('has-meta');
-        }
-    } else if (val.includes('/list/') || (parts.length === 2 && parts.every(isValidIdentifier))) {
-        statusEl.textContent = 'List';
-        statusEl.classList.add('is-visible');
-        if (metaEl) {
-            const user = parts[0];
-            const list = parts[1] || parts[2];
-            metaEl.textContent = `https://letterboxd.com/${user}/list/${list}/`;
-            metaEl.classList.add('is-visible');
-            inputEl.classList.add('has-meta');
-        }
-    } else {
-        statusEl.textContent = 'Invalid';
-        statusEl.classList.add('is-visible', 'is-invalid');
-        if (metaEl) metaEl.classList.remove('is-visible');
-        inputEl.classList.remove('has-meta');
-    }
-};
 
 // --- URL Sync ---
 let urlSyncTimer = null;
