@@ -3,7 +3,7 @@ import { renderHistory, renderResult } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount } from './modules/fields.js';
-import { checkUrlParams } from './modules/utils.js';
+import { checkUrlParams, formatListUrl } from './modules/utils.js';
 import { initTheme, toggleTheme } from './modules/theme.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
 import { CONFIG } from './constants.js';
@@ -16,21 +16,6 @@ initTheme();
 
 // --- Animated URL Shortening ---
 let isAnimating = false;
-
-const shortenUrl = (raw) => {
-    let val = raw.trim().replace(/\/$/, '').toLowerCase();
-    val = val.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, '');
-    const parts = val.split('/').filter(p => p);
-    // user/watchlist -> user
-    if (parts.length === 2 && parts[1] === 'watchlist') return parts[0];
-    // user/list/slug -> user/slug
-    if (parts.length >= 3 && parts[1] === 'list') return `${parts[0]}/${parts[2]}`;
-    // user/slug -> user/slug
-    if (parts.length === 2) return `${parts[0]}/${parts[1]}`;
-    // user -> user
-    if (parts.length === 1) return parts[0];
-    return null;
-};
 
 const updateBackdrop = (url) => {
     if (!elements.backdrop || !elements.backdropImg) return;
@@ -118,8 +103,8 @@ const detectFieldType = (inputEl) => {
     // Detect full Letterboxd URL and trigger animation
     const isLetterboxdUrl = /^https?:\/\/(www\.)?letterboxd\.com\//.test(rawVal);
     if (isLetterboxdUrl) {
-        const short = shortenUrl(rawVal);
-        if (short) {
+        const { name: short, type } = formatListUrl(rawVal);
+        if (type && short) {
             animateShorten(inputEl, short);
             return;
         }
