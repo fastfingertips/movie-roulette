@@ -543,11 +543,9 @@
         .btn-hero-side { 
             position: relative; 
             width: 44px; 
-            background: var(--color-surface); 
-            backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid var(--color-border); 
+            background: rgb(0, 0, 0, 0.05); 
+            border: 1px solid transparent; 
             border-radius: var(--radius-sharp); 
-            box-shadow: 0 30px 80px rgb(0, 0, 0, 0.1);
             color: var(--color-text-secondary); 
             display: flex; 
             flex-direction: column;
@@ -558,18 +556,28 @@
             outline: none;
             flex-shrink: 0;
             box-sizing: border-box;
+            box-shadow: none;
+            backdrop-filter: none;
         }
 
         [data-theme^="dark"] .btn-hero-side { 
-            box-shadow: 0 10px 40px rgb(0, 0, 0, 0.25);
+            background: rgb(255, 255, 255, 0.03); 
+            border-color: rgb(255, 255, 255, 0.05); 
+            box-shadow: none;
+        }
+
+        [data-theme="dark-2"] .btn-hero-side { 
+            background: #0f1013; 
+            border-color: rgb(255, 255, 255, 0.12); 
         }
 
         .btn-hero-side:hover { 
+            background: rgb(0, 0, 0, 0.08); 
             color: var(--color-text); 
-            border-color: var(--color-text-muted); 
         }
 
         [data-theme^="dark"] .btn-hero-side:hover { 
+            background: rgb(255, 255, 255, 0.08); 
             color: #fff; 
             border-color: var(--color-text-secondary); 
         }
@@ -660,6 +668,16 @@
 
             [data-theme^="dark"] .btn-hero-side {
                 box-shadow: 0 10px 40px rgb(0, 0, 0, 0.25);
+            }
+
+            .btn-hero-side:hover {
+                background: var(--color-surface);
+                border-color: var(--color-text-muted);
+            }
+
+            [data-theme^="dark"] .btn-hero-side:hover {
+                background: var(--color-surface);
+                border-color: var(--color-text-secondary);
             }
 
             #back-btn:hover {
