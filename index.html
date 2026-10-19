@@ -358,17 +358,121 @@
 
 
     <!-- Technical Stats Modal -->
-    <div id="stats-modal" class="modal-overlay is-hidden">
-        <div class="modal-content" style="max-width: 400px;">
+    <div id="stats-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="stats-modal-title">
+        <div class="modal-content modal-content--stats">
             <div class="modal-header">
-                <h2 class="modal-title">Technical Logs</h2>
-                <button class="btn-link" id="close-stats-btn" name="close-modal">Close</button>
+                <div class="modal-title-group">
+                    <div class="modal-title-icon">
+                        <i data-lucide="activity"></i>
+                    </div>
+                    <div>
+                        <h2 class="modal-title" id="stats-modal-title">Technical Logs</h2>
+                        <p class="modal-subtitle">Sampling metrics & execution pipeline diagnostics</p>
+                    </div>
+                </div>
+                <button class="btn-link" id="close-stats-btn" name="close-modal" aria-label="Close modal">Close</button>
             </div>
-            <div class="stats-body">
-                <pre class="stats-json" id="stats-json"></pre>
-                <button class="action-btn action-btn--secondary" id="copy-stats-btn" name="copy-logs">
-                    <i data-lucide="copy" style="width: 14px; margin-right: 4px;"></i> Copy Technical Logs
+
+            <!-- KPI Metric Cards Grid -->
+            <div class="stats-kpi-grid">
+                <div class="stats-kpi-card">
+                    <div class="stats-kpi-header">
+                        <i data-lucide="layers"></i>
+                        <span class="stats-kpi-label">Total Pool</span>
+                    </div>
+                    <div class="stats-kpi-value" id="stats-kpi-pool">0</div>
+                    <div class="stats-kpi-sub">eligible films</div>
+                </div>
+                <div class="stats-kpi-card">
+                    <div class="stats-kpi-header">
+                        <i data-lucide="target"></i>
+                        <span class="stats-kpi-label">Odds</span>
+                    </div>
+                    <div class="stats-kpi-value" id="stats-kpi-odds">0%</div>
+                    <div class="stats-kpi-sub" id="stats-kpi-odds-sub">1 in 0</div>
+                </div>
+                <div class="stats-kpi-card">
+                    <div class="stats-kpi-header">
+                        <i data-lucide="zap"></i>
+                        <span class="stats-kpi-label">Latency</span>
+                    </div>
+                    <div class="stats-kpi-value" id="stats-kpi-latency">0s</div>
+                    <div class="stats-kpi-sub" id="stats-kpi-latency-sub">end-to-end</div>
+                </div>
+                <div class="stats-kpi-card">
+                    <div class="stats-kpi-header">
+                        <i data-lucide="compass"></i>
+                        <span class="stats-kpi-label">Selected From</span>
+                    </div>
+                    <div class="stats-kpi-value stats-kpi-value--truncate" id="stats-kpi-source">-</div>
+                    <div class="stats-kpi-sub" id="stats-kpi-source-sub">randomly drawn</div>
+                </div>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="stats-tabs-nav" role="tablist">
+                <button type="button" class="stats-tab-btn is-active" id="tab-btn-overview" role="tab" aria-selected="true" aria-controls="stats-tab-overview">
+                    <i data-lucide="layout-grid"></i> Breakdown
                 </button>
+                <button type="button" class="stats-tab-btn" id="tab-btn-raw" role="tab" aria-selected="false" aria-controls="stats-tab-raw">
+                    <i data-lucide="code"></i> Raw JSON
+                </button>
+            </div>
+
+            <!-- Tab Panels Container -->
+            <div class="stats-tabs-content">
+                <!-- Overview Panel -->
+                <div class="stats-panel" id="stats-tab-overview" role="tabpanel">
+                    <!-- Pipeline Waterfall -->
+                    <div class="stats-section">
+                        <div class="stats-section-header">
+                            <span class="stats-section-title"><i data-lucide="timer"></i> Pipeline Waterfall</span>
+                            <span class="stats-section-meta" id="stats-total-time">0.00s</span>
+                        </div>
+                        <div class="stats-waterfall" id="stats-waterfall">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Pool Distribution (Lists Breakdown) -->
+                    <div class="stats-section">
+                        <div class="stats-section-header">
+                            <span class="stats-section-title"><i data-lucide="pie-chart"></i> Source Pool Distribution</span>
+                            <span class="stats-section-meta" id="stats-pool-meta">1 source</span>
+                        </div>
+                        <div class="stats-sources-list" id="stats-sources-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Selected Movie Spec Sheet -->
+                    <div class="stats-section stats-section--specs">
+                        <div class="stats-section-header">
+                            <span class="stats-section-title"><i data-lucide="film"></i> Selected Film Identity</span>
+                        </div>
+                        <div class="stats-specs-grid" id="stats-specs-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raw JSON Panel -->
+                <div class="stats-panel is-hidden" id="stats-tab-raw" role="tabpanel">
+                    <pre class="stats-json" id="stats-json" tabindex="0"></pre>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="stats-modal-footer">
+                <div class="stats-footer-meta">
+                    <i data-lucide="cpu"></i>
+                    <span>Deterministic Random Sampling</span>
+                </div>
+                <div class="stats-footer-actions">
+                    <button type="button" class="stats-action-btn" id="copy-stats-btn" name="copy-logs">
+                        <i data-lucide="copy"></i> Copy JSON
+                    </button>
+                </div>
             </div>
         </div>
     </div>

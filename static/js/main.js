@@ -1,5 +1,5 @@
 import { $, elements } from './modules/dom.js';
-import { renderHistory, renderResult, setView, showToast, hideToast } from './modules/ui.js';
+import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls } from './modules/fields.js';
@@ -195,9 +195,9 @@ export const performRandomize = async (urls) => {
         // 1. Await Metadata (Started earlier)
         Log.step('1. FETCH METADATA');
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[1];
-        Log.info('Awaiting metadata fetch result...');
-        
+        const metaStart = Date.now();
         const metaData = await parseApiResponse(metaFetchPromise, 'Metadata failed');
+        const metaDuration = (Date.now() - metaStart) / 1000;
         Log.success('Metadata received', metaData);
         
         // 2. Selection (Honest Progress)
@@ -205,7 +205,9 @@ export const performRandomize = async (urls) => {
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[2];
         Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total });
 
+        const selectStart = Date.now();
         const selectData = await selectRandomMovie(metaData.lists, metaData.total);
+        const selectDuration = (Date.now() - selectStart) / 1000;
         Log.success('Selection complete', selectData);
         
         // 3. Details (Honest Progress)
@@ -213,7 +215,9 @@ export const performRandomize = async (urls) => {
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[3];
         Log.info(`Requesting details for ${selectData.meta.slug}...`);
 
+        const detailStart = Date.now();
         const detailData = await fetchMovieDetails(selectData.meta.slug);
+        const detailDuration = (Date.now() - detailStart) / 1000;
         Log.success('Details received', detailData);
         updateBackdrop(detailData.movie.backdrop);
 
@@ -234,9 +238,27 @@ export const performRandomize = async (urls) => {
             stats: {
                 total_pool: metaData.total,
                 probability: probability < 0.01 ? probability.toFixed(4) : probability.toFixed(2),
-                timing: { total: `${totalDuration.toFixed(2)}s` }
+                odds: `1 in ${metaData.total.toLocaleString()}`,
+                timing: {
+                    metadata: metaDuration.toFixed(2),
+                    selection: selectDuration.toFixed(2),
+                    details: detailDuration.toFixed(2),
+                    total: totalDuration.toFixed(2)
+                },
+                lists: (metaData.lists || []).map(l => ({
+                    title: l.title || `${l.user}'s List`,
+                    user: l.user,
+                    slug: l.slug,
+                    count: l.count,
+                    percentage: Number(((l.count / metaData.total) * 100).toFixed(1)),
+                    is_winner: l.user === selectData.list.user && l.slug === selectData.list.slug
+                })),
+                inputs: urls,
+                timestamp: new Date().toISOString()
             }
         };
+
+        window.lastFullResult = finalData;
 
         Log.info('Rendering result...', finalData);
         renderResult(finalData);
@@ -291,8 +313,8 @@ $('clear-history').addEventListener('click', () => { clearHistory(); updateUI();
 $('clear-lists').addEventListener('click', () => { clearRecentLists(); updateUI(); });
 
 elements.statsBtn.addEventListener('click', () => {
-    if (window.lastResultData) {
-        elements.statsJson.textContent = JSON.stringify(window.lastResultData, null, 2);
+    if (window.lastFullResult) {
+        renderStatsModal(window.lastFullResult);
         setView('stats');
     }
 });
@@ -303,8 +325,33 @@ elements.statsModal.addEventListener('click', (e) => {
     if(e.target === elements.statsModal) setView('result'); 
 });
 
-elements.copyStatsBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(elements.statsJson.textContent).then(() => {
+const copyToClipboard = async (text) => {
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch {
+        // Fall back to document.execCommand
+    }
+    try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        return successful;
+    } catch {
+        return false;
+    }
+};
+
+elements.copyStatsBtn.addEventListener('click', async () => {
+    const success = await copyToClipboard(elements.statsJson.textContent);
+    if (success) {
         const originalText = elements.copyStatsBtn.innerHTML;
         elements.copyStatsBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
         if (window.lucide) window.lucide.createIcons();
@@ -312,7 +359,7 @@ elements.copyStatsBtn.addEventListener('click', () => {
             elements.copyStatsBtn.innerHTML = originalText;
             if (window.lucide) window.lucide.createIcons();
         }, 2000);
-    });
+    }
 });
 
 const handleAddField = () => {
@@ -338,7 +385,7 @@ $('randomize-form').addEventListener('submit', (e) => {
     handleFormSubmit();
 });
 
-const handleShareMix = () => {
+const handleShareMix = async () => {
     const urls = getActiveUrls();
     
     if (urls.length === 0) return;
@@ -346,7 +393,8 @@ const handleShareMix = () => {
     const baseUrl = window.location.origin + window.location.pathname;
     const shareUrl = `${baseUrl}?url=${encodeURIComponent(urls.join(','))}`;
 
-    navigator.clipboard.writeText(shareUrl).then(() => {
+    const success = await copyToClipboard(shareUrl);
+    if (success) {
         const isMix = urls.length > 1;
         showToast(`${isMix ? 'Mix' : 'Link'} copied to clipboard!`, 'info');
         
@@ -359,7 +407,7 @@ const handleShareMix = () => {
                 btnTextNode.textContent = originalText;
             }, 2000);
         }
-    });
+    }
 };
 
 const updateShareButtonText = () => {
@@ -402,4 +450,5 @@ updateUI();
 checkUrlParams(({ urls, shouldRun }) => {
     if (shouldRun) performRandomize(urls);
 });
+initStatsTabs();
 if (window.lucide) window.lucide.createIcons();
