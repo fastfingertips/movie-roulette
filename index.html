@@ -147,57 +147,57 @@
                     </div>
 
                     <div id="result-panel" class="is-hidden result-view">
-                        <div class="result-hero-wrapper">
-                            <button class="btn-hero-side" id="back-btn" name="view-back" title="Back">
+                        <div class="result-hero-wrapper" id="result-hero-wrapper">
+                            <button class="btn-hero-side" id="back-btn" name="view-back" title="Back" aria-label="Back">
                                 <i data-lucide="arrow-left"></i>
                                 <span class="btn-hint">Esc</span>
                             </button>
 
-                            <div class="result-hero">
-                                <!-- Full-width title/meta/director block -->
-                                <div class="result-header-block">
-                                    <h2 class="result-title" id="result-movie"></h2>
-                                    <p class="result-meta" id="result-meta"></p>
-                                    <p class="result-director" id="result-director"></p>
+                            <div class="result-hero" id="result-hero">
+                            <!-- Full-width title/meta/director block -->
+                            <div class="result-header-block">
+                                <h2 class="result-title" id="result-movie"></h2>
+                                <p class="result-meta" id="result-meta"></p>
+                                <p class="result-director" id="result-director"></p>
+                            </div>
+                            
+                            <!-- Columns wrapper for poster and synopsis/details -->
+                            <div class="result-body-block" id="result-body-block">
+                                <div class="result-poster-container">
+                                    <a id="result-poster-link" target="_blank" rel="noopener">
+                                        <img id="result-poster" src="" alt="Movie Poster" class="result-poster">
+                                    </a>
+                                    <div class="result-stars" id="result-stars"></div>
                                 </div>
-                                
-                                <!-- Columns wrapper for poster and synopsis/details -->
-                                <div class="result-body-block" id="result-body-block">
-                                    <div class="result-poster-container">
-                                        <a id="result-poster-link" target="_blank" rel="noopener">
-                                            <img id="result-poster" src="" alt="Movie Poster" class="result-poster">
-                                        </a>
-                                        <div class="result-stars" id="result-stars"></div>
+                                <div class="result-info" id="result-info">
+                                    <p class="result-tagline" id="result-tagline"></p>
+                                    <div class="result-description-container">
+                                        <p class="result-description" id="result-description"></p>
                                     </div>
-                                    <div class="result-info" id="result-info">
-                                        <p class="result-tagline" id="result-tagline"></p>
-                                        <div class="result-description-container">
-                                            <p class="result-description" id="result-description"></p>
-                                        </div>
-                                        <div class="result-details" id="result-details">
-                                            <p class="result-cast" id="result-cast"></p>
-                                            <div class="result-genres" id="result-genres"></div>
-                                        </div>
+                                    <div class="result-details" id="result-details">
+                                        <p class="result-cast" id="result-cast"></p>
+                                        <div class="result-genres" id="result-genres"></div>
                                     </div>
-                                </div>
-
-                                <div class="result-stats" id="result-stats-area">
-                                    <button class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" aria-hidden="true" class="lucide lucide-info"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-                                    </button>
-                                    <div id="stats-pop-toast" class="stats-pop-toast"></div>
-                                    <span id="stat-pool" class="is-hidden"></span>
-                                    <span id="stat-prob" class="is-hidden"></span>
                                 </div>
                             </div>
 
-                            <button class="btn-hero-side" id="try-again-btn" name="spin-again" title="Spin Again">
-                                <i data-lucide="refresh-cw"></i>
-                                <span class="btn-hint">R</span>
-                            </button>
+                            <div class="result-stats" id="result-stats-area">
+                                <button class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" aria-hidden="true" class="lucide lucide-info"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                </button>
+                                <div id="stats-pop-toast" class="stats-pop-toast"></div>
+                                <span id="stat-pool" class="is-hidden"></span>
+                                <span id="stat-prob" class="is-hidden"></span>
+                            </div>
                         </div>
 
-                        <div class="result-actions-row">
+                        <button class="btn-hero-side" id="try-again-btn" name="spin-again" title="Spin Again" aria-label="Spin Again">
+                            <i data-lucide="refresh-cw"></i>
+                            <span class="btn-hint">R</span>
+                        </button>
+                    </div>
+
+                    <div class="result-actions-row">
                             <a class="btn-action-main" id="result-link" name="open-letterboxd" target="_blank" rel="noopener">
                                 <i data-lucide="external-link"></i>
                                 <span class="btn-text">Open Letterboxd</span>

@@ -120,6 +120,7 @@
             transition: background 0.4s ease;
         }
 
+
         .card {
             --card-pad-y: 32px;
             --card-pad-x: 40px;
@@ -136,6 +137,7 @@
             flex-direction: column;
             gap: 20px; /* Reduced gap */
             position: relative;
+            z-index: 2;
 
             /* Anti-flicker stability */
             transform: translateZ(0);
@@ -527,34 +529,169 @@
         }
         .btn-action-main svg { width: 14px; height: 14px; opacity: 0.9; }
 
-        .result-hero-wrapper { display: flex; align-items: stretch; gap: 8px; margin-bottom: 0; }
-        .btn-hero-side { position: relative; width: 44px; background: rgb(0,0,0,0.05); border: none; border-radius: var(--radius-sharp); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
-        [data-theme^="dark"] .btn-hero-side { background: rgb(255,255,255,0.03); }
-        .btn-hero-side:hover { background: rgb(0,0,0,0.08); color: var(--color-text); }
-        [data-theme^="dark"] .btn-hero-side:hover { background: rgb(255,255,255,0.08); color: #fff; }
-        .btn-hero-side svg { width: 18px; height: 18px; }
+        /* Result Hero Wrapper & Side Navigation Buttons */
+        .result-hero-wrapper { 
+            display: flex; 
+            align-items: stretch; 
+            gap: 8px; 
+            margin-bottom: 0; 
+            position: relative;
+            width: 100%;
+        }
 
+        .btn-hero-side { 
+            position: relative; 
+            width: 44px; 
+            background: rgb(0, 0, 0, 0.05); 
+            border: 1px solid transparent; 
+            border-radius: var(--radius-sharp); 
+            color: var(--color-text-secondary); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            outline: none;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        [data-theme^="dark"] .btn-hero-side { 
+            background: rgb(255, 255, 255, 0.03); 
+            border-color: rgb(255, 255, 255, 0.05); 
+        }
+
+        [data-theme="dark-2"] .btn-hero-side { 
+            background: #0f1013; 
+            border-color: rgb(255, 255, 255, 0.12); 
+        }
+
+        .btn-hero-side:hover { 
+            background: rgb(0, 0, 0, 0.08); 
+            color: var(--color-text); 
+        }
+
+        [data-theme^="dark"] .btn-hero-side:hover { 
+            background: rgb(255, 255, 255, 0.08); 
+            color: #fff; 
+            border-color: var(--color-text-secondary); 
+        }
+
+        .btn-hero-side svg { 
+            width: 18px; 
+            height: 18px; 
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        #back-btn:hover svg {
+            transform: translateX(-2px);
+        }
+
+        #try-again-btn:hover svg {
+            transform: rotate(180deg);
+        }
+
+        .btn-hero-side:active {
+            filter: brightness(0.92);
+        }
+
+        /* Keyboard Shortcut Hint Badge */
         .btn-hero-side .btn-hint {
-            top: auto;
-            bottom: 16px;
-            left: 50%;
+            position: absolute;
+            inset: auto auto 16px 50%;
             transform: translateX(-50%);
             font-size: 9px;
-            padding: 4px 10px;
+            padding: 3px 8px;
             min-width: 24px;
-            background: rgb(0,0,0,0.1);
-            border: 1px solid rgb(0,0,0,0.05);
-            opacity: 0.7;
+            background: rgb(0, 0, 0, 0.08);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            opacity: 0.85;
             font-weight: 700;
+            font-family: monospace;
             display: flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
+            border-radius: 4px;
+            pointer-events: none;
+            transition: var(--transition);
         }
 
         [data-theme^="dark"] .btn-hero-side .btn-hint {
-            background: rgb(255,255,255,0.08);
-            border-color: rgb(255,255,255,0.05);
+            background: rgb(255, 255, 255, 0.06);
+            border-color: rgb(255, 255, 255, 0.1);
+        }
+
+        .btn-hero-side:hover .btn-hint {
+            color: var(--color-text);
+            border-color: var(--color-text-muted);
+            opacity: 1;
+        }
+
+        [data-theme^="dark"] .btn-hero-side:hover .btn-hint {
+            color: #fff;
+            border-color: var(--color-text-secondary);
+        }
+
+        /* Wide screen: Move side buttons outside main card */
+        @media (width >= 981px) {
+            .result-hero-wrapper {
+                gap: 0;
+            }
+
+            .btn-hero-side {
+                position: absolute;
+                top: 0;
+                height: 100%;
+                width: 48px;
+                background: var(--color-surface);
+                backdrop-filter: blur(20px) saturate(180%);
+                border: 1px solid var(--color-border);
+                box-shadow: 0 16px 40px rgb(0, 0, 0, 0.08);
+                z-index: 5;
+            }
+
+            #back-btn {
+                left: calc(-1 * var(--card-pad-x, 36px) - 48px - 14px);
+            }
+
+            #try-again-btn {
+                right: calc(-1 * var(--card-pad-x, 36px) - 48px - 14px);
+            }
+
+            [data-theme^="dark"] .btn-hero-side {
+                background: #161b22;
+                border-color: rgb(255, 255, 255, 0.12);
+                box-shadow: 0 20px 48px rgb(0, 0, 0, 0.55);
+            }
+
+            [data-theme="dark-2"] .btn-hero-side {
+                background: #0f1013;
+                border-color: rgb(255, 255, 255, 0.15);
+                box-shadow: 0 20px 50px rgb(0, 0, 0, 0.9);
+            }
+
+            #back-btn:hover {
+                transform: translateX(-4px);
+                box-shadow: 0 22px 50px rgb(0, 0, 0, 0.14);
+            }
+
+            #try-again-btn:hover {
+                transform: translateX(4px);
+                box-shadow: 0 22px 50px rgb(0, 0, 0, 0.14);
+            }
+
+            [data-theme^="dark"] #back-btn:hover,
+            [data-theme^="dark"] #try-again-btn:hover {
+                box-shadow: 0 24px 56px rgb(0, 0, 0, 0.8);
+            }
+
+            .btn-hero-side svg {
+                width: 20px;
+                height: 20px;
+            }
         }
 
         /* Modal / Overlay */
@@ -780,11 +917,17 @@
         .card:has(#result-view:not(.is-hidden)),
         .card:has(#result-panel:not(.is-hidden)),
         .card:has(.result-view:not(.is-hidden)) {
-            --card-pad-y: 24px;
-            --card-pad-x: 32px;
-            max-width: 760px;
+            --card-pad-y: 28px;
+            --card-pad-x: 36px;
+            max-width: 800px;
             padding: var(--card-pad-y) var(--card-pad-x);
             transition: max-width 0.3s ease;
+        }
+
+        .card:has(#result-view:not(.is-hidden)) .main-content,
+        .card:has(#result-panel:not(.is-hidden)) .main-content,
+        .card:has(.result-view:not(.is-hidden)) .main-content {
+            max-width: 100%;
         }
 
         /* If there are no details, keep the card narrow, compact, and perfectly centered */
