@@ -28,6 +28,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/themes.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
@@ -43,10 +44,61 @@
             <p class="site-desc">Select random movies from your Letterboxd lists</p>
         </div>
         <div class="header-actions">
-            <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
-                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            </button>
+            <div class="theme-picker-wrapper">
+                <button class="icon-btn" id="theme-toggle" title="Choose Theme" aria-label="Theme menu" aria-haspopup="true" aria-expanded="false">
+                    <i data-lucide="palette" class="theme-palette-icon"></i>
+                </button>
+                <div id="theme-menu" class="theme-menu is-hidden" role="menu">
+                    <div class="theme-menu__section-title">Light Themes</div>
+                    <button class="theme-option" data-theme-id="light" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot" style="background: #10b981;"></span>
+                            <span class="theme-dot" style="background: #3b82f6;"></span>
+                            <span class="theme-dot" style="background: #f8fafc; border: 1px solid rgba(0, 0, 0, 0.15);"></span>
+                        </span>
+                        <span class="theme-option__name">Classic Light</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button class="theme-option" data-theme-id="light-2" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot" style="background: #2c6058;"></span>
+                            <span class="theme-dot" style="background: #d384ee;"></span>
+                            <span class="theme-dot" style="background: #faeef5; border: 1px solid rgba(0, 0, 0, 0.15);"></span>
+                        </span>
+                        <span class="theme-option__name">Pine & Orchid</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button class="theme-option" data-theme-id="light-3" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot" style="background: #3f7483;"></span>
+                            <span class="theme-dot" style="background: #b32459;"></span>
+                            <span class="theme-dot" style="background: #f5f3e6; border: 1px solid rgba(0, 0, 0, 0.15);"></span>
+                        </span>
+                        <span class="theme-option__name">Citron & Berry</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <div class="theme-menu__divider"></div>
+                    <div class="theme-menu__section-title">Dark Themes</div>
+                    <button class="theme-option" data-theme-id="dark" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot" style="background: #3d7e5e;"></span>
+                            <span class="theme-dot" style="background: #58a6ff;"></span>
+                            <span class="theme-dot" style="background: #0f1117; border: 1px solid rgba(255, 255, 255, 0.2);"></span>
+                        </span>
+                        <span class="theme-option__name">Classic Dark</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button class="theme-option" data-theme-id="dark-2" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot" style="background: #2ea043;"></span>
+                            <span class="theme-dot" style="background: #40a9ff;"></span>
+                            <span class="theme-dot" style="background: #000; border: 1px solid rgba(255, 255, 255, 0.25);"></span>
+                        </span>
+                        <span class="theme-option__name">AMOLED Black</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                </div>
+            </div>
             <button class="icon-btn" id="info-btn" title="How it works">
                 <i data-lucide="info"></i>
             </button>

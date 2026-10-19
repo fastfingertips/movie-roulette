@@ -4,7 +4,7 @@ import { renderHistory, renderResult, setView, showToast, hideToast } from './mo
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls } from './modules/fields.js';
 import { checkUrlParams } from './modules/utils.js';
-import { initTheme, toggleTheme } from './modules/theme.js';
+import { initTheme } from './modules/theme.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
 import { CONFIG } from './constants.js';
 import { initKeyboardShortcuts } from './modules/keyboard.js';
@@ -297,7 +297,6 @@ elements.statsBtn.addEventListener('click', () => {
     }
 });
 
-$('theme-toggle').addEventListener('click', toggleTheme);
 
 $('close-stats-btn').addEventListener('click', () => setView('result'));
 elements.statsModal.addEventListener('click', (e) => { 

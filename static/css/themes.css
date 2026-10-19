@@ -1,0 +1,260 @@
+/* stylelint-disable declaration-property-value-no-unknown */
+
+/* ==========================================================================
+   Themes Configuration & Design Tokens
+   Supports modular palettes with light and dark base modes.
+   ========================================================================== */
+
+:root {
+    --font-ui: 'DM Sans', sans-serif;
+    --font-serif: 'Lora', serif;
+    --radius-sharp: 12px;
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root,
+[data-theme="light"] {
+    --color-bg: #f8fafc;
+    --color-bg-rgb: 248, 250, 252;
+    --color-surface: rgb(255, 255, 255, 0.7);
+    --color-border: #e2e8f0;
+    --color-green: #10b981;
+    --color-green-glow: rgb(16, 185, 129, 0.15);
+    --color-blue: #3b82f6;
+    --color-text: #1e293b;
+    --color-text-secondary: #64748b;
+    --color-text-muted: #94a3b8;
+    --color-accent-subtle: rgb(59, 130, 246, 0.08);
+    --color-pill-bg: rgb(0, 0, 0, 0.04);
+    --color-pill-text: #64748b;
+    --color-pill-border: transparent;
+    --color-stars: #10b981;
+    --color-grid-line: rgb(0, 0, 0, 0.08);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(16, 185, 129, 0.08), transparent 70%);
+}
+
+[data-theme="dark"] {
+    --color-bg: #0f1117;
+    --color-bg-rgb: 15, 17, 23;
+    --color-surface: rgb(22, 27, 34, 0.65);
+    --color-border: rgb(255, 255, 255, 0.08);
+    --color-green: #3d7e5e;
+    --color-green-glow: rgb(61, 126, 94, 0.18);
+    --color-blue: #58a6ff;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #8b949e;
+    --color-text-muted: #484f58;
+    --color-accent-subtle: rgb(88, 166, 255, 0.1);
+    --color-pill-bg: rgb(255, 255, 255, 0.06);
+    --color-pill-text: #94a3b8;
+    --color-pill-border: transparent;
+    --color-stars: #3d7e5e;
+    --color-grid-line: rgb(255, 255, 255, 0.05);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(61, 126, 94, 0.12), transparent 70%);
+}
+
+/* --- Açık Tema 2: Pine & Orchid (Blush Background) --- */
+/* Palette: #F8FAFC, #2C6058, #D384EE, #FBDBEC, #535C9D, #53B019 */
+[data-theme="light-2"] {
+    --color-bg: #faeef5;
+    --color-bg-rgb: 250, 238, 245;
+    --color-surface: rgb(255, 255, 255, 0.72);
+    --color-border: rgb(44, 96, 88, 0.2);
+    --color-green: #53b019;
+    --color-green-glow: rgb(83, 176, 25, 0.25);
+    --color-blue: #d384ee;
+    --color-text: #2c6058;
+    --color-text-secondary: #535c9d;
+    --color-text-muted: #848cb6;
+    --color-accent-subtle: #fbdbec;
+    --color-pill-bg: #fbdbec;
+    --color-pill-text: #2c6058;
+    --color-pill-border: rgb(211, 132, 238, 0.35);
+    --color-stars: #53b019;
+    --color-grid-line: rgb(44, 96, 88, 0.1);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(211, 132, 238, 0.18), rgb(83, 176, 25, 0.08), transparent 70%);
+}
+
+/* --- Açık Tema 3: Citron & Berry (Warm Oat Background) --- */
+/* Palette: #F8FAFC, #B6C514, #9192B6, #E8E5C4, #3F7483, #4AB033, #B32459 */
+[data-theme="light-3"] {
+    --color-bg: #f5f3e6;
+    --color-bg-rgb: 245, 243, 230;
+    --color-surface: rgb(255, 255, 255, 0.75);
+    --color-border: rgb(63, 116, 131, 0.22);
+    --color-green: #b32459;
+    --color-green-glow: rgb(179, 36, 89, 0.25);
+    --color-blue: #3f7483;
+    --color-text: #3f7483;
+    --color-text-secondary: #9192b6;
+    --color-text-muted: #a6a8c4;
+    --color-accent-subtle: #e8e5c4;
+    --color-pill-bg: #e8e5c4;
+    --color-pill-text: #3f7483;
+    --color-pill-border: rgb(182, 197, 20, 0.45);
+    --color-stars: #4ab033;
+    --color-grid-line: rgb(63, 116, 131, 0.1);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(182, 197, 20, 0.2), rgb(179, 36, 89, 0.1), transparent 70%);
+}
+
+/* --- Koyu Tema 2: AMOLED Black (Pure Black #000) --- */
+[data-theme="dark-2"] {
+    --color-bg: #000;
+    --color-bg-rgb: 0, 0, 0;
+    --color-surface: rgb(14, 14, 16, 0.72);
+    --color-border: rgb(255, 255, 255, 0.12);
+    --color-green: #2ea043;
+    --color-green-glow: rgb(46, 160, 67, 0.2);
+    --color-blue: #40a9ff;
+    --color-text: #fff;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #52525b;
+    --color-accent-subtle: rgb(64, 169, 255, 0.12);
+    --color-pill-bg: rgb(255, 255, 255, 0.08);
+    --color-pill-text: #e4e4e7;
+    --color-pill-border: rgb(255, 255, 255, 0.15);
+    --color-stars: #3fb950;
+    --color-grid-line: rgb(255, 255, 255, 0.04);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(46, 160, 67, 0.08), transparent 70%);
+}
+
+/* ==========================================================================
+   Theme Picker UI Components
+   ========================================================================== */
+
+.theme-picker-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.theme-palette-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-secondary);
+    transition: var(--transition);
+}
+
+.icon-btn:hover .theme-palette-icon {
+    color: var(--color-blue);
+    transform: rotate(15deg);
+}
+
+.theme-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 220px;
+    background: var(--color-surface);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgb(0, 0, 0, 0.12);
+    padding: 8px;
+    z-index: 1000;
+    transform-origin: top right;
+    animation: menu-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme^="dark"] .theme-menu {
+    background: rgb(22, 27, 34, 0.92);
+    box-shadow: 0 16px 36px rgb(0, 0, 0, 0.4);
+}
+
+[data-theme="dark-2"] .theme-menu {
+    background: rgb(10, 10, 12, 0.95);
+    border-color: rgb(255, 255, 255, 0.15);
+    box-shadow: 0 16px 40px rgb(0, 0, 0, 0.7);
+}
+
+@keyframes menu-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.theme-menu__section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    padding: 6px 8px 4px;
+}
+
+.theme-menu__divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: 6px 4px;
+}
+
+.theme-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text);
+    text-align: left;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.theme-option:hover {
+    background: rgb(0, 0, 0, 0.05);
+}
+
+[data-theme^="dark"] .theme-option:hover {
+    background: rgb(255, 255, 255, 0.06);
+}
+
+.theme-option.is-active {
+    background: var(--color-accent-subtle);
+    font-weight: 700;
+}
+
+.theme-option__swatches {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.theme-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 1px 2px rgb(0, 0, 0, 0.15);
+}
+
+.theme-option__name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.theme-option__check {
+    width: 14px;
+    height: 14px;
+    color: var(--color-blue);
+    opacity: 0;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+}
+
+.theme-option.is-active .theme-option__check {
+    opacity: 1;
+}
