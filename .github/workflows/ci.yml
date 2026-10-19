@@ -37,5 +37,8 @@ jobs:
     - name: Run Lint
       run: npm run lint
 
+    - name: Run CSS Lint
+      run: npm run lint:css
+
     - name: Run Copy-Paste Detection (jscpd)
       run: npm run cpd
