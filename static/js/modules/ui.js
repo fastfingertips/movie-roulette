@@ -44,11 +44,40 @@ export const renderHistory = (useListCallback) => {
     if (window.lucide) window.lucide.createIcons();
 };
 
+export const encodeTextFragment = (text) => {
+    if (!text) return '';
+    return encodeURIComponent(text)
+        .replace(/-/g, '%2D')
+        .replace(/,/g, '%2C');
+};
+
+export const getListHighlightUrl = (list, movie, page = 1) => {
+    if (!list || !list.user) return null;
+    const isWatchlist = list.slug === 'watchlist';
+    const pagePart = page && page > 1 ? `page/${page}/` : '';
+    
+    if (isWatchlist) {
+        const hash = movie?.slug ? `#${movie.slug}` : '';
+        return `https://letterboxd.com/${list.user}/watchlist/${pagePart}${hash}`;
+    }
+    
+    const targetText = movie?.name ? `${movie.name}${movie.year || ''}` : '';
+    const fragment = targetText ? `#:~:text=${encodeTextFragment(targetText)}` : '';
+    return `https://letterboxd.com/${list.user}/list/${list.slug}/detail/${pagePart}${fragment}`;
+};
+
 export const renderResult = (data) => {
     // 1. Text & Links
+    const listHighlightUrl = getListHighlightUrl(data.list, data.movie, data.page || data.list?.page || 1);
+
     // Render name and year inline (like Letterboxd)
     elements.resMovie.innerHTML = `${data.movie.name} <span class="result-year">${data.movie.year || ''}</span>`;
-    elements.resMeta.innerHTML = `from ${data.list.title}`;
+    
+    if (listHighlightUrl) {
+        elements.resMeta.innerHTML = `from <a href="${listHighlightUrl}" target="_blank" rel="noopener" class="result-list-link" title="Open in Letterboxd list with highlight">${data.list.title}</a>`;
+    } else {
+        elements.resMeta.innerHTML = `from ${data.list.title}`;
+    }
     
     // Director (immediately under meta, styled inline/beautifully)
     if (elements.resDirector) {
@@ -105,6 +134,21 @@ export const renderResult = (data) => {
 
     elements.resLink.href = data.movie.url;
     elements.resPosterLink.href = data.movie.url;
+    if (elements.resListLink) {
+        if (listHighlightUrl) {
+            elements.resListLink.href = listHighlightUrl;
+            const btnText = elements.resListLink.querySelector('.btn-text');
+            if (btnText) {
+                btnText.textContent = data.list.slug === 'watchlist' ? 'Watchlist' : 'View in List';
+            }
+            elements.resListLink.title = data.list.slug === 'watchlist'
+                ? 'Open watchlist page in Letterboxd'
+                : 'View film highlighted in source list';
+            elements.resListLink.classList.remove('is-hidden');
+        } else {
+            elements.resListLink.classList.add('is-hidden');
+        }
+    }
     
     // 2. Stars rendering
     if (data.movie.rating) {

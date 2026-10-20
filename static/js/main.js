@@ -235,6 +235,7 @@ export const performRandomize = async (urls) => {
         const finalData = {
             movie: detailData.movie,
             list: selectData.list,
+            page: selectData.meta?.page || 1,
             stats: {
                 total_pool: metaData.total,
                 probability: probability < 0.01 ? probability.toFixed(4) : probability.toFixed(2),
@@ -440,6 +441,10 @@ initKeyboardShortcuts({
     onOpen: () => {
         const link = $('result-link');
         if (link && link.href) window.open(link.href, '_blank');
+    },
+    onViewInList: () => {
+        const listLink = $('result-list-link');
+        if (listLink && listLink.href) window.open(listLink.href, '_blank');
     },
     onShare: () => handleShareMix(),
     onAddField: () => handleAddField(),

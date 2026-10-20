@@ -20,6 +20,7 @@ export const elements = {
     resPoster: $('result-poster'),
     resPosterLink: $('result-poster-link'),
     resLink: $('result-link'),
+    resListLink: $('result-list-link'),
     resBodyBlock: $('result-body-block'),
     resInfo: $('result-info'),
     statPool: $('stat-pool'),

@@ -58,12 +58,15 @@ def get_random_movie_meta(user, slug, count):
     if not movies_meta and random_page > 1:
         page_dom = parse_url(get_page_url(list_url, 1))
         movies_meta = extract_movies_from_vertical_list(page_dom)
+        random_page = 1
 
     if not movies_meta:
         return None
 
     candidate_id = random.choice(list(movies_meta.keys()))
-    return movies_meta[candidate_id]  # {slug, name, year, url}
+    meta = dict(movies_meta[candidate_id])
+    meta["page"] = random_page
+    return meta
 
 
 @progress_step("Fetching Film Details (Poster & Rating)")
