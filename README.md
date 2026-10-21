@@ -23,11 +23,17 @@ A simple web application to pick a random movie from Letterboxd lists: **[roulet
 
 ## Local Development
 
-1. Install dependencies:
+1. Install backend and frontend dependencies:
    ```bash
    pip install -r requirements.txt
+   npm install
    ```
-2. Run the server:
+2. Run tests and linters:
+   ```bash
+   npm test
+   npm run lint
+   ```
+3. Run the server:
    ```bash
    python -m api.index
    ```
