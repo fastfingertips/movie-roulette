@@ -61,7 +61,11 @@ def api_metadata():
             logger.debug("Found %d items in %s", count, title)
 
         total_count = sum(item["count"] for item in list_data)
-        logger.info("api_metadata success (%d lists, %d total movies)", len(list_data), total_count)
+        logger.info(
+            "api_metadata success (%d lists, %d total movies)",
+            len(list_data),
+            total_count,
+        )
         return jsonify({"lists": list_data, "total": total_count})
 
     except Exception as e:
@@ -91,7 +95,9 @@ def api_select():
         if not meta:
             return (
                 jsonify(
-                    {"error": "Failed to pick a movie from the selected list. Please try again."}
+                    {
+                        "error": "Failed to pick a movie from the selected list. Please try again."
+                    }
                 ),
                 502,
             )
