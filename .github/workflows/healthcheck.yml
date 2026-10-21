@@ -1,0 +1,29 @@
+name: Letterboxd Healthcheck
+
+on:
+  schedule:
+    # Run every Monday at 06:00 UTC (09:00 TR time)
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run Live Letterboxd Smoke Test
+        run: pytest tests -m smoke -v
