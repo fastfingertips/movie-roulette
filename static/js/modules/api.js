@@ -14,25 +14,27 @@ const parseResponse = async (responsePromiseOrObject, fallbackError) => {
     return await res.json();
 };
 
-const postJson = async (endpoint, payload, fallbackError) => {
+const postJson = async (endpoint, payload, fallbackError, signal = null) => {
     const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: signal || undefined
     });
     return parseResponse(res, fallbackError);
 };
 
-export const startMetadataFetch = (urls) => fetch('/api/metadata', {
+export const startMetadataFetch = (urls, signal = null) => fetch('/api/metadata', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ urls })
+    body: JSON.stringify({ urls }),
+    signal: signal || undefined
 });
 
 export const parseApiResponse = (responsePromise, fallbackError) => parseResponse(responsePromise, fallbackError);
 
-export const fetchMetadata = (urls) => postJson('/api/metadata', { urls }, 'Metadata failed');
+export const fetchMetadata = (urls, signal = null) => postJson('/api/metadata', { urls }, 'Metadata failed', signal);
 
-export const selectRandomMovie = (lists, total) => postJson('/api/select', { lists, total }, 'Selection failed');
+export const selectRandomMovie = (lists, total, signal = null) => postJson('/api/select', { lists, total }, 'Selection failed', signal);
 
-export const fetchMovieDetails = (slug) => postJson('/api/details', { slug }, 'Details failed');
+export const fetchMovieDetails = (slug, signal = null) => postJson('/api/details', { slug }, 'Details failed', signal);

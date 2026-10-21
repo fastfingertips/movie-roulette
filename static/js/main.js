@@ -159,12 +159,21 @@ const cleanEmptyFields = async () => {
     await new Promise(r => setTimeout(r, 600));
 };
 
+let activeAbortController = null;
+
 export const performRandomize = async (urls) => {
+    // Abort any existing in-flight randomize requests to prevent race conditions
+    if (activeAbortController) {
+        activeAbortController.abort();
+    }
+    activeAbortController = new AbortController();
+    const { signal } = activeAbortController;
+
     // 0. Start UI Cleanup AND Metadata Fetch in parallel
     const cleanupTask = cleanEmptyFields();
     
     // Start Step 1 fetch immediately (optimistic start)
-    const metaFetchPromise = startMetadataFetch(urls);
+    const metaFetchPromise = startMetadataFetch(urls, signal);
 
     Log.info('Booting Randomizer...', { urls });
     currentUrlsForRetry = urls;
@@ -206,7 +215,7 @@ export const performRandomize = async (urls) => {
         Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total });
 
         const selectStart = Date.now();
-        const selectData = await selectRandomMovie(metaData.lists, metaData.total);
+        const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal);
         const selectDuration = (Date.now() - selectStart) / 1000;
         Log.success('Selection complete', selectData);
         
@@ -216,7 +225,7 @@ export const performRandomize = async (urls) => {
         Log.info(`Requesting details for ${selectData.meta.slug}...`);
 
         const detailStart = Date.now();
-        const detailData = await fetchMovieDetails(selectData.meta.slug);
+        const detailData = await fetchMovieDetails(selectData.meta.slug, signal);
         const detailDuration = (Date.now() - detailStart) / 1000;
         Log.success('Details received', detailData);
         updateBackdrop(detailData.movie.backdrop);
@@ -270,16 +279,22 @@ export const performRandomize = async (urls) => {
         updateUI();
 
     } catch (err) {
+        if (signal.aborted || err.name === 'AbortError') {
+            Log.info('Previous spin cancelled by newer request');
+            return;
+        }
         clearInterval(bgIntervals.prg);
         setView('form');
         showToast(err.message || 'Processing failed');
         Log.error('Randomization Flow Interrupted', err);
     } finally {
-        const btnTextNode = submitBtn.querySelector('.btn-text');
-        if (btnTextNode) btnTextNode.textContent = 'Spin the wheel';
-        resultBtns.forEach(btn => { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; });
-        updateUI();
-        Log.info('Flow End / Cleaned up.');
+        if (!signal.aborted) {
+            const btnTextNode = submitBtn.querySelector('.btn-text');
+            if (btnTextNode) btnTextNode.textContent = 'Spin the wheel';
+            resultBtns.forEach(btn => { btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; });
+            updateUI();
+            Log.info('Flow End / Cleaned up.');
+        }
     }
 };
 
