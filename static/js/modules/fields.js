@@ -188,8 +188,13 @@ export const detectFieldType = (inputEl) => {
 
     // Letterboxd identifiers (usernames/slugs) are alphanumeric + underscores/dashes
     const isValidIdentifier = (s) => /^[a-z0-9_-]+$/.test(s);
+    const RESERVED_SLUGS = ['films', 'following', 'followers', 'reviews', 'lists', 'activity', 'members'];
 
-    if (val.includes('/watchlist/') || (parts.length === 1 && isValidIdentifier(parts[0]))) {
+    const isWatchlist = (parts.length === 1 && isValidIdentifier(parts[0]) && !RESERVED_SLUGS.includes(parts[0])) ||
+                        (parts.length === 2 && parts[1] === 'watchlist' && isValidIdentifier(parts[0])) ||
+                        (val.includes('/watchlist') && isValidIdentifier(parts[0]));
+
+    if (isWatchlist) {
         statusEl.textContent = 'Watchlist';
         statusEl.classList.add('is-visible');
         if (metaEl) {
@@ -198,7 +203,10 @@ export const detectFieldType = (inputEl) => {
             metaEl.classList.add('is-visible');
             inputEl.classList.add('has-meta');
         }
-    } else if (val.includes('/list/') || (parts.length === 2 && parts.every(isValidIdentifier))) {
+    } else if (
+        (val.includes('/list/') && parts.length >= 3 && isValidIdentifier(parts[0]) && isValidIdentifier(parts[2])) ||
+        (parts.length === 2 && parts.every(isValidIdentifier) && !RESERVED_SLUGS.includes(parts[1]))
+    ) {
         statusEl.textContent = 'List';
         statusEl.classList.add('is-visible');
         if (metaEl) {
