@@ -8,15 +8,23 @@
     "lint": "eslint \"static/js/**/*.js\"",
     "lint:css": "stylelint \"static/css/**/*.css\"",
     "cpd": "jscpd .",
-    "test": "pytest tests"
+    "test": "pytest tests",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.13.0",
     "eslint-plugin-html": "^8.2.1",
     "globals": "^17.13.0",
+    "husky": "^9.1.7",
     "jscpd": "^5.4.1",
+    "lint-staged": "^17.6.0",
     "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0"
+  },
+  "lint-staged": {
+    "static/js/**/*.js": "eslint",
+    "static/css/**/*.css": "stylelint",
+    "**/*.py": "ruff check"
   }
 }
