@@ -1,0 +1,27 @@
+#!/bin/sh
+# Git commit-msg hook: Enforce subject line length constraint (max 62 characters)
+
+commit_msg_file="$1"
+
+if [ ! -f "$commit_msg_file" ]; then
+    exit 0
+fi
+
+# Read the first non-comment line (subject line)
+subject=$(grep -v '^#' "$commit_msg_file" | head -n 1)
+
+length=${#subject}
+max_length=62
+
+if [ "$length" -gt "$max_length" ]; then
+    echo "" >&2
+    echo "[ERROR] Commit message subject line exceeds $max_length characters ($length chars)." >&2
+    echo "Subject: $subject" >&2
+    echo "" >&2
+    echo "Rule: Please keep the subject line at or under $max_length characters." >&2
+    echo "Commit aborted." >&2
+    echo "" >&2
+    exit 1
+fi
+
+exit 0
