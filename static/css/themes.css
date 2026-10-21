@@ -7,7 +7,9 @@
 
 :root {
     --font-ui: 'DM Sans', sans-serif;
+    --font-sans: var(--font-ui);
     --font-serif: 'Lora', serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
     --radius-sharp: 12px;
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

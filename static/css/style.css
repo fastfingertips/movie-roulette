@@ -1044,7 +1044,7 @@
         [data-theme^="dark"] .result-title { color: #fff; }
         
         .result-year {
-            font-family: var(--font-sans);
+            font-family: var(--font-sans, var(--font-ui));
             font-size: 19px;
             font-weight: 400;
             color: var(--color-text-secondary);
