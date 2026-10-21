@@ -4,7 +4,7 @@ from letterboxdpy.core.exceptions import (
     ResourceNotFoundError,
 )
 
-from api.utils import extract_info, get_error_response, LETTERBOXD_UNAVAILABLE_MESSAGE
+from api.utils import LETTERBOXD_UNAVAILABLE_MESSAGE, extract_info, get_error_response
 from tests.conftest import (
     TEST_LIST_URL,
     TEST_SLUG,

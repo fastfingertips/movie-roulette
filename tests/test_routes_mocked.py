@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 from tests.conftest import (
     TEST_LIST_ITEM,
     TEST_LIST_TITLE,

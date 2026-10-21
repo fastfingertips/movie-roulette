@@ -5,7 +5,6 @@ import time
 from functools import wraps
 
 from flask import jsonify
-
 from letterboxdpy.core.exceptions import (
     AccessDeniedError,
     PrivateRouteError,
@@ -59,9 +58,8 @@ def extract_info(val):
     parts = [p for p in val.split("/") if p]
 
     # Handle single username (treat as watchlist)
-    if len(parts) == 1:
-        if parts[0] not in ("films", "lists", "activity", "members"):
-            return parts[0], "watchlist"
+    if len(parts) == 1 and parts[0] not in ("films", "lists", "activity", "members"):
+        return parts[0], "watchlist"
 
     # Format: user/list/slug
     if len(parts) >= 3 and parts[1] == "list":

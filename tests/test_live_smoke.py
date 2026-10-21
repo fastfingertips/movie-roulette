@@ -1,4 +1,5 @@
 import pytest
+
 from api.scraper import get_list_metadata, get_random_movie_meta
 from tests.conftest import TEST_SLUG, TEST_USER
 
