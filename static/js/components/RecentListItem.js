@@ -5,7 +5,7 @@ export const createRecentListItem = (url, activeIndex) => {
     const { name, type } = formatListUrl(url);
     
     return `
-        <div class="history-item ${isActive ? 'is-active-list' : ''}" style="cursor: pointer;" data-url="${url}">
+        <div class="history-item ${isActive ? 'is-active-list' : ''}" style="cursor: pointer;" data-url="${escapeHtml(url)}">
             <div class="history-item__body">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="history-item__name" style="font-size: 11px; font-family: monospace;">${escapeHtml(name)}</span>
