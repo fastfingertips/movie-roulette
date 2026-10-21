@@ -1,5 +1,6 @@
 import { $, elements } from './dom.js';
 import { getHistory, getLists } from './storage.js';
+import { escapeHtml } from './utils.js';
 import { createHistoryItem } from '../components/HistoryItem.js';
 import { createRecentListItem } from '../components/RecentListItem.js';
 
@@ -71,19 +72,19 @@ export const renderResult = (data) => {
     const listHighlightUrl = getListHighlightUrl(data.list, data.movie, data.page || data.list?.page || 1);
 
     // Render name and year inline (like Letterboxd)
-    elements.resMovie.innerHTML = `${data.movie.name} <span class="result-year">${data.movie.year || ''}</span>`;
+    elements.resMovie.innerHTML = `${escapeHtml(data.movie.name)} <span class="result-year">${data.movie.year ? escapeHtml(data.movie.year) : ''}</span>`;
     
     if (listHighlightUrl) {
-        elements.resMeta.innerHTML = `from <a href="${listHighlightUrl}" target="_blank" rel="noopener" class="result-list-link" title="Open in Letterboxd list with highlight">${data.list.title}</a>`;
+        elements.resMeta.innerHTML = `from <a href="${listHighlightUrl}" target="_blank" rel="noopener" class="result-list-link" title="Open in Letterboxd list with highlight">${escapeHtml(data.list.title)}</a>`;
     } else {
-        elements.resMeta.innerHTML = `from ${data.list.title}`;
+        elements.resMeta.innerHTML = `from ${escapeHtml(data.list.title)}`;
     }
     
     // Director (immediately under meta, styled inline/beautifully)
     if (elements.resDirector) {
         if (data.movie.directors?.length) {
             const directorLinks = data.movie.directors.map(d => 
-                d.url ? `<a href="${d.url}" target="_blank" rel="noopener" class="detail-link">${d.name}</a>` : d.name
+                d.url ? `<a href="${d.url}" target="_blank" rel="noopener" class="detail-link">${escapeHtml(d.name)}</a>` : escapeHtml(d.name)
             ).join(', ');
             elements.resDirector.innerHTML = `<span class="detail-label">Directed by</span> ${directorLinks}`;
             elements.resDirector.classList.remove('is-hidden');
@@ -112,7 +113,7 @@ export const renderResult = (data) => {
     if (elements.resCast) {
         if (data.movie.cast?.length) {
             const castLinks = data.movie.cast.map(c => 
-                c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="detail-link">${c.name}</a>` : c.name
+                c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="detail-link">${escapeHtml(c.name)}</a>` : escapeHtml(c.name)
             ).join(', ');
             elements.resCast.innerHTML = `<span class="detail-label">Cast</span> ${castLinks}`;
             elements.resCast.classList.remove('is-hidden');
@@ -124,7 +125,7 @@ export const renderResult = (data) => {
     if (elements.resGenres) {
         if (data.movie.genres?.length) {
             elements.resGenres.innerHTML = data.movie.genres.map(g =>
-                g.url ? `<a href="${g.url}" target="_blank" rel="noopener" class="genre-pill">${g.name}</a>` : `<span class="genre-pill">${g.name}</span>`
+                g.url ? `<a href="${g.url}" target="_blank" rel="noopener" class="genre-pill">${escapeHtml(g.name)}</a>` : `<span class="genre-pill">${escapeHtml(g.name)}</span>`
             ).join('');
             elements.resGenres.classList.remove('is-hidden');
         } else {

@@ -1,4 +1,4 @@
-import { formatListUrl } from '../modules/utils.js';
+import { formatListUrl, escapeHtml } from '../modules/utils.js';
 
 export const createRecentListItem = (url, activeIndex) => {
     const isActive = activeIndex !== -1;
@@ -8,7 +8,7 @@ export const createRecentListItem = (url, activeIndex) => {
         <div class="history-item ${isActive ? 'is-active-list' : ''}" style="cursor: pointer;" data-url="${url}">
             <div class="history-item__body">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="history-item__name" style="font-size: 11px; font-family: monospace;">${name}</span>
+                    <span class="history-item__name" style="font-size: 11px; font-family: monospace;">${escapeHtml(name)}</span>
                     ${type ? `<span class="field__status is-visible" style="position: static; font-size: 9px; padding: 1px 4px;">${type}</span>` : ''}
                 </div>
             </div>

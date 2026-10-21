@@ -1,6 +1,16 @@
 import { $ } from './dom.js';
 import { addField } from './fields.js';
 
+export const escapeHtml = (str) => {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+};
+
 export const checkUrlParams = (onReady) => {
     const params = new URLSearchParams(window.location.search);
     const providedUrls = new Set();
