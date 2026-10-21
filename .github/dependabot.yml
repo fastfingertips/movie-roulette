@@ -1,25 +1,34 @@
 version: 2
 updates:
-  # Python packages (requirements.txt)
+  # Maintain dependencies for Python (requirements.txt)
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Istanbul"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "chore"
+      prefix: "chore(deps)"
 
-  # Node.js dev dependencies (package.json)
+  # Maintain dependencies for Node.js (package.json)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Istanbul"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "chore"
+      prefix: "chore(deps)"
 
-  # GitHub Actions workflows (.github/workflows)
+  # Maintain GitHub Actions dependencies (.github/workflows)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 3
     commit-message:
-      prefix: "chore"
+      prefix: "chore(ci)"
