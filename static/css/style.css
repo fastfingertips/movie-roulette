@@ -271,7 +271,7 @@
             100% { opacity: 0; transform: translate(-50%, -130%); }
         }
         .field__row { display: flex; gap: 8px; flex: 1; }
-        .field__input-wrapper { position: relative; flex: 1; display: flex; align-items: center; }
+        .field__input-wrapper { position: relative; flex: 1; display: flex; align-items: center; transition: --ratio-n 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
 
         .field__meta {
             position: absolute;
@@ -282,7 +282,7 @@
             font-family: monospace;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: var(--color-text-muted);
+            color: var(--color-text-secondary);
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -293,9 +293,19 @@
             z-index: 1;
             transform: translateY(-2px);
         }
-        .field__meta.is-visible { opacity: 0.4; transform: translateY(0); }
+        .field__meta.is-visible { opacity: 0.7; transform: translateY(0); }
         .field__input { width: 100%; padding: 12px 16px; padding-right: 84px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-sharp); color: var(--color-text); outline: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-size: 14px; height: 46px; }
         .field__input.has-meta { height: 52px; padding-top: 18px; padding-bottom: 6px; }
+
+        .field__badges {
+            position: absolute;
+            right: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+            pointer-events: none;
+        }
 
         .field__status { 
             position: absolute; 
@@ -307,18 +317,121 @@
             color: var(--color-pill-text, var(--color-text-muted)); 
             opacity: 0; 
             pointer-events: none; 
-            transition: all 0.3s ease; 
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
             background: var(--color-pill-bg, rgb(0, 0, 0, 0.04)); 
             border: 1px solid var(--color-pill-border, transparent);
             padding: 2px 6px; 
             border-radius: 4px;
             z-index: 2;
+            white-space: nowrap;
+        }
+        .field__badges .field__status {
+            position: static;
         }
         [data-theme^="dark"] .field__status { background: var(--color-pill-bg, rgb(255, 255, 255, 0.15)); color: var(--color-pill-text, #fff); }
-        .field__status.is-visible { opacity: 0.85; transform: translateX(0); }
+        .field__status.is-visible { opacity: 0.85; transform: scale(1); pointer-events: auto; }
         [data-theme^="dark"] .field__status.is-visible { opacity: 0.9; }
-        .field__status.is-invalid { opacity: 0.8; color: #fe5a5a; background: rgb(254, 90, 90, 0.1); border-color: transparent; }
-        .field__status:not(.is-visible) { transform: translateX(5px); }
+        .field__status.is-invalid { opacity: 0.9; color: #fe5a5a; background: rgb(254, 90, 90, 0.12); border-color: rgb(254, 90, 90, 0.25); cursor: help; }
+        .field__input-wrapper:has(.field__status.is-invalid) .field__input,
+        .field__input.is-invalid {
+            border-color: rgb(254, 90, 90, 0.45);
+        }
+        .field__input-wrapper:has(.field__status.is-invalid) .field__input:focus,
+        .field__input.is-invalid:focus {
+            border-color: #fe5a5a;
+            box-shadow: 0 0 0 4px rgb(254, 90, 90, 0.15);
+        }
+        .field__input-wrapper:has(.field__status.is-invalid) .field__meta {
+            color: #fe5a5a;
+            opacity: 0.95;
+        }
+        .field__status:not(.is-visible) { transform: scale(0.9); }
+        .field__status.is-loading { animation: status-pulse 1s ease-in-out infinite; }
+        @keyframes status-pulse {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes field-cancel-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .field.is-cancelled {
+            animation: field-cancel-shake 0.35s ease;
+        }
+
+        /* Dedicated Ratio Badge with Soft Unfolding Appearance */
+        .field__ratio {
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.02em;
+            color: var(--color-green);
+            background: var(--color-green-glow);
+            border: 1px solid rgb(16, 185, 129, 0.3);
+            border-radius: 4px;
+            padding: 2px 0;
+            max-width: 0;
+            overflow: hidden;
+            border-width: 0;
+            opacity: 0;
+            white-space: nowrap;
+            transform: scale(0.92);
+            transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        padding 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-width 0.3s ease,
+                        opacity 0.35s ease 0.05s,
+                        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            cursor: help;
+        }
+
+        [data-theme^="dark"] .field__ratio {
+            background: rgb(16, 185, 129, 0.12);
+            border-color: rgb(16, 185, 129, 0.35);
+        }
+
+        .field__ratio.is-visible {
+            max-width: 80px;
+            padding: 2px 6px;
+            border-width: 1px;
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        .field__input.has-ratio { padding-right: 140px; }
+        .field__input.has-ratio ~ .field__meta { max-width: calc(100% - 160px); }
+
+
+
+        @property --ratio-n {
+            syntax: '<number>';
+            inherits: true;
+            initial-value: 0;
+        }
+        .field__input-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid var(--color-green);
+            border-radius: var(--radius-sharp);
+            mask-image: linear-gradient(
+                to right,
+                #000 0,
+                #000 max(4px, calc(var(--ratio-n) * 100% - 24px)),
+                transparent calc(var(--ratio-n) * 100% + 4px)
+            );
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .field__input-wrapper:has(.field__input.has-ratio)::after {
+            opacity: 1;
+        }
         [data-theme^="dark"] .field__input { background: rgb(0,0,0,0.3); color: #fff; }
         [data-theme^="dark"] .field__number { opacity: 0.7; color: #fff; }
         [data-theme^="dark"] .field__meta.is-visible { opacity: 0.6; color: #fff; }

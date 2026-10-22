@@ -1,7 +1,10 @@
 import { $ } from './dom.js';
 import { createUrlField } from '../components/UrlField.js';
 import { CONFIG } from '../constants.js';
-import { formatListUrl } from './utils.js';
+import { formatListUrl, canonicalKey, stripOrigin, RESERVED_SLUGS } from './utils.js';
+import { loadCount } from './listStats.js';
+import { fetchMetadata } from './api.js';
+import { showToast } from './ui.js';
 
 let urlCount = 1;
 
@@ -56,6 +59,10 @@ export const renumberFields = () => {
 
     $('url-fields').classList.toggle('is-single-field', urlCount === 1);
     $('add-url-btn').classList.toggle('is-hidden', urlCount >= CONFIG.MAX_URLS);
+    const samplingWrapper = $('sampling-toggle-wrapper');
+    if (samplingWrapper) {
+        samplingWrapper.classList.toggle('is-hidden', urlCount <= 1);
+    }
 };
 
 export const addField = (callback, value = '') => {
@@ -72,6 +79,7 @@ export const addField = (callback, value = '') => {
         renumberFields(); // Keep tooltips in sync as user types
         callback();
     });
+    attachWatchlistWatcher(input, callback);
     
     div.querySelector('.field__remove').addEventListener('click', () => { 
         if (input.value !== '') {
@@ -121,11 +129,119 @@ export const animateShorten = (inputEl, shortForm) => {
                         clearInterval(typeInterval);
                         isAnimating = false;
                         detectFieldType(inputEl);
+                        if (document.activeElement !== inputEl) loadCount(inputEl);
                     }
                 }, typeSpeed);
             }, 300);
         }
     }, eraseSpeed);
+};
+
+// Cache for list existence checks: username -> boolean (true: custom list exists, false: does not)
+const customListExistenceCache = new Map();
+const watchlistDebounceTimers = new Map();
+
+export const checkAndResolveWatchlistSuffix = async (inputEl, updateUICallback) => {
+    if (isAnimating || !inputEl) return;
+
+    const rawVal = inputEl.value.trim().toLowerCase();
+    const parts = stripOrigin(rawVal).split('/').filter(Boolean);
+
+    // Only triggers for username/watchlist format (not username/list/watchlist)
+    if (parts.length !== 2 || parts[1] !== 'watchlist') return;
+
+    const username = parts[0];
+    const wrapper = inputEl.closest('.field__input-wrapper');
+    const statusEl = wrapper ? wrapper.querySelector('.field__status') : null;
+
+    // Check if another field already has this username (as watchlist)
+    const allInputs = Array.from(document.querySelectorAll('.field__input'));
+    const isUsernameAlreadyPresent = allInputs.some((other) => {
+        if (other === inputEl) return false;
+        const otherVal = other.value.trim().toLowerCase();
+        if (!otherVal) return false;
+        const key = canonicalKey(otherVal);
+        return key === `${username}/watchlist` || otherVal === username;
+    });
+
+    // Check cache first
+    let hasCustomList = customListExistenceCache.get(username);
+
+    if (hasCustomList === undefined) {
+        // Show subtle checking status
+        if (statusEl) {
+            statusEl.textContent = 'Checking…';
+            statusEl.classList.remove('is-invalid');
+            statusEl.classList.add('is-visible', 'is-loading');
+        }
+
+        try {
+            // Check if user has a custom list titled 'watchlist'
+            await fetchMetadata([`${username}/list/watchlist`]);
+            hasCustomList = true;
+            customListExistenceCache.set(username, true);
+        } catch {
+            hasCustomList = false;
+            customListExistenceCache.set(username, false);
+        } finally {
+            if (statusEl) {
+                statusEl.classList.remove('is-loading');
+            }
+        }
+    }
+
+    // Input might have changed while awaiting
+    if (inputEl.value.trim().toLowerCase() !== rawVal) return;
+
+    if (hasCustomList) {
+        // The user actually has a custom list named 'watchlist'!
+        inputEl.value = `${username}/list/watchlist`;
+        detectFieldType(inputEl);
+        if (updateUICallback) updateUICallback();
+        loadCount(inputEl);
+    } else {
+        // No custom list named 'watchlist' exists on Letterboxd.
+        // It was intended to be the user's account watchlist.
+        if (isUsernameAlreadyPresent) {
+            // Cancel the entry as user's watchlist is already present
+            inputEl.value = '';
+            detectFieldType(inputEl);
+            if (updateUICallback) updateUICallback();
+            showToast(`'${username}' is already included.`);
+        } else {
+            // Convert to username using the typewriter animation
+            showToast(`No list named 'watchlist' found. For watchlists, just type your username.`);
+            animateShorten(inputEl, username);
+        }
+    }
+};
+
+export const attachWatchlistWatcher = (input, updateUICallback) => {
+    input.addEventListener('input', () => {
+        const parts = stripOrigin(input.value).split('/').filter(Boolean);
+        if (parts.length === 2 && parts[1] === 'watchlist') {
+            clearTimeout(watchlistDebounceTimers.get(input));
+            const timer = setTimeout(() => {
+                checkAndResolveWatchlistSuffix(input, updateUICallback);
+            }, 600);
+            watchlistDebounceTimers.set(input, timer);
+        }
+    });
+};
+
+// Fetch a list's film count as soon as the user leaves its textbox
+export const initFieldStats = (updateUICallback) => {
+    $('url-fields').addEventListener('focusout', (e) => {
+        if (isAnimating || !e.target.matches('.field__input')) return;
+        const inputEl = e.target;
+        const parts = stripOrigin(inputEl.value).split('/').filter(Boolean);
+
+        if (parts.length === 2 && parts[1] === 'watchlist') {
+            checkAndResolveWatchlistSuffix(inputEl, updateUICallback);
+        } else {
+            loadCount(inputEl);
+        }
+    });
 };
 
 export const detectFieldType = (inputEl) => {
@@ -140,11 +256,12 @@ export const detectFieldType = (inputEl) => {
     
     if (!rawVal) {
         statusEl.classList.remove('is-visible', 'is-invalid');
+        statusEl.removeAttribute('title');
         if (metaEl) {
             metaEl.classList.remove('is-visible');
             metaEl.textContent = '';
         }
-        inputEl.classList.remove('has-meta');
+        inputEl.classList.remove('has-meta', 'is-invalid');
         return;
     }
 
@@ -164,13 +281,15 @@ export const detectFieldType = (inputEl) => {
     
     if (isUrl && !isLetterboxd) {
         statusEl.textContent = 'Invalid';
+        statusEl.title = 'Please enter a valid Letterboxd URL or username';
         statusEl.classList.add('is-visible', 'is-invalid');
+        inputEl.classList.add('is-invalid');
         return;
     }
 
     // Strict validation: Incomplete paths (user/) are invalid, but full paths or watchlist paths with trailing slashes are OK
-    const val = rawVal.replace(/^https?:\/\/(www\.)?letterboxd\.com\//, "");
-    const parts = val.split('/').filter(p => p);
+    const val = stripOrigin(rawVal);
+    const parts = val.split('/').filter(Boolean);
     const isExplicitList = val.includes('/list/');
 
     // Invalid if:
@@ -180,45 +299,88 @@ export const detectFieldType = (inputEl) => {
     
     if (isIncomplete || (parts.length > 1 && !isExplicitList && parts.length !== 2)) {
         statusEl.textContent = 'Invalid';
+        statusEl.title = 'Incomplete list path';
         statusEl.classList.add('is-visible', 'is-invalid');
+        inputEl.classList.add('is-invalid');
         return;
     }
 
-    statusEl.classList.remove('is-invalid');
-
     // Letterboxd identifiers (usernames/slugs) are alphanumeric + underscores/dashes
     const isValidIdentifier = (s) => /^[a-z0-9_-]+$/.test(s);
-    const RESERVED_SLUGS = ['films', 'following', 'followers', 'reviews', 'lists', 'activity', 'members'];
 
-    const isWatchlist = (parts.length === 1 && isValidIdentifier(parts[0]) && !RESERVED_SLUGS.includes(parts[0])) ||
-                        (parts.length === 2 && parts[1] === 'watchlist' && isValidIdentifier(parts[0])) ||
-                        (val.includes('/watchlist') && isValidIdentifier(parts[0]));
+    const isWatchlist = !isExplicitList && (
+        (parts.length === 1 && isValidIdentifier(parts[0]) && !RESERVED_SLUGS.includes(parts[0])) ||
+        (parts.length === 2 && parts[1] === 'watchlist' && isValidIdentifier(parts[0])) ||
+        (val.includes('/watchlist') && isValidIdentifier(parts[0]))
+    );
+
+    // Check for duplicate canonical target across fields
+    const myKey = canonicalKey(rawVal);
+    if (myKey) {
+        const allInputs = Array.from(document.querySelectorAll('.field__input'));
+        const myIndex = allInputs.indexOf(inputEl);
+        const duplicateOf = allInputs.find((other, otherIndex) => {
+            if (other === inputEl) return false;
+            const otherVal = other.value.trim();
+            if (!otherVal) return false;
+            return canonicalKey(otherVal) === myKey && otherIndex < myIndex;
+        });
+
+        if (duplicateOf) {
+            statusEl.textContent = 'Duplicate';
+            statusEl.classList.remove('is-loading');
+            statusEl.classList.add('is-visible', 'is-invalid');
+            inputEl.classList.add('is-invalid');
+
+            statusEl.title = 'This list is already included in another field.';
+            if (metaEl) {
+                metaEl.textContent = 'Duplicate entry. Already included.';
+                metaEl.classList.add('is-visible');
+                inputEl.classList.add('has-meta');
+            }
+            return;
+        }
+    }
+
+    statusEl.classList.remove('is-invalid');
+    statusEl.removeAttribute('title');
+    inputEl.classList.remove('is-invalid');
+
+    const isExplicitWatchlistSuffix = !isExplicitList && (
+        (parts.length === 2 && parts[1] === 'watchlist') || val.includes('/watchlist')
+    );
 
     if (isWatchlist) {
         statusEl.textContent = 'Watchlist';
+        statusEl.title = 'This is a Letterboxd watchlist';
         statusEl.classList.add('is-visible');
         if (metaEl) {
             const user = parts[0];
-            metaEl.textContent = `https://letterboxd.com/${user}/watchlist/`;
+            const hint = isExplicitWatchlistSuffix ? ' · username alone is sufficient' : '';
+            metaEl.textContent = `https://letterboxd.com/${user}/watchlist/${hint}`;
             metaEl.classList.add('is-visible');
             inputEl.classList.add('has-meta');
         }
     } else if (
-        (val.includes('/list/') && parts.length >= 3 && isValidIdentifier(parts[0]) && isValidIdentifier(parts[2])) ||
-        (parts.length === 2 && parts.every(isValidIdentifier) && !RESERVED_SLUGS.includes(parts[1]))
+        (isExplicitList && parts.length >= 3 && isValidIdentifier(parts[0]) && isValidIdentifier(parts[2])) ||
+        (parts.length === 2 && parts.every(isValidIdentifier) && !RESERVED_SLUGS.includes(parts[1]) && parts[1] !== 'watchlist')
     ) {
         statusEl.textContent = 'List';
+        statusEl.title = 'This is a Letterboxd list';
         statusEl.classList.add('is-visible');
         if (metaEl) {
             const user = parts[0];
-            const list = parts[1] === 'list' ? parts[2] : parts[1];
+            const list = isExplicitList ? parts[2] : parts[1];
             metaEl.textContent = `https://letterboxd.com/${user}/list/${list}/`;
             metaEl.classList.add('is-visible');
             inputEl.classList.add('has-meta');
         }
     } else {
         statusEl.textContent = 'Invalid';
+        const typeHint = parts.length <= 1 ? 'username' : 'list';
+        statusEl.title = `Unrecognized Letterboxd ${typeHint}`;
         statusEl.classList.add('is-visible', 'is-invalid');
+        inputEl.classList.add('is-invalid');
         if (metaEl) metaEl.classList.remove('is-visible');
         inputEl.classList.remove('has-meta');
     }

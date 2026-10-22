@@ -2,8 +2,9 @@ import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode } from './modules/storage.js';
-import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls } from './modules/fields.js';
-import { checkUrlParams } from './modules/utils.js';
+import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls, initFieldStats, attachWatchlistWatcher, checkAndResolveWatchlistSuffix } from './modules/fields.js';
+import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
+import { checkUrlParams, stripOrigin } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
 import { CONFIG } from './constants.js';
@@ -66,18 +67,15 @@ const updateUI = () => {
     const inputs = document.querySelectorAll('.field__input');
     inputs.forEach(detectFieldType);
 
-    // Disable spin button if no URLs are entered
-    const activeUrls = getActiveUrls();
-    const hasValue = activeUrls.length > 0;
+    // Disable spin button if no URLs are entered or if any field is invalid/duplicate
+    const hasValue = getActiveUrls().length > 0;
+    const hasInvalid = Array.from(document.querySelectorAll('.field__status.is-invalid')).length > 0;
     const submitBtn = elements.formArea.querySelector('button[type="submit"]');
     if (submitBtn) {
-        submitBtn.disabled = !hasValue;
+        submitBtn.disabled = !hasValue || hasInvalid;
     }
 
-    if (elements.samplingToggleWrapper) {
-        elements.samplingToggleWrapper.classList.toggle('is-hidden', activeUrls.length <= 1);
-    }
-
+    applyRatios();
     syncUrlToAddressBar();
 };
 
@@ -104,6 +102,7 @@ const handleUseList = (url) => {
         }
     }
     updateUI();
+    refreshAllCounts();
 };
 
 // --- Debug Logging ---
@@ -213,15 +212,13 @@ export const performRandomize = async (urls) => {
         const metaData = await parseApiResponse(metaFetchPromise, 'Metadata failed');
         const metaDuration = (Date.now() - metaStart) / 1000;
         Log.success('Metadata received', metaData);
+        primeCounts(urls, metaData.lists);
         
         // 2. Selection (Honest Progress)
         Log.step('2. SELECT RANDOM MOVIE');
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[2];
-        Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total });
-
-        const numLists = metaData.lists?.length || 1;
-        const isModeEqual = elements.samplingToggle && elements.samplingToggle.checked && numLists > 1;
-        const samplingMode = isModeEqual ? 'equal' : 'proportional';
+        const samplingMode = elements.samplingToggle && elements.samplingToggle.checked ? 'equal' : 'proportional';
+        Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total, mode: samplingMode });
 
         const selectStart = Date.now();
         const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode);
@@ -248,15 +245,15 @@ export const performRandomize = async (urls) => {
 
         // Assemble final data for rendering
         const totalDuration = (Date.now() - startTime) / 1000;
-        const winningListCount = selectData.list?.count || metaData.total;
+        const isModeEqual = (selectData.mode || samplingMode) === 'equal';
+        const numLists = (metaData.lists || []).length || 1;
+        const selectedListCount = selectData.list?.count || 1;
         const probability = isModeEqual
-            ? (1 / numLists) * (1 / winningListCount) * 100
+            ? ((1 / numLists) * (1 / selectedListCount)) * 100
             : (1 / metaData.total) * 100;
-
-        const effectiveOdds = isModeEqual
-            ? Math.round(numLists * winningListCount)
-            : metaData.total;
-        const oddsText = `1 in ${effectiveOdds.toLocaleString()}`;
+        const oddsText = isModeEqual
+            ? `1 in ${(numLists * selectedListCount).toLocaleString()} (${numLists} lists × ${selectedListCount.toLocaleString()} films)`
+            : `1 in ${metaData.total.toLocaleString()}`;
 
         const finalData = {
             movie: detailData.movie,
@@ -273,16 +270,23 @@ export const performRandomize = async (urls) => {
                     details: detailDuration.toFixed(2),
                     total: totalDuration.toFixed(2)
                 },
-                lists: (metaData.lists || []).map(l => ({
-                    title: l.title || `${l.user}'s List`,
-                    user: l.user,
-                    slug: l.slug,
-                    count: l.count,
-                    percentage: isModeEqual
-                        ? Number((100 / numLists).toFixed(1))
-                        : Number(((l.count / metaData.total) * 100).toFixed(1)),
-                    is_winner: l.user === selectData.list.user && l.slug === selectData.list.slug
-                })),
+                lists: (metaData.lists || []).map(l => {
+                    const isWinner = l.user === selectData.list.user
+                        && l.slug === selectData.list.slug
+                        && (Boolean(l.is_watchlist) === Boolean(selectData.list.is_watchlist));
+                    return {
+                        title: l.title || `${l.user}'s List`,
+                        user: l.user,
+                        slug: l.slug,
+                        count: l.count,
+                        is_watchlist: Boolean(l.is_watchlist),
+                        type: l.is_watchlist ? 'Watchlist' : 'List',
+                        percentage: isModeEqual
+                            ? Number((100 / numLists).toFixed(1))
+                            : Number(((l.count / metaData.total) * 100).toFixed(1)),
+                        is_winner: isWinner
+                    };
+                }),
                 inputs: urls,
                 timestamp: new Date().toISOString()
             }
@@ -307,6 +311,37 @@ export const performRandomize = async (urls) => {
         setView('form');
         showToast(err.message || 'Processing failed');
         Log.error('Randomization Flow Interrupted', err);
+
+        // Highlight the offending field if a list was not found or is private
+        if (err.status === 404 || err.status === 403) {
+            const inputs = Array.from(document.querySelectorAll('.field__input'));
+            inputs.forEach(inp => {
+                const parts = stripOrigin(inp.value).split('/').filter(Boolean);
+                const user = parts[0];
+                const slug = parts[1] === 'list' ? parts[2] : (parts[1] || 'watchlist');
+                const isMatch = (user && err.message && err.message.includes(user)) ||
+                                (slug && err.message && err.message.includes(slug)) ||
+                                inputs.length === 1;
+                if (isMatch) {
+                    const isWatchlist = parts.length === 1 || (parts.length === 2 && parts[1] === 'watchlist') || inp.value.includes('/watchlist');
+                    const typeLabel = isWatchlist ? 'Watchlist' : 'List';
+                    const typeLower = isWatchlist ? 'watchlist' : 'list';
+
+                    inp.classList.add('is-invalid');
+                    const statusEl = inp.closest('.field__input-wrapper')?.querySelector('.field__status');
+                    if (statusEl) {
+                        statusEl.textContent = err.status === 403 ? 'Private' : 'Not Found';
+                        statusEl.title = err.status === 403 ? `This ${typeLower} is private on Letterboxd` : `This ${typeLower} could not be found on Letterboxd`;
+                        statusEl.classList.add('is-visible', 'is-invalid');
+                    }
+                    const metaEl = inp.closest('.field__input-wrapper')?.querySelector('.field__meta');
+                    if (metaEl) {
+                        metaEl.textContent = err.status === 403 ? `This ${typeLower} is private` : `${typeLabel} not found on Letterboxd`;
+                        metaEl.classList.add('is-visible');
+                    }
+                }
+            });
+        }
     } finally {
         if (!signal.aborted) {
             const btnTextNode = submitBtn.querySelector('.btn-text');
@@ -338,6 +373,7 @@ $('url-1').addEventListener('input', () => {
     renumberFields(); // Sync tooltips as user types
     updateUI();
 });
+attachWatchlistWatcher($('url-1'), updateUI);
 
 $('info-btn').addEventListener('click', () => setView('info'));
 $('close-modal-btn').addEventListener('click', () => setView('form'));
@@ -353,9 +389,14 @@ if (elements.samplingToggle) {
         const isChecked = elements.samplingToggle.checked;
         const mode = isChecked ? 'equal' : 'proportional';
         saveSamplingMode(mode);
-        window.applyRatios?.();
+        applyRatios();
         if (elements.samplingToggleWrapper) {
             elements.samplingToggleWrapper.classList.toggle('is-active', isChecked);
+        }
+        if (elements.samplingToggleDesc) {
+            elements.samplingToggleDesc.textContent = isChecked
+                ? 'Pick a list with equal 1/N odds, ignoring film counts'
+                : 'Films have equal odds across pool (weighted by list size)';
         }
     });
 
@@ -364,6 +405,9 @@ if (elements.samplingToggle) {
         elements.samplingToggle.checked = true;
         if (elements.samplingToggleWrapper) {
             elements.samplingToggleWrapper.classList.add('is-active');
+        }
+        if (elements.samplingToggleDesc) {
+            elements.samplingToggleDesc.textContent = 'Pick a list with equal 1/N odds, ignoring film counts';
         }
     }
 
@@ -435,12 +479,29 @@ const handleAddField = () => {
 
 const handleFormSubmit = async () => {
     hideToast();
+
+    // If any input currently has 'username/watchlist', resolve it first before submitting
+    const pendingInputs = Array.from(document.querySelectorAll('.field__input')).filter(inp => {
+        const parts = inp.value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?letterboxd\.com\//, '').replace(/\/+$/, '').split('/').filter(Boolean);
+        return parts.length === 2 && parts[1] === 'watchlist';
+    });
+    for (const inp of pendingInputs) {
+        await checkAndResolveWatchlistSuffix(inp, updateUI);
+    }
+
     const urls = getActiveUrls();
     
     if (urls.length === 0) {
         showToast("Please paste at least one list URL to continue.");
         return;
     }
+
+    const invalidStatus = Array.from(document.querySelectorAll('.field__status.is-invalid'))[0];
+    if (invalidStatus) {
+        showToast(invalidStatus.title || "Please resolve duplicate or invalid lists.");
+        return;
+    }
+
     await performRandomize(urls);
 };
 
@@ -514,8 +575,14 @@ initKeyboardShortcuts({
     onSubmit: () => handleFormSubmit()
 });
 
+initFieldStats(updateUI);
 updateUI();
-checkUrlParams(({ urls, shouldRun }) => {
+checkUrlParams(({ urls, shouldRun, hasDuplicateWatchlist }) => {
+    updateUI();
+    if (hasDuplicateWatchlist) {
+        showToast("Duplicate list was excluded.");
+    }
+    if (urls.length > 0) refreshAllCounts();
     if (shouldRun) performRandomize(urls);
 });
 initStatsTabs();
