@@ -44,7 +44,7 @@ export const canonicalKey = (raw) => {
     return null;
 };
 
-export const checkUrlParams = (onReady) => {
+export const checkUrlParams = (onReady, onFieldChange = () => {}) => {
     const params = new URLSearchParams(window.location.search);
     const rawTokens = [];
     
@@ -89,7 +89,7 @@ export const checkUrlParams = (onReady) => {
             if (index === 0) {
                 inputs[0].value = url;
             } else {
-                addField(() => {}, url);
+                addField(onFieldChange, url);
             }
         });
         

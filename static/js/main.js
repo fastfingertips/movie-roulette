@@ -601,6 +601,6 @@ checkUrlParams(({ urls, shouldRun, hasDuplicateWatchlist }) => {
     }
     if (urls.length > 0) refreshAllCounts();
     if (shouldRun) performRandomize(urls);
-});
+}, updateUI);
 initStatsTabs();
 if (window.lucide) window.lucide.createIcons();
