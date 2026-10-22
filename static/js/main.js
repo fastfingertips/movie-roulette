@@ -313,19 +313,26 @@ export const performRandomize = async (urls) => {
         Log.error('Randomization Flow Interrupted', err);
 
         // Highlight the offending field if a list was not found, is private, or is empty
-        if (err.status === 404 || err.status === 403 || err.status === 422 || err.message?.toLowerCase().includes('empty')) {
+        if (err.status === 404 || err.status === 403 || err.status === 422) {
             const inputs = Array.from(document.querySelectorAll('.field__input'));
             inputs.forEach(inp => {
                 const parts = stripOrigin(inp.value).split('/').filter(Boolean);
                 const user = parts[0];
                 const slug = parts[1] === 'list' ? parts[2] : (parts[1] || 'watchlist');
-                const isMatch = (user && err.message && err.message.includes(user)) ||
-                                (slug && err.message && err.message.includes(slug)) ||
-                                inputs.length === 1;
+
+                // Use structured backend fields when available (avoids false matches
+                // from substring matching e.g. "watchlist" appearing in the error message)
+                let isMatch;
+                if (err.errUser) {
+                    isMatch = (user === err.errUser) && (!err.errSlug || slug === err.errSlug || slug === 'watchlist' && err.errSlug === 'watchlist');
+                } else {
+                    isMatch = (user && err.message && err.message.includes(`'${user}'`)) || inputs.length === 1;
+                }
+
                 if (isMatch) {
                     const isWatchlist = parts.length === 1 || (parts.length === 2 && parts[1] === 'watchlist') || inp.value.includes('/watchlist');
                     const typeLower = isWatchlist ? 'watchlist' : 'list';
-                    const isEmpty = err.status === 422 || err.message?.toLowerCase().includes('empty');
+                    const isEmpty = err.status === 422 || err.isEmptyList;
 
                     const badgeText = isEmpty ? 'Empty' : (err.status === 403 ? 'Private' : 'Not Found');
                     const defaultMsg = err.message || (isEmpty

@@ -3,13 +3,23 @@ const parseResponse = async (responsePromiseOrObject, fallbackError) => {
     if (!res.ok) {
         const text = await res.text();
         let errorMessage = fallbackError;
+        let errData = {};
         try {
-            const errData = JSON.parse(text);
+            errData = JSON.parse(text);
             errorMessage = errData.error || errorMessage;
         } catch {
             errorMessage = `Server Error (${res.status})`;
         }
-        throw { userFacing: true, message: errorMessage, status: res.status, raw: text };
+        throw {
+            userFacing: true,
+            message: errorMessage,
+            status: res.status,
+            raw: text,
+            // Structured fields from backend (present on 422 empty list errors)
+            errUser: errData.user || null,
+            errSlug: errData.slug || null,
+            isEmptyList: errData.is_empty === true,
+        };
     }
     return await res.json();
 };

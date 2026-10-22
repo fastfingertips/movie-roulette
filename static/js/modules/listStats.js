@@ -165,9 +165,9 @@ export const loadCount = (input) => {
                 }
             })
             .catch((err) => {
-                const is404 = err.status === 404 || err.message?.toLowerCase().includes('not found') || err.message?.toLowerCase().includes('could not be found');
-                const is403 = err.status === 403 || err.message?.toLowerCase().includes('private');
-                const isEmpty = err.status === 422 || err.message?.toLowerCase().includes('empty');
+                const is404 = err.status === 404;
+                const is403 = err.status === 403;
+                const isEmpty = err.status === 422 || err.isEmptyList === true;
                 if (is404 || is403 || isEmpty) {
                     // Use backend's detailed error message when available
                     const backendMsg = err.message || '';
