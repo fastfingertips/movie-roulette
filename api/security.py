@@ -45,6 +45,7 @@ class ListItem(BaseModel):
     user: str = Field(min_length=1, max_length=100)
     slug: str = Field(min_length=1, max_length=120)
     count: int = Field(gt=0)
+    title: str | None = None
     is_watchlist: bool = False
 
 
