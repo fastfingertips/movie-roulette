@@ -34,10 +34,37 @@ export const renderHistory = (useListCallback) => {
         return createRecentListItem(url, activeIndex);
     }).join('');
 
+    // Reset any lingering pending-removal states
+    document.querySelectorAll('.field.is-pending-removal').forEach(field => {
+        field.classList.remove('is-pending-removal');
+    });
+
+    const setPendingRemoval = (url, isPending) => {
+        if (!url) return;
+        const form = $('randomize-form');
+        if (!form) return;
+        const inputs = form.querySelectorAll('.field__input');
+        inputs.forEach(input => {
+            if (input.value.trim() === url) {
+                const field = input.closest('.field');
+                if (field) {
+                    field.classList.toggle('is-pending-removal', isPending);
+                }
+            }
+        });
+    };
+
     // Attach event listeners instead of inline onclick handlers
     const listItems = listTarget.querySelectorAll('.history-item');
     listItems.forEach(item => {
-        const handleAction = () => useListCallback(item.getAttribute('data-url'));
+        const url = item.getAttribute('data-url');
+        const isActive = item.classList.contains('is-active-list');
+
+        const handleAction = () => {
+            setPendingRemoval(url, false);
+            useListCallback(url);
+        };
+
         item.addEventListener('click', handleAction);
         item.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -45,6 +72,13 @@ export const renderHistory = (useListCallback) => {
                 handleAction();
             }
         });
+
+        if (isActive) {
+            item.addEventListener('mouseenter', () => setPendingRemoval(url, true));
+            item.addEventListener('mouseleave', () => setPendingRemoval(url, false));
+            item.addEventListener('focus', () => setPendingRemoval(url, true));
+            item.addEventListener('blur', () => setPendingRemoval(url, false));
+        }
     });
 
     if (window.lucide) window.lucide.createIcons();

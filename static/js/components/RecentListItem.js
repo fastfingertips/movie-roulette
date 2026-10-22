@@ -7,7 +7,7 @@ export const createRecentListItem = (url, activeIndex) => {
     const ariaLabel = isActive ? `Remove ${name} from list` : `Add ${name} to list`;
     
     return `
-        <div class="history-item ${isActive ? 'is-active-list' : ''}" style="cursor: pointer;" data-url="${escapeHtml(url)}" title="${actionTooltip}" role="button" tabindex="0" aria-label="${escapeHtml(ariaLabel)}">
+        <div class="history-item ${isActive ? 'is-active-list' : ''}" style="cursor: pointer;" data-url="${escapeHtml(url)}" data-active-index="${activeIndex}" title="${actionTooltip}" role="button" tabindex="0" aria-label="${escapeHtml(ariaLabel)}">
             <div class="history-item__body">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="history-item__name" style="font-size: 11px; font-family: monospace;">${escapeHtml(name)}</span>

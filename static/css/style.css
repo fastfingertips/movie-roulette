@@ -460,14 +460,31 @@
         .field__remove svg { width: 18px; height: 18px; }
         .is-single-field .field:not(.is-optional) .field__input-wrapper:has(.field__input:placeholder-shown) + .field__remove { display: none; }
 
-        /* Intent Signals: Visual feedback for Clear vs Remove */
+        /* Intent Signals: Visual feedback for Clear vs Remove & Recent List removal */
         .field:has(.field__input:not(:placeholder-shown)):has(.field__remove:hover) .field__input {
             color: #fe5a5a;
         }
 
-        .field:has(.field__input:placeholder-shown):has(.field__remove:hover) .field__input {
+        .field:has(.field__input:placeholder-shown):has(.field__remove:hover) .field__input,
+        .field.is-pending-removal .field__input {
             border-color: rgb(254, 90, 90, 0.5);
             box-shadow: 0 0 0 4px rgb(254, 90, 90, 0.05);
+            color: #fe5a5a;
+        }
+
+        .field:has(.field__input:placeholder-shown):has(.field__remove:hover) .field__input-wrapper::after,
+        .field.is-pending-removal .field__input-wrapper::after {
+            opacity: 0;
+        }
+
+        .field:has(.field__input:placeholder-shown):has(.field__remove:hover) .field__number,
+        .field.is-pending-removal .field__number {
+            color: #fe5a5a;
+            opacity: 0.8;
+        }
+
+        .field.is-pending-removal .field__remove {
+            color: #fe5a5a;
         }
 
         .action-btn { position: relative; background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; box-shadow: 0 4px 14px var(--color-green-glow); }
