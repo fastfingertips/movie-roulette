@@ -10,6 +10,7 @@ from letterboxdpy.core.exceptions import (
     PrivateRouteError,
     ResourceNotFoundError,
 )
+from werkzeug.exceptions import HTTPException
 
 logger = logging.getLogger("movie_roulette")
 
@@ -93,6 +94,11 @@ def extract_info(val):
 
 def get_error_response(e):
     """Maps exceptions to user-facing messages and HTTP status codes."""
+    if isinstance(e, HTTPException):
+        if e.code == 413:
+            return "Payload too large", 413
+        return e.description, e.code
+
     if isinstance(e, PrivateRouteError):
         msg = getattr(e, "message", None)
         if msg and msg != "This resource is not public":

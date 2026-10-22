@@ -15,6 +15,12 @@ from .scraper import (
     get_random_movie_meta,
     pick_weighted_list,
 )
+from .security import (
+    init_security,
+    validate_details_input,
+    validate_metadata_input,
+    validate_select_input,
+)
 from .utils import error_response, extract_info, json_error
 
 logger = logging.getLogger("movie_roulette")
@@ -27,6 +33,7 @@ if not logger.handlers:
 
 STATIC_DIR = os.path.join(ROOT_DIR, "static")
 app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
+init_security(app)
 
 
 @app.route("/")
@@ -44,10 +51,11 @@ def favicon():
 @app.route("/metadata", methods=["POST"])
 def api_metadata():
     try:
-        urls = [u.strip() for u in (request.json or {}).get("urls", []) if u.strip()]
+        urls, err = validate_metadata_input(request.json)
+        if err:
+            return err
+
         logger.info("api_metadata requested with %d urls", len(urls))
-        if not urls:
-            return error_response("No URLs")
 
         # Pre-validate and extract user/slug upfront with duplicate detection
         parsed_items = []
@@ -174,18 +182,16 @@ def api_metadata():
 @app.route("/select", methods=["POST"])
 def api_select():
     try:
-        data = request.json or {}
-        lists = data.get("lists", [])
-        total = data.get("total", 0)
-        mode = data.get("mode", "proportional")
+        lists, total, mode, err = validate_select_input(request.json)
+        if err:
+            return err
+
         logger.info(
             "api_select from %d lists, total pool: %d, mode: %s",
             len(lists),
             total,
             mode,
         )
-        if not lists:
-            return error_response("No lists")
 
         # Pick a list: equal odds per list vs weighted by movie count
         if mode == "equal":
@@ -220,10 +226,10 @@ def api_select():
 @app.route("/details", methods=["POST"])
 def api_details():
     try:
-        data = request.json or {}
-        slug = data.get("slug")
-        if not slug:
-            return error_response("No slug")
+        slug, err = validate_details_input(request.json)
+        if err:
+            return err
+
         movie = get_movie_details(slug)
         return jsonify({"movie": movie})
     except Exception as e:
