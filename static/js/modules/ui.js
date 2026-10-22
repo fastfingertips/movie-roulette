@@ -54,7 +54,7 @@ export const encodeTextFragment = (text) => {
 
 export const getListHighlightUrl = (list, movie, page = 1) => {
     if (!list || !list.user) return null;
-    const isWatchlist = list.slug === 'watchlist';
+    const isWatchlist = list.is_watchlist !== undefined ? list.is_watchlist : list.slug === 'watchlist';
     const pagePart = page && page > 1 ? `page/${page}/` : '';
     
     if (isWatchlist) {
@@ -284,7 +284,8 @@ export const renderStatsModal = (data) => {
         kpiSource.title = kpiSource.textContent;
     }
     if (kpiSourceSub) {
-        kpiSourceSub.textContent = data.list ? `@${data.list.user}` : 'random selection';
+        const typeLabel = data.list?.is_watchlist ? 'Watchlist' : 'List';
+        kpiSourceSub.textContent = data.list ? `@${data.list.user} · ${typeLabel}` : 'random selection';
     }
 
     // 2. Pipeline Waterfall
@@ -298,9 +299,10 @@ export const renderStatsModal = (data) => {
         const selectTime = parseFloat(timing.selection) || 0;
         const detailTime = parseFloat(timing.details) || 0;
 
+        const isEqualMode = data.stats.sampling_mode === 'equal';
         const steps = [
             { label: '1. Metadata & Pool Fetch', time: metaTime },
-            { label: '2. Weighted Random Selection', time: selectTime },
+            { label: isEqualMode ? '2. Equal Odds List Selection' : '2. Weighted Random Selection', time: selectTime },
             { label: '3. Film Profile Enrichment', time: detailTime }
         ];
 
@@ -324,18 +326,21 @@ export const renderStatsModal = (data) => {
     const sourcesListEl = $('stats-sources-list');
     const poolMetaEl = $('stats-pool-meta');
     const lists = data.stats.lists || [];
-    if (poolMetaEl) poolMetaEl.textContent = `${lists.length} source${lists.length === 1 ? '' : 's'}`;
+    const modeTag = data.stats.sampling_mode === 'equal' ? ' (Equal Odds)' : ' (Proportional)';
+    if (poolMetaEl) poolMetaEl.textContent = `${lists.length} source${lists.length === 1 ? '' : 's'}${modeTag}`;
 
     if (sourcesListEl) {
         if (lists.length === 0 && data.list) {
+            const typeLabel = data.list.is_watchlist ? 'Watchlist' : 'List';
             sourcesListEl.innerHTML = `
                 <div class="source-item is-winner">
                     <div class="source-item-header">
                         <div class="source-item-title-group">
-                            <span class="source-item-title">${data.list.title || data.list.slug}</span>
-                            <span class="source-item-user">@${data.list.user}</span>
+                            <span class="source-item-title">${escapeHtml(data.list.title || data.list.slug)}</span>
+                            <span class="source-item-user">@${escapeHtml(data.list.user)}</span>
                         </div>
                         <div class="source-item-badges">
+                            <span class="stats-badge stats-badge--type">${typeLabel}</span>
                             <span class="stats-badge stats-badge--winner"><i data-lucide="check"></i> Winner</span>
                             <span class="stats-badge stats-badge--count">${totalPool.toLocaleString()} films (100%)</span>
                         </div>
@@ -348,14 +353,16 @@ export const renderStatsModal = (data) => {
         } else {
             sourcesListEl.innerHTML = lists.map(l => {
                 const isSelected = l.is_winner;
+                const typeLabel = l.is_watchlist ? 'Watchlist' : 'List';
                 return `
                     <div class="source-item ${isSelected ? 'is-winner' : ''}">
                         <div class="source-item-header">
                             <div class="source-item-title-group">
-                                <span class="source-item-title">${l.title}</span>
-                                <span class="source-item-user">@${l.user}</span>
+                                <span class="source-item-title">${escapeHtml(l.title)}</span>
+                                <span class="source-item-user">@${escapeHtml(l.user)}</span>
                             </div>
                             <div class="source-item-badges">
+                                <span class="stats-badge stats-badge--type">${typeLabel}</span>
                                 ${isSelected ? '<span class="stats-badge stats-badge--winner"><i data-lucide="check"></i> Winner</span>' : ''}
                                 <span class="stats-badge stats-badge--count">${l.count.toLocaleString()} films (${l.percentage}%)</span>
                             </div>
@@ -377,24 +384,24 @@ export const renderStatsModal = (data) => {
         specsEl.innerHTML = `
             <div class="spec-tile">
                 <span class="spec-label">Title & Year</span>
-                <span class="spec-val">${m.name} (${m.year || 'N/A'})</span>
+                <span class="spec-val">${escapeHtml(m.name)} (${escapeHtml(m.year || 'N/A')})</span>
             </div>
             <div class="spec-tile">
                 <span class="spec-label">Director</span>
-                <span class="spec-val">${m.director || 'N/A'}</span>
+                <span class="spec-val">${escapeHtml(m.director || 'N/A')}</span>
             </div>
             <div class="spec-tile">
                 <span class="spec-label">Rating</span>
-                <span class="spec-val">${m.rating ? `★ ${m.rating}` : 'Unrated'}</span>
+                <span class="spec-val">${m.rating ? `★ ${escapeHtml(m.rating)}` : 'Unrated'}</span>
             </div>
             <div class="spec-tile">
                 <span class="spec-label">Genres</span>
-                <span class="spec-val">${genresStr}</span>
+                <span class="spec-val">${escapeHtml(genresStr)}</span>
             </div>
             <div class="spec-tile spec-tile--full">
                 <span class="spec-label">Letterboxd Link</span>
                 <a class="spec-val spec-link" href="${m.url || `https://letterboxd.com/film/${m.slug}/`}" target="_blank" rel="noopener">
-                    ${m.slug} <i data-lucide="external-link"></i>
+                    ${escapeHtml(m.slug)} <i data-lucide="external-link"></i>
                 </a>
             </div>
         `;
@@ -415,9 +422,16 @@ export const renderStatsModal = (data) => {
             },
             sampling_math: {
                 total_pool: totalPool,
+                sampling_mode: data.stats.sampling_mode || 'proportional',
                 probability_percent: Number(data.stats.probability),
                 odds: data.stats.odds || `1 in ${totalPool.toLocaleString()}`,
-                selected_from: data.list ? (data.list.title || `${data.list.user}'s ${data.list.slug}`) : 'unknown'
+                selected_from: data.list ? {
+                    title: data.list.title || data.list.slug,
+                    user: data.list.user,
+                    slug: data.list.slug,
+                    is_watchlist: Boolean(data.list.is_watchlist),
+                    type: data.list.is_watchlist ? 'watchlist' : 'list'
+                } : 'unknown'
             },
             pool_breakdown: lists,
             pipeline_timings_sec: timing,

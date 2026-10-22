@@ -1816,8 +1816,21 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .stats-badge--type {
+            background: rgb(0, 0, 0, 0.04);
+            color: var(--color-text-muted);
+            border: 1px solid var(--color-border);
+            font-weight: 600;
+        }
+
         [data-theme^="dark"] .stats-badge--count {
             background: rgb(255, 255, 255, 0.08);
+        }
+
+        [data-theme^="dark"] .stats-badge--type {
+            background: rgb(255, 255, 255, 0.05);
+            border-color: var(--color-border);
+            color: var(--color-text-muted);
         }
 
         .source-track {
