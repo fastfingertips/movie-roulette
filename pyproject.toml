@@ -1,7 +1,8 @@
+[tool.ruff]
 target-version = "py312"
 line-length = 88
 
-[lint]
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -16,5 +17,11 @@ ignore = [
     "SIM105", # Use contextlib.suppress
 ]
 
-[lint.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
+
+[tool.pytest.ini_options]
+markers = [
+    "smoke: live external integration tests touching real Letterboxd servers"
+]
+addopts = "-m 'not smoke'"

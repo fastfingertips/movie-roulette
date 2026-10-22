@@ -29,5 +29,34 @@
     "static/js/**/*.js": "eslint",
     "static/css/**/*.css": "stylelint",
     "**/*.py": "ruff check"
+  },
+  "stylelint": {
+    "extends": "stylelint-config-standard",
+    "rules": {
+      "no-descending-specificity": null,
+      "selector-class-pattern": null,
+      "custom-property-pattern": null,
+      "color-function-notation": "legacy",
+      "alpha-value-notation": "number",
+      "declaration-block-single-line-max-declarations": null,
+      "declaration-empty-line-before": null,
+      "rule-empty-line-before": null,
+      "at-rule-empty-line-before": null,
+      "comment-empty-line-before": null
+    }
+  },
+  "jscpd": {
+    "threshold": 5,
+    "reporters": [
+      "console"
+    ],
+    "ignore": [
+      "node_modules",
+      ".venv",
+      "package-lock.json",
+      ".git"
+    ],
+    "absolute": true,
+    "gitignore": true
   }
 }
