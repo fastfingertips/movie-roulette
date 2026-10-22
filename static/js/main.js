@@ -1,7 +1,7 @@
 import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast } from './modules/ui.js';
 
-import { saveHistory, saveRecentLists, clearHistory, clearRecentLists } from './modules/storage.js';
+import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls } from './modules/fields.js';
 import { checkUrlParams } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
@@ -67,10 +67,15 @@ const updateUI = () => {
     inputs.forEach(detectFieldType);
 
     // Disable spin button if no URLs are entered
-    const hasValue = getActiveUrls().length > 0;
+    const activeUrls = getActiveUrls();
+    const hasValue = activeUrls.length > 0;
     const submitBtn = elements.formArea.querySelector('button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = !hasValue;
+    }
+
+    if (elements.samplingToggleWrapper) {
+        elements.samplingToggleWrapper.classList.toggle('is-hidden', activeUrls.length <= 1);
     }
 
     syncUrlToAddressBar();
@@ -214,8 +219,12 @@ export const performRandomize = async (urls) => {
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[2];
         Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total });
 
+        const numLists = metaData.lists?.length || 1;
+        const isModeEqual = elements.samplingToggle && elements.samplingToggle.checked && numLists > 1;
+        const samplingMode = isModeEqual ? 'equal' : 'proportional';
+
         const selectStart = Date.now();
-        const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal);
+        const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode);
         const selectDuration = (Date.now() - selectStart) / 1000;
         Log.success('Selection complete', selectData);
         
@@ -239,7 +248,15 @@ export const performRandomize = async (urls) => {
 
         // Assemble final data for rendering
         const totalDuration = (Date.now() - startTime) / 1000;
-        const probability = (1 / metaData.total) * 100;
+        const winningListCount = selectData.list?.count || metaData.total;
+        const probability = isModeEqual
+            ? (1 / numLists) * (1 / winningListCount) * 100
+            : (1 / metaData.total) * 100;
+
+        const effectiveOdds = isModeEqual
+            ? Math.round(numLists * winningListCount)
+            : metaData.total;
+        const oddsText = `1 in ${effectiveOdds.toLocaleString()}`;
 
         const finalData = {
             movie: detailData.movie,
@@ -247,8 +264,9 @@ export const performRandomize = async (urls) => {
             page: selectData.meta?.page || 1,
             stats: {
                 total_pool: metaData.total,
-                probability: probability < 0.01 ? probability.toFixed(4) : probability.toFixed(2),
-                odds: `1 in ${metaData.total.toLocaleString()}`,
+                probability: probability < 0.001 ? probability.toFixed(4) : probability.toFixed(2),
+                odds: oddsText,
+                sampling_mode: isModeEqual ? 'equal' : 'proportional',
                 timing: {
                     metadata: metaDuration.toFixed(2),
                     selection: selectDuration.toFixed(2),
@@ -260,7 +278,9 @@ export const performRandomize = async (urls) => {
                     user: l.user,
                     slug: l.slug,
                     count: l.count,
-                    percentage: Number(((l.count / metaData.total) * 100).toFixed(1)),
+                    percentage: isModeEqual
+                        ? Number((100 / numLists).toFixed(1))
+                        : Number(((l.count / metaData.total) * 100).toFixed(1)),
                     is_winner: l.user === selectData.list.user && l.slug === selectData.list.slug
                 })),
                 inputs: urls,
@@ -327,6 +347,34 @@ elements.infoModal.addEventListener('click', (e) => {
 
 $('clear-history').addEventListener('click', () => { clearHistory(); updateUI(); });
 $('clear-lists').addEventListener('click', () => { clearRecentLists(); updateUI(); });
+
+if (elements.samplingToggle) {
+    elements.samplingToggle.addEventListener('change', () => {
+        const isChecked = elements.samplingToggle.checked;
+        const mode = isChecked ? 'equal' : 'proportional';
+        saveSamplingMode(mode);
+        window.applyRatios?.();
+        if (elements.samplingToggleWrapper) {
+            elements.samplingToggleWrapper.classList.toggle('is-active', isChecked);
+        }
+    });
+
+    const savedMode = getSamplingMode();
+    if (savedMode === 'equal') {
+        elements.samplingToggle.checked = true;
+        if (elements.samplingToggleWrapper) {
+            elements.samplingToggleWrapper.classList.add('is-active');
+        }
+    }
+
+    if (elements.samplingToggleWrapper) {
+        elements.samplingToggleWrapper.addEventListener('click', (e) => {
+            if (e.target.closest('.switch')) return;
+            elements.samplingToggle.checked = !elements.samplingToggle.checked;
+            elements.samplingToggle.dispatchEvent(new Event('change'));
+        });
+    }
+}
 
 elements.statsBtn.addEventListener('click', () => {
     if (window.lastFullResult) {

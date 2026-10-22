@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 from concurrent.futures import ThreadPoolExecutor
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -140,18 +141,29 @@ def api_metadata():
 @app.route("/select", methods=["POST"])
 def api_select():
     try:
-        lists = request.json.get("lists", [])
-        total = request.json.get("total", 0)
-        logger.info("api_select from %d lists, total pool: %d", len(lists), total)
+        data = request.json or {}
+        lists = data.get("lists", [])
+        total = data.get("total", 0)
+        mode = data.get("mode", "proportional")
+        logger.info(
+            "api_select from %d lists, total pool: %d, mode: %s",
+            len(lists),
+            total,
+            mode,
+        )
         if not lists:
             return jsonify({"error": "No lists"}), 400
 
-        # Pick a list weighted by size
-        selected = pick_weighted_list(lists, total)
+        # Pick a list: equal odds per list vs weighted by movie count
+        if mode == "equal":
+            selected = random.choice(lists)
+        else:
+            selected = pick_weighted_list(lists, total)
+
         if not selected:
             return jsonify({"error": "Failed to pick a list"}), 400
 
-        logger.debug("Selected list: %s/%s", selected["user"], selected["slug"])
+        logger.debug("Selected list: %s/%s (mode: %s)", selected["user"], selected["slug"], mode)
         # Get random movie meta
         meta = get_random_movie_meta(
             selected["user"],
@@ -170,7 +182,7 @@ def api_select():
             )
 
         logger.info("api_select picked movie: %s (%s)", meta["name"], meta["slug"])
-        return jsonify({"meta": meta, "list": selected})
+        return jsonify({"meta": meta, "list": selected, "mode": mode})
     except Exception as e:
         return json_error(e, "api_select encountered an unexpected error")
 

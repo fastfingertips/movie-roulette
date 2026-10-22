@@ -132,10 +132,19 @@
                             <button type="button" class="add-field-trigger" id="add-url-btn" name="add-list">
                                 <i data-lucide="plus"></i> Add another list <span class="btn-hint">Shift+Enter</span>
                             </button>
-                            <button type="submit" class="action-btn" name="spin-wheel">
-                                <span class="btn-text">Spin the wheel</span>
-                                <span class="btn-hint">Enter</span>
-                            </button>
+                            <div class="spin-row">
+                                 <div class="sampling-toggle-wrapper is-hidden" id="sampling-toggle-wrapper" title="Equal List Odds — Each list gets an equal chance regardless of size">
+                                     <i data-lucide="scale"></i>
+                                     <label class="switch" for="sampling-toggle" aria-label="Toggle equal list odds">
+                                         <input type="checkbox" id="sampling-toggle" />
+                                         <span class="slider"></span>
+                                     </label>
+                                 </div>
+                                 <button type="submit" class="action-btn" name="spin-wheel">
+                                     <span class="btn-text">Spin the wheel</span>
+                                     <span class="btn-hint">Enter</span>
+                                 </button>
+                            </div>
                         </form>
                     </div>
 

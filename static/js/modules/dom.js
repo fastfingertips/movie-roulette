@@ -32,5 +32,7 @@ export const elements = {
     error: $('error-msg'),
     errorText: $('error-text'),
     backdrop: $('backdrop'),
-    backdropImg: document.querySelector('.backdropimage')
+    backdropImg: document.querySelector('.backdropimage'),
+    samplingToggleWrapper: $('sampling-toggle-wrapper'),
+    samplingToggle: $('sampling-toggle')
 };

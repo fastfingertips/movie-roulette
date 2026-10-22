@@ -17,3 +17,7 @@ export const saveRecentLists = (urls) => {
 
 export const clearHistory = () => localStorage.removeItem('lb_history');
 export const clearRecentLists = () => localStorage.removeItem('lb_recent_lists');
+
+export const getSamplingMode = () => localStorage.getItem('lb_sampling_mode') || 'proportional';
+export const saveSamplingMode = (mode) => localStorage.setItem('lb_sampling_mode', mode);
+
