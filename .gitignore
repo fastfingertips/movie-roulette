@@ -42,12 +42,10 @@ htmlcov/
 .ipynb_checkpoints/
 
 # --- JavaScript / Web ---
-.astro/
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 .vercel
-.cookie/
 
 # --- Environment / Secrets ---
 .env
