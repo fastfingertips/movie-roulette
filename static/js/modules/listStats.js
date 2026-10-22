@@ -1,5 +1,6 @@
 import { $ } from './dom.js';
 import { fetchMetadata } from './api.js';
+import { applyServerError, classifyError } from './fieldErrors.js';
 
 // Film counts per list, keyed by a canonical identifier so that
 // "user/slug" and the full Letterboxd URL share one cache entry.
@@ -141,58 +142,18 @@ export const loadCount = (input) => {
                 const list = data.lists && data.lists[0];
                 if (list) {
                     if (list.count <= 0) {
-                        const target = list.is_watchlist ? 'Watchlist' : 'List';
-                        const msg = `The ${target.toLowerCase()} for '${list.user}' is empty on Letterboxd`;
-                        inp.dataset.serverError = 'Empty';
-                        inp.dataset.serverErrorVal = inp.value.trim().toLowerCase();
-                        inp.dataset.serverErrorMsg = msg;
-                        if (statusEl) {
-                            statusEl.textContent = 'Empty';
-                            statusEl.title = msg;
-                            statusEl.classList.add('is-visible', 'is-invalid');
-                        }
-                        inp.classList.add('is-invalid');
-                        const wrapper = inp.closest('.field__input-wrapper');
-                        const metaEl = wrapper?.querySelector('.field__meta');
-                        if (metaEl) {
-                            metaEl.textContent = msg;
-                            metaEl.classList.add('is-visible');
-                            inp.classList.add('has-meta');
-                        }
+                        const target = list.is_watchlist ? 'watchlist' : 'list';
+                        applyServerError(inp, 'Empty', `The ${target} for '${list.user}' is empty on Letterboxd`);
                         return;
                     }
                     counts.set(key, list.count);
                 }
             })
             .catch((err) => {
-                const is404 = err.status === 404;
-                const is403 = err.status === 403;
-                const isEmpty = err.status === 422 || err.isEmptyList === true;
-                if (is404 || is403 || isEmpty) {
-                    // Use backend's detailed error message when available
-                    const backendMsg = err.message || '';
-                    const badgeText = is404 ? 'Not Found' : (is403 ? 'Private' : 'Empty');
-                    const defaultMsg = is404
-                        ? 'Could not be found on Letterboxd'
-                        : (is403 ? 'Private on Letterboxd' : 'This list or watchlist is empty on Letterboxd');
-
-                    inp.dataset.serverError = badgeText;
-                    inp.dataset.serverErrorVal = inp.value.trim().toLowerCase();
-                    inp.dataset.serverErrorMsg = backendMsg || defaultMsg;
-
-                    if (statusEl) {
-                        statusEl.textContent = badgeText;
-                        statusEl.title = backendMsg || defaultMsg;
-                        statusEl.classList.add('is-visible', 'is-invalid');
-                    }
-                    inp.classList.add('is-invalid');
-                    const wrapper = inp.closest('.field__input-wrapper');
-                    const metaEl = wrapper?.querySelector('.field__meta');
-                    if (metaEl) {
-                        metaEl.textContent = backendMsg || defaultMsg;
-                        metaEl.classList.add('is-visible');
-                        inp.classList.add('has-meta');
-                    }
+                const info = classifyError(err);
+                if (info) {
+                    // Prefer the backend's detailed message when available
+                    applyServerError(inp, info.badge, err.message || info.defaultMessage);
                 }
             })
             .finally(() => {

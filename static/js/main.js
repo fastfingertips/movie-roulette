@@ -6,6 +6,7 @@ import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, ge
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
 import { checkUrlParams, stripOrigin } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
+import { applyServerError, classifyError } from './modules/fieldErrors.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
 import { CONFIG } from './constants.js';
 import { initKeyboardShortcuts } from './modules/keyboard.js';
@@ -313,7 +314,8 @@ export const performRandomize = async (urls) => {
         Log.error('Randomization Flow Interrupted', err);
 
         // Highlight the offending field if a list was not found, is private, or is empty
-        if (err.status === 404 || err.status === 403 || err.status === 422) {
+        const info = classifyError(err);
+        if (info) {
             const inputs = Array.from(document.querySelectorAll('.field__input'));
             inputs.forEach(inp => {
                 const parts = stripOrigin(inp.value).split('/').filter(Boolean);
@@ -324,39 +326,12 @@ export const performRandomize = async (urls) => {
                 // from substring matching e.g. "watchlist" appearing in the error message)
                 let isMatch;
                 if (err.errUser) {
-                    isMatch = (user === err.errUser) && (!err.errSlug || slug === err.errSlug || slug === 'watchlist' && err.errSlug === 'watchlist');
+                    isMatch = (user === err.errUser) && (!err.errSlug || slug === err.errSlug);
                 } else {
                     isMatch = (user && err.message && err.message.includes(`'${user}'`)) || inputs.length === 1;
                 }
 
-                if (isMatch) {
-                    const isWatchlist = parts.length === 1 || (parts.length === 2 && parts[1] === 'watchlist') || inp.value.includes('/watchlist');
-                    const typeLower = isWatchlist ? 'watchlist' : 'list';
-                    const isEmpty = err.status === 422 || err.isEmptyList;
-
-                    const badgeText = isEmpty ? 'Empty' : (err.status === 403 ? 'Private' : 'Not Found');
-                    const defaultMsg = err.message || (isEmpty
-                        ? `The ${typeLower} for '${user}' is empty on Letterboxd`
-                        : (err.status === 403 ? `This ${typeLower} is private on Letterboxd` : `This ${typeLower} could not be found on Letterboxd`));
-
-                    inp.dataset.serverError = badgeText;
-                    inp.dataset.serverErrorVal = inp.value.trim().toLowerCase();
-                    inp.dataset.serverErrorMsg = defaultMsg;
-
-                    inp.classList.add('is-invalid');
-                    const statusEl = inp.closest('.field__input-wrapper')?.querySelector('.field__status');
-                    if (statusEl) {
-                        statusEl.textContent = badgeText;
-                        statusEl.title = defaultMsg;
-                        statusEl.classList.add('is-visible', 'is-invalid');
-                    }
-                    const metaEl = inp.closest('.field__input-wrapper')?.querySelector('.field__meta');
-                    if (metaEl) {
-                        metaEl.textContent = defaultMsg;
-                        metaEl.classList.add('is-visible');
-                        inp.classList.add('has-meta');
-                    }
-                }
+                if (isMatch) applyServerError(inp, info.badge, err.message || info.defaultMessage);
             });
         }
     } finally {

@@ -5,6 +5,7 @@ import { formatListUrl, canonicalKey, stripOrigin, RESERVED_SLUGS } from './util
 import { loadCount } from './listStats.js';
 import { fetchMetadata } from './api.js';
 import { showToast } from './ui.js';
+import { clearServerError, reapplyServerError } from './fieldErrors.js';
 
 let urlCount = 1;
 
@@ -255,9 +256,7 @@ export const detectFieldType = (inputEl) => {
     if (!statusEl) return;
     
     if (!rawVal) {
-        delete inputEl.dataset.serverErrorVal;
-        delete inputEl.dataset.serverError;
-        delete inputEl.dataset.serverErrorMsg;
+        clearServerError(inputEl);
         statusEl.classList.remove('is-visible', 'is-invalid');
         statusEl.removeAttribute('title');
         if (metaEl) {
@@ -269,23 +268,7 @@ export const detectFieldType = (inputEl) => {
     }
 
     // Preserve server error badges unless user changes input value
-    if (inputEl.dataset.serverErrorVal) {
-        if (inputEl.dataset.serverErrorVal === rawVal) {
-            statusEl.textContent = inputEl.dataset.serverError || 'Invalid';
-            statusEl.title = inputEl.dataset.serverErrorMsg || '';
-            statusEl.classList.add('is-visible', 'is-invalid');
-            inputEl.classList.add('is-invalid');
-            if (metaEl && inputEl.dataset.serverErrorMsg) {
-                metaEl.textContent = inputEl.dataset.serverErrorMsg;
-                metaEl.classList.add('is-visible');
-                inputEl.classList.add('has-meta');
-            }
-            return;
-        }
-        delete inputEl.dataset.serverErrorVal;
-        delete inputEl.dataset.serverError;
-        delete inputEl.dataset.serverErrorMsg;
-    }
+    if (reapplyServerError(inputEl)) return;
 
     // Detect full Letterboxd URL and trigger animation
     const isLetterboxdUrl = /^https?:\/\/(www\.)?letterboxd\.com\//.test(rawVal);
