@@ -37,8 +37,13 @@ export const renderHistory = (useListCallback) => {
     // Attach event listeners instead of inline onclick handlers
     const listItems = listTarget.querySelectorAll('.history-item');
     listItems.forEach(item => {
-        item.addEventListener('click', () => {
-            useListCallback(item.getAttribute('data-url'));
+        const handleAction = () => useListCallback(item.getAttribute('data-url'));
+        item.addEventListener('click', handleAction);
+        item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleAction();
+            }
         });
     });
 
