@@ -19,7 +19,27 @@ const updateActiveThemeInMenu = (themeId) => {
     });
 };
 
-export const applyTheme = (newTheme, originCoords = null) => {
+const THEME_STORAGE_KEY = 'theme';
+
+/** Theme used when following the system color scheme */
+const SYSTEM_THEME = { light: 'light', dark: 'dark' };
+
+const systemQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+const getSystemTheme = () => (systemQuery && systemQuery.matches ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
+
+const getStoredTheme = () => {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return THEMES.some(t => t.id === stored) ? stored : null;
+};
+
+/**
+ * Apply a theme with the circular reveal transition.
+ * @param {string} newTheme Theme id
+ * @param {{x: number, y: number}|null} originCoords Reveal origin; defaults to the toggle button
+ * @param {{persist?: boolean}} options Pass persist: false to apply without saving the choice
+ */
+export const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     if (newTheme === currentTheme) return;
 
@@ -39,7 +59,7 @@ export const applyTheme = (newTheme, originCoords = null) => {
 
     const performToggle = () => {
         document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+        if (persist) localStorage.setItem(THEME_STORAGE_KEY, newTheme);
         updateActiveThemeInMenu(newTheme);
         if (window.lucide) window.lucide.createIcons();
     };
@@ -110,12 +130,19 @@ export const toggleTheme = () => {
 };
 
 export const initTheme = () => {
-    const validIds = THEMES.map(t => t.id);
-    let savedTheme = localStorage.getItem('theme') || 'light';
-    if (!validIds.includes(savedTheme)) savedTheme = 'light';
+    // Explicit user choice wins; otherwise follow the system color scheme
+    const initialTheme = getStoredTheme() || getSystemTheme();
 
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateActiveThemeInMenu(savedTheme);
+    document.documentElement.setAttribute('data-theme', initialTheme);
+    updateActiveThemeInMenu(initialTheme);
+
+    // Keep following the system until the user picks a theme manually
+    if (systemQuery) {
+        systemQuery.addEventListener('change', () => {
+            if (getStoredTheme()) return;
+            applyTheme(getSystemTheme(), null, { persist: false });
+        });
+    }
 
     const themeBtn = $('theme-toggle');
     if (themeBtn) {
