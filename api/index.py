@@ -148,7 +148,19 @@ def api_metadata():
         list_data = []
         for item in results:
             if item["count"] <= 0:
-                return jsonify({"error": "One of the lists is empty"}), 422
+                target = "watchlist" if item.get("is_watchlist") else f"list '{item['slug']}'"
+                return (
+                    jsonify(
+                        {
+                            "error": f"The {target} for '{item['user']}' is empty on Letterboxd",
+                            "user": item["user"],
+                            "slug": item["slug"],
+                            "is_watchlist": item.get("is_watchlist", False),
+                            "is_empty": True,
+                        }
+                    ),
+                    422,
+                )
             list_data.append(
                 {
                     "user": item["user"],

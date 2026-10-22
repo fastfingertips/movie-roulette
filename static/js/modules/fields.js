@@ -255,6 +255,9 @@ export const detectFieldType = (inputEl) => {
     if (!statusEl) return;
     
     if (!rawVal) {
+        delete inputEl.dataset.serverErrorVal;
+        delete inputEl.dataset.serverError;
+        delete inputEl.dataset.serverErrorMsg;
         statusEl.classList.remove('is-visible', 'is-invalid');
         statusEl.removeAttribute('title');
         if (metaEl) {
@@ -263,6 +266,25 @@ export const detectFieldType = (inputEl) => {
         }
         inputEl.classList.remove('has-meta', 'is-invalid');
         return;
+    }
+
+    // Preserve server error badges unless user changes input value
+    if (inputEl.dataset.serverErrorVal) {
+        if (inputEl.dataset.serverErrorVal === rawVal) {
+            statusEl.textContent = inputEl.dataset.serverError || 'Invalid';
+            statusEl.title = inputEl.dataset.serverErrorMsg || '';
+            statusEl.classList.add('is-visible', 'is-invalid');
+            inputEl.classList.add('is-invalid');
+            if (metaEl && inputEl.dataset.serverErrorMsg) {
+                metaEl.textContent = inputEl.dataset.serverErrorMsg;
+                metaEl.classList.add('is-visible');
+                inputEl.classList.add('has-meta');
+            }
+            return;
+        }
+        delete inputEl.dataset.serverErrorVal;
+        delete inputEl.dataset.serverError;
+        delete inputEl.dataset.serverErrorMsg;
     }
 
     // Detect full Letterboxd URL and trigger animation

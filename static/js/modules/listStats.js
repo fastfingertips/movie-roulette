@@ -139,25 +139,57 @@ export const loadCount = (input) => {
         fetchMetadata([inp.value.trim()])
             .then((data) => {
                 const list = data.lists && data.lists[0];
-                if (list) counts.set(key, list.count);
+                if (list) {
+                    if (list.count <= 0) {
+                        const target = list.is_watchlist ? 'Watchlist' : 'List';
+                        const msg = `The ${target.toLowerCase()} for '${list.user}' is empty on Letterboxd`;
+                        inp.dataset.serverError = 'Empty';
+                        inp.dataset.serverErrorVal = inp.value.trim().toLowerCase();
+                        inp.dataset.serverErrorMsg = msg;
+                        if (statusEl) {
+                            statusEl.textContent = 'Empty';
+                            statusEl.title = msg;
+                            statusEl.classList.add('is-visible', 'is-invalid');
+                        }
+                        inp.classList.add('is-invalid');
+                        const wrapper = inp.closest('.field__input-wrapper');
+                        const metaEl = wrapper?.querySelector('.field__meta');
+                        if (metaEl) {
+                            metaEl.textContent = msg;
+                            metaEl.classList.add('is-visible');
+                            inp.classList.add('has-meta');
+                        }
+                        return;
+                    }
+                    counts.set(key, list.count);
+                }
             })
             .catch((err) => {
                 const is404 = err.status === 404 || err.message?.toLowerCase().includes('not found') || err.message?.toLowerCase().includes('could not be found');
                 const is403 = err.status === 403 || err.message?.toLowerCase().includes('private');
-                if (is404 || is403) {
+                const isEmpty = err.status === 422 || err.message?.toLowerCase().includes('empty');
+                if (is404 || is403 || isEmpty) {
                     // Use backend's detailed error message when available
                     const backendMsg = err.message || '';
+                    const badgeText = is404 ? 'Not Found' : (is403 ? 'Private' : 'Empty');
+                    const defaultMsg = is404
+                        ? 'Could not be found on Letterboxd'
+                        : (is403 ? 'Private on Letterboxd' : 'This list or watchlist is empty on Letterboxd');
+
+                    inp.dataset.serverError = badgeText;
+                    inp.dataset.serverErrorVal = inp.value.trim().toLowerCase();
+                    inp.dataset.serverErrorMsg = backendMsg || defaultMsg;
 
                     if (statusEl) {
-                        statusEl.textContent = is404 ? 'Not Found' : 'Private';
-                        statusEl.title = backendMsg || (is404 ? 'Could not be found on Letterboxd' : 'Private on Letterboxd');
+                        statusEl.textContent = badgeText;
+                        statusEl.title = backendMsg || defaultMsg;
                         statusEl.classList.add('is-visible', 'is-invalid');
                     }
                     inp.classList.add('is-invalid');
                     const wrapper = inp.closest('.field__input-wrapper');
                     const metaEl = wrapper?.querySelector('.field__meta');
                     if (metaEl) {
-                        metaEl.textContent = backendMsg || (is404 ? 'Not found on Letterboxd' : 'Private on Letterboxd');
+                        metaEl.textContent = backendMsg || defaultMsg;
                         metaEl.classList.add('is-visible');
                         inp.classList.add('has-meta');
                     }
@@ -167,6 +199,11 @@ export const loadCount = (input) => {
                 pending.delete(key);
                 if (statusEl) statusEl.classList.remove('is-loading');
                 applyRatios();
+                const submitBtn = document.querySelector('#randomize-form button[type="submit"]');
+                const hasInvalid = Array.from(document.querySelectorAll('.field__status.is-invalid')).length > 0;
+                if (submitBtn && hasInvalid) {
+                    submitBtn.disabled = true;
+                }
             });
     });
 };

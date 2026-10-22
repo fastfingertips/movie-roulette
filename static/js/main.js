@@ -312,8 +312,8 @@ export const performRandomize = async (urls) => {
         showToast(err.message || 'Processing failed');
         Log.error('Randomization Flow Interrupted', err);
 
-        // Highlight the offending field if a list was not found or is private
-        if (err.status === 404 || err.status === 403) {
+        // Highlight the offending field if a list was not found, is private, or is empty
+        if (err.status === 404 || err.status === 403 || err.status === 422 || err.message?.toLowerCase().includes('empty')) {
             const inputs = Array.from(document.querySelectorAll('.field__input'));
             inputs.forEach(inp => {
                 const parts = stripOrigin(inp.value).split('/').filter(Boolean);
@@ -324,20 +324,30 @@ export const performRandomize = async (urls) => {
                                 inputs.length === 1;
                 if (isMatch) {
                     const isWatchlist = parts.length === 1 || (parts.length === 2 && parts[1] === 'watchlist') || inp.value.includes('/watchlist');
-                    const typeLabel = isWatchlist ? 'Watchlist' : 'List';
                     const typeLower = isWatchlist ? 'watchlist' : 'list';
+                    const isEmpty = err.status === 422 || err.message?.toLowerCase().includes('empty');
+
+                    const badgeText = isEmpty ? 'Empty' : (err.status === 403 ? 'Private' : 'Not Found');
+                    const defaultMsg = err.message || (isEmpty
+                        ? `The ${typeLower} for '${user}' is empty on Letterboxd`
+                        : (err.status === 403 ? `This ${typeLower} is private on Letterboxd` : `This ${typeLower} could not be found on Letterboxd`));
+
+                    inp.dataset.serverError = badgeText;
+                    inp.dataset.serverErrorVal = inp.value.trim().toLowerCase();
+                    inp.dataset.serverErrorMsg = defaultMsg;
 
                     inp.classList.add('is-invalid');
                     const statusEl = inp.closest('.field__input-wrapper')?.querySelector('.field__status');
                     if (statusEl) {
-                        statusEl.textContent = err.status === 403 ? 'Private' : 'Not Found';
-                        statusEl.title = err.status === 403 ? `This ${typeLower} is private on Letterboxd` : `This ${typeLower} could not be found on Letterboxd`;
+                        statusEl.textContent = badgeText;
+                        statusEl.title = defaultMsg;
                         statusEl.classList.add('is-visible', 'is-invalid');
                     }
                     const metaEl = inp.closest('.field__input-wrapper')?.querySelector('.field__meta');
                     if (metaEl) {
-                        metaEl.textContent = err.status === 403 ? `This ${typeLower} is private` : `${typeLabel} not found on Letterboxd`;
+                        metaEl.textContent = defaultMsg;
                         metaEl.classList.add('is-visible');
+                        inp.classList.add('has-meta');
                     }
                 }
             });
