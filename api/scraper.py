@@ -13,9 +13,9 @@ from .utils import progress_step
 
 
 @progress_step("Fetching List Metadata")
-def get_list_metadata(user, slug):
+def get_list_metadata(user, slug, is_watchlist=None):
     """Returns (title, count)"""
-    if slug == "watchlist":
+    if is_watchlist is True or (is_watchlist is None and slug == "watchlist"):
         watchlist = UserWatchlist(user)
         return f"{user}'s Watchlist", watchlist.get_count()
     user_list = UserList(user, slug)
@@ -41,9 +41,9 @@ def pick_weighted_list(lists, total=None):
 
 
 @progress_step("Selecting Random Movie from List")
-def get_random_movie_meta(user, slug, count):
+def get_random_movie_meta(user, slug, count, is_watchlist=None):
     """Fetches a random page from list and picks a movie slug"""
-    if slug == "watchlist":
+    if is_watchlist is True or (is_watchlist is None and slug == "watchlist"):
         list_url = f"{DOMAIN}/{user}/watchlist/"
         per_page = UserWatchlist.FILMS_PER_PAGE
     else:

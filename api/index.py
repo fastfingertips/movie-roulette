@@ -1,5 +1,6 @@
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
 
 from flask import Flask, jsonify, request, send_from_directory
 
@@ -44,29 +45,84 @@ def api_metadata():
         if not urls:
             return jsonify({"error": "No URLs"}), 400
 
-        list_data = []
+        # Pre-validate and extract user/slug upfront with duplicate detection
+        parsed_items = []
+        seen_keys = set()
         for url in urls:
-            user, slug = extract_info(url)
-            if not user:
+            info = extract_info(url)
+            if not info or not info[0]:
                 return jsonify({"error": "Invalid list URL"}), 400
+            user, slug = info[0], info[1]
+            is_watchlist = getattr(info, "is_watchlist", slug == "watchlist")
+            key = (user, slug, is_watchlist)
+            if key in seen_keys:
+                if is_watchlist:
+                    return (
+                        jsonify(
+                            {
+                                "error": f"Duplicate watchlist detected for '{user}'."
+                            }
+                        ),
+                        400,
+                    )
+                return (
+                    jsonify({"error": f"Duplicate list detected: '{user}/{slug}'."}),
+                    400,
+                )
+            seen_keys.add(key)
+            parsed_items.append((user, slug, is_watchlist, url))
 
+        def fetch_metadata_worker(item):
+            user, slug, is_watchlist, url = item
             try:
-                # We only need the counts and names here
+                title, count = get_list_metadata(user, slug, is_watchlist=is_watchlist)
+            except TypeError:
                 title, count = get_list_metadata(user, slug)
+            return {
+                "user": user,
+                "slug": slug,
+                "title": title,
+                "count": count,
+                "url": url,
+                "is_watchlist": is_watchlist,
+            }
+
+        # Fetch metadata concurrently with ThreadPoolExecutor (order preserved)
+        if len(parsed_items) == 1:
+            try:
+                results = [fetch_metadata_worker(parsed_items[0])]
             except Exception as e:
                 return json_error(
                     e,
-                    f"Metadata fetch failed for {url} - {e}",
+                    f"Metadata fetch failed for {parsed_items[0][3]} - {e}",
+                    logger_func=logger.warning,
+                )
+        else:
+            max_workers = min(len(parsed_items), 5)
+            try:
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    results = list(executor.map(fetch_metadata_worker, parsed_items))
+            except Exception as e:
+                return json_error(
+                    e,
+                    f"Metadata fetch failed - {e}",
                     logger_func=logger.warning,
                 )
 
-            if count <= 0:
+        list_data = []
+        for item in results:
+            if item["count"] <= 0:
                 return jsonify({"error": "One of the lists is empty"}), 422
-
             list_data.append(
-                {"user": user, "slug": slug, "title": title, "count": count}
+                {
+                    "user": item["user"],
+                    "slug": item["slug"],
+                    "title": item["title"],
+                    "count": item["count"],
+                    "is_watchlist": item["is_watchlist"],
+                }
             )
-            logger.debug("Found %d items in %s", count, title)
+            logger.debug("Found %d items in %s", item["count"], item["title"])
 
         total_count = sum(item["count"] for item in list_data)
         logger.info(
@@ -98,7 +154,10 @@ def api_select():
         logger.debug("Selected list: %s/%s", selected["user"], selected["slug"])
         # Get random movie meta
         meta = get_random_movie_meta(
-            selected["user"], selected["slug"], selected["count"]
+            selected["user"],
+            selected["slug"],
+            selected["count"],
+            is_watchlist=selected.get("is_watchlist"),
         )
         if not meta:
             return (

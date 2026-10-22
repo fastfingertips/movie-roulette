@@ -42,9 +42,21 @@ class TestExtractInfo:
         assert slug == TEST_SLUG
 
     def test_short_user_watchlist_format(self):
-        user, slug = extract_info(f"{TEST_USER}/watchlist")
-        assert user == TEST_USER
-        assert slug == "watchlist"
+        info = extract_info(f"{TEST_USER}/watchlist")
+        assert info.user == TEST_USER
+        assert info.slug == "watchlist"
+        assert info.is_watchlist is True
+
+    def test_custom_list_named_watchlist(self):
+        info = extract_info(f"https://letterboxd.com/{TEST_USER}/list/watchlist/")
+        assert info.user == TEST_USER
+        assert info.slug == "watchlist"
+        assert info.is_watchlist is False
+
+        info_short = extract_info(f"{TEST_USER}/list/watchlist")
+        assert info_short.user == TEST_USER
+        assert info_short.slug == "watchlist"
+        assert info_short.is_watchlist is False
 
     def test_strips_query_and_hash(self):
         user, slug = extract_info(
