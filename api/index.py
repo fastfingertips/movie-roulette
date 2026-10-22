@@ -4,6 +4,9 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 
 from flask import Flask, jsonify, request, send_from_directory
+from letterboxdpy.constants.project import DOMAIN
+from letterboxdpy.core.exceptions import PrivateRouteError, ResourceNotFoundError
+from letterboxdpy.core.scraper import parse_url
 
 from .constants import PORT, ROOT_DIR
 from .scraper import (
@@ -76,9 +79,41 @@ def api_metadata():
         def fetch_metadata_worker(item):
             user, slug, is_watchlist, url = item
             try:
-                title, count = get_list_metadata(user, slug, is_watchlist=is_watchlist)
-            except TypeError:
-                title, count = get_list_metadata(user, slug)
+                try:
+                    title, count = get_list_metadata(user, slug, is_watchlist=is_watchlist)
+                except TypeError:
+                    title, count = get_list_metadata(user, slug)
+            except ResourceNotFoundError as e:
+                if is_watchlist:
+                    # Watchlist 404: check profile to distinguish user-not-found vs watchlist-not-found
+                    try:
+                        parse_url(f"{DOMAIN}/{user}/")
+                    except PrivateRouteError:
+                        raise PrivateRouteError(
+                            url=f"{DOMAIN}/{user}/watchlist/",
+                            message=f"The watchlist or profile for '{user}' is private on Letterboxd"
+                        ) from e
+                    except Exception:
+                        raise ResourceNotFoundError(
+                            url=f"{DOMAIN}/{user}/",
+                            message=f"User '{user}' could not be found on Letterboxd"
+                        ) from e
+                    # Profile exists but watchlist is gone/empty
+                    raise ResourceNotFoundError(
+                        url=f"{DOMAIN}/{user}/watchlist/",
+                        message=f"User '{user}' exists, but their watchlist could not be found on Letterboxd"
+                    ) from e
+                raise ResourceNotFoundError(
+                    url=f"{DOMAIN}/{user}/list/{slug}/",
+                    message=f"The list '{user}/{slug}' could not be found on Letterboxd"
+                ) from e
+            except PrivateRouteError as e:
+                # letterboxdpy already detected a 403; just add a user-friendly message
+                target = "watchlist" if is_watchlist else f"list '{user}/{slug}'"
+                raise PrivateRouteError(
+                    url=e.url,
+                    message=f"The {target} for '{user}' is private on Letterboxd"
+                ) from e
             return {
                 "user": user,
                 "slug": slug,
@@ -191,13 +226,15 @@ def api_select():
 @app.route("/details", methods=["POST"])
 def api_details():
     try:
-        slug = request.json.get("slug")
+        data = request.json or {}
+        slug = data.get("slug")
         if not slug:
             return jsonify({"error": "No slug"}), 400
         movie = get_movie_details(slug)
         return jsonify({"movie": movie})
     except Exception as e:
-        return json_error(e, f"api_details failed for slug: {request.json.get('slug')}")
+        return json_error(e, f"api_details failed for slug: {(request.json or {}).get('slug')}")
+
 
 
 if __name__ == "__main__":

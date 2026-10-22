@@ -94,9 +94,15 @@ def extract_info(val):
 def get_error_response(e):
     """Maps exceptions to user-facing messages and HTTP status codes."""
     if isinstance(e, PrivateRouteError):
+        msg = getattr(e, "message", None)
+        if msg and msg != "This resource is not public":
+            return msg, 403
         return "This user's watchlist or list is private on Letterboxd.", 403
 
     if isinstance(e, ResourceNotFoundError):
+        msg = getattr(e, "message", None)
+        if msg and msg != "Resource not found":
+            return msg, 404
         return "The requested list or user could not be found on Letterboxd.", 404
 
     if isinstance(e, AccessDeniedError):
