@@ -11,7 +11,7 @@
             var ids = ['light', 'light-2', 'light-3', 'light-4', 'dark', 'dark-2', 'dark-3'];
             var saved = localStorage.getItem('theme');
             var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', ids.indexOf(saved) !== -1 ? saved : (dark ? 'dark' : 'light'));
+            document.documentElement.setAttribute('data-theme', ids.indexOf(saved) !== -1 ? saved : (dark ? 'dark-3' : 'light-4'));
         })();
     </script>
     

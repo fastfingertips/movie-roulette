@@ -21,8 +21,8 @@ const updateActiveThemeInMenu = (themeId) => {
 
 const THEME_STORAGE_KEY = 'theme';
 
-/** Theme used when following the system color scheme */
-const SYSTEM_THEME = { light: 'light', dark: 'dark' };
+/** Default light and dark themes (used for system scheme and quick toggle) */
+const SYSTEM_THEME = { light: 'light-4', dark: 'dark-3' };
 
 const systemQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
@@ -40,7 +40,7 @@ const getStoredTheme = () => {
  * @param {{persist?: boolean}} options Pass persist: false to apply without saving the choice
  */
 export const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
     if (newTheme === currentTheme) return;
 
     let x = window.innerWidth - 40;
@@ -123,9 +123,9 @@ export const closeThemeMenu = () => {
 };
 
 export const toggleTheme = () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
     const isDark = currentTheme.startsWith('dark');
-    const targetTheme = isDark ? 'light' : 'dark';
+    const targetTheme = isDark ? SYSTEM_THEME.light : SYSTEM_THEME.dark;
     applyTheme(targetTheme);
 };
 
