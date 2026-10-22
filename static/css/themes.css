@@ -55,7 +55,7 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(61, 126, 94, 0.12), transparent 70%);
 }
 
-/* --- Açık Tema 2: Pine & Orchid (Blush Background) --- */
+/* --- Light Theme 2: Pine & Orchid (Blush Background) --- */
 /* Palette: #F8FAFC, #2C6058, #D384EE, #FBDBEC, #535C9D, #53B019 */
 [data-theme="light-2"] {
     --color-bg: #faeef5;
@@ -77,7 +77,7 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(211, 132, 238, 0.18), rgb(83, 176, 25, 0.08), transparent 70%);
 }
 
-/* --- Açık Tema 3: Citron & Berry (Warm Oat Background) --- */
+/* --- Light Theme 3: Citron & Berry (Warm Oat Background) --- */
 /* Palette: #F8FAFC, #B6C514, #9192B6, #E8E5C4, #3F7483, #4AB033, #B32459 */
 [data-theme="light-3"] {
     --color-bg: #f5f3e6;
@@ -99,7 +99,29 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(182, 197, 20, 0.2), rgb(179, 36, 89, 0.1), transparent 70%);
 }
 
-/* --- Koyu Tema 2: AMOLED Black (Pure Black #000) --- */
+/* --- Light Theme 4: Forest & Lime --- */
+/* Palette: #163300 (Forest Green), #9FE870 (Bright Lime), #153A3A (Dark Teal), #0E0F0C (Primary Text) */
+[data-theme="light-4"] {
+    --color-bg: #f6f8f5;
+    --color-bg-rgb: 246, 248, 245;
+    --color-surface: rgb(255, 255, 255, 0.8);
+    --color-border: rgb(14, 15, 12, 0.12);
+    --color-green: #163300;
+    --color-green-glow: rgb(22, 51, 0, 0.16);
+    --color-blue: #153a3a;
+    --color-text: #0e0f0c;
+    --color-text-secondary: #454745;
+    --color-text-muted: #6a6c6a;
+    --color-accent-subtle: rgb(159, 232, 112, 0.22);
+    --color-pill-bg: rgb(159, 232, 112, 0.25);
+    --color-pill-text: #163300;
+    --color-pill-border: rgb(22, 51, 0, 0.16);
+    --color-stars: #2f5711;
+    --color-grid-line: rgb(22, 51, 0, 0.06);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(159, 232, 112, 0.22), rgb(22, 51, 0, 0.08), transparent 70%);
+}
+
+/* --- Dark Theme 2: AMOLED Black (Pure Black #000) --- */
 [data-theme="dark-2"] {
     --color-bg: #000;
     --color-bg-rgb: 0, 0, 0;
@@ -118,6 +140,28 @@
     --color-stars: #3fb950;
     --color-grid-line: rgb(255, 255, 255, 0.04);
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(46, 160, 67, 0.08), transparent 70%);
+}
+
+/* --- Dark Theme 3: Midnight Lime --- */
+/* Palette: #121511 (Base Dark), #21231D (Surface), #9FE870 (Bright Lime), #A0E1E1 (Bright Blue) */
+[data-theme="dark-3"] {
+    --color-bg: #121511;
+    --color-bg-rgb: 18, 21, 17;
+    --color-surface: rgb(33, 35, 29, 0.72);
+    --color-border: rgb(159, 232, 112, 0.14);
+    --color-green: #9fe870;
+    --color-green-glow: rgb(159, 232, 112, 0.25);
+    --color-blue: #a0e1e1;
+    --color-text: #fff;
+    --color-text-secondary: #c1c8bd;
+    --color-text-muted: #969f92;
+    --color-accent-subtle: rgb(159, 232, 112, 0.12);
+    --color-pill-bg: rgb(159, 232, 112, 0.12);
+    --color-pill-text: #9fe870;
+    --color-pill-border: rgb(159, 232, 112, 0.28);
+    --color-stars: #9fe870;
+    --color-grid-line: rgb(159, 232, 112, 0.04);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(159, 232, 112, 0.16), rgb(22, 51, 0, 0.35), transparent 70%);
 }
 
 /* ==========================================================================
@@ -166,6 +210,30 @@
     background: rgb(10, 10, 12, 0.95);
     border-color: rgb(255, 255, 255, 0.15);
     box-shadow: 0 16px 40px rgb(0, 0, 0, 0.7);
+}
+
+[data-theme="dark-3"] .theme-menu {
+    background: rgb(26, 29, 23, 0.95);
+    border-color: rgb(159, 232, 112, 0.2);
+    box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
+}
+
+[data-theme="dark-3"] .action-btn {
+    color: #163300;
+}
+
+[data-theme="dark-3"] .action-btn .btn-hint {
+    background: rgb(22, 51, 0, 0.15);
+    color: #163300;
+}
+
+[data-theme="dark-3"] .stats-badge--winner {
+    color: #163300;
+}
+
+[data-theme="light-4"] .action-btn .btn-hint {
+    background: rgb(255, 255, 255, 0.18);
+    color: #fff;
 }
 
 @keyframes menu-pop {
