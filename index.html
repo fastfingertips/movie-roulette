@@ -300,48 +300,50 @@
                         <div class="workflow-step">
                             <div class="step-num">1</div>
                             <div class="step-body">
-                                <h4>Input Methods</h4>
-                                <p>You can add up to 5 sources using different formats:</p>
+                                <h4>Flexible Input Formats</h4>
+                                <p>You can mix up to 5 sources using any format:</p>
                                 <ul class="step-list">
                                     <li><strong>Username:</strong> <a href="https://letterboxd.com/bugracoskun/" target="_blank" rel="noopener" class="inline-link">bugracoskun</a> → spins from their Watchlist.</li>
                                     <li><strong>Shorthand:</strong> <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" rel="noopener" class="inline-link">official/letterboxds-top-500-films</a> → loads a specific list.</li>
-                                    <li><strong>Full URL:</strong> Paste any link like <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" rel="noopener" class="inline-link">letterboxd.com/official/list/top-500...</a> directly.</li>
+                                    <li><strong>Full URL:</strong> Paste any full <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" rel="noopener" class="inline-link">letterboxd.com</a> link directly.</li>
+                                    <li><strong>Watchlist vs List:</strong> Distinguishes standard watchlists from custom lists named <code>watchlist</code>.</li>
                                 </ul>
                             </div>
                         </div>
                         <div class="workflow-step">
                             <div class="step-num">2</div>
                             <div class="step-body">
-                                <h4>Field Detection</h4>
-                                <p>Each field is validated as you type:</p>
+                                <h4>Live Badges & Ratio Borders</h4>
+                                <p>Each field is inspected and enriched as you type:</p>
                                 <ul class="step-list">
-                                    <li>Shows a <strong>Watchlist</strong> or <strong>List</strong> badge instantly next to the field.</li>
-                                    <li>Marks <strong>Invalid</strong> entries (wrong domains, incomplete paths) with a red indicator.</li>
-                                    <li>Displays the resolved full URL below the input for confirmation.</li>
+                                    <li>Shows real-time <strong>Watchlist</strong> or <strong>List</strong> badges with live film counts.</li>
+                                    <li>Displays dynamic <strong>odds percentages</strong> and animated <strong>ratio border bars</strong>.</li>
+                                    <li>Surfaces detailed error tooltips if a user or list is private or not found.</li>
+                                    <li>Automatically catches and warns about duplicate list entries.</li>
                                 </ul>
                             </div>
                         </div>
                         <div class="workflow-step">
                             <div class="step-num">3</div>
                             <div class="step-body">
-                                <h4>How Selection Works</h4>
-                                <p>When you hit spin:</p>
+                                <h4>Dual Sampling Modes</h4>
+                                <p>When spinning across multiple lists, choose your odds mode:</p>
                                 <ul class="step-list">
-                                    <li>A random page is picked from the list, then a random film from that page.</li>
-                                    <li>Works with lists of any size, including 5,000+ entries.</li>
-                                    <li>Film details (poster, rating, backdrop) are fetched separately.</li>
+                                    <li><strong>Proportional (Default):</strong> Films have equal odds across the combined pool; larger lists carry proportional weight.</li>
+                                    <li><strong>Equal Odds (Scale Toggle):</strong> Each list gets an equal 1/N chance of being selected first, regardless of film count.</li>
+                                    <li>Works seamlessly with lists of any size, from 10 to 5,000+ entries.</li>
                                 </ul>
                             </div>
                         </div>
                         <div class="workflow-step">
                             <div class="step-num">4</div>
                             <div class="step-body">
-                                <h4>Auto-Shorten</h4>
-                                <p>When you paste a full Letterboxd URL:</p>
+                                <h4>Auto-Shorten & Sync</h4>
+                                <p>Pasted full URLs are neatly formatted:</p>
                                 <ul class="step-list">
-                                    <li>The URL is erased character by character with a typewriter effect.</li>
-                                    <li>Then the short form (e.g. <code>bugracoskun/turkish</code>) is typed back in.</li>
-                                    <li>The original full URL is preserved below the input as a reference.</li>
+                                    <li>Long URLs are automatically shortened using a smooth typewriter animation.</li>
+                                    <li>The canonical URL is preserved below the input for reference.</li>
+                                    <li>Your active mix automatically syncs to the address bar for easy bookmarking.</li>
                                 </ul>
                             </div>
                         </div>
@@ -352,36 +354,48 @@
                         <div class="workflow-step">
                             <div class="step-num">5</div>
                             <div class="step-body">
-                                <h4>Sharing & Mix</h4>
-                                <p>Combine your favorite lists to create a custom pool. Want a movie that's either in the <strong>Top 500</strong> or <strong>Top 250 Horror</strong>? Just add both URLs.</p>
+                                <h4>Mixes & Share Links</h4>
+                                <p>Combine favorite lists to create custom cinematic blends:</p>
                                 <ul class="step-list">
-                                    <li><strong>Create a Mix:</strong> Add multiple sources (up to 5) to spin across all of them simultaneously. It's that simple.</li>
-                                    <li><strong>Share Link:</strong> Once you've built your perfect blend, click <strong>Share Mix</strong> to send it to friends if you like.</li>
-                                    <li><strong>URL Format:</strong> <a href="?src=official/letterboxds-top-500-films,official/top-250-horror-films" class="inline-link">?src=official/letterboxds-top-500-films,official/top-250-horror-films</a></li>
+                                    <li><strong>Combine Sources:</strong> Add up to 5 lists to draw random picks across multiple tastes simultaneously.</li>
+                                    <li><strong>Share Mix:</strong> Click <strong>Share Mix</strong> to copy a shareable blend link to your clipboard.</li>
+                                    <li><strong>URL Parameter:</strong> Instant sharing with clean parameter syntax: <a href="?url=official/letterboxds-top-500-films,official/top-250-horror-films" class="inline-link">?url=official/letterboxds-top-500-films,...</a></li>
                                 </ul>
                             </div>
                         </div>
                         <div class="workflow-step">
                             <div class="step-num">6</div>
                             <div class="step-body">
-                                <h4>History & Quick Access</h4>
-                                <p>Your lists and results are saved locally:</p>
+                                <h4>Recent Lists & History</h4>
+                                <p>Your activity is persisted locally in your browser:</p>
                                 <ul class="step-list">
-                                    <li><strong>Recent Lists:</strong> Previously used lists appear below the form — click any to instantly load it.</li>
-                                    <li><strong>Activity Log:</strong> Your last 4 spins are saved with timestamps, film names, and poster art.</li>
-                                    <li><strong>One-Click Reuse:</strong> Tap a recent list to auto-fill it into the next available field.</li>
+                                    <li><strong>Recent Lists:</strong> Quick-access chips show inclusion status (<code>#1</code>, <code>#2</code>) — click to add or remove.</li>
+                                    <li><strong>Activity Log:</strong> Saves your last 4 spins with timestamps, list sources, and Letterboxd links.</li>
+                                    <li><strong>Keyboard Support:</strong> Navigate recent chips with <kbd>Tab</kbd> and toggle with <kbd>Enter</kbd> or <kbd>Space</kbd>.</li>
                                 </ul>
                             </div>
                         </div>
                         <div class="workflow-step">
                             <div class="step-num">7</div>
                             <div class="step-body">
-                                <h4>Privacy & Security</h4>
-                                <p>All data is stored in your browser:</p>
+                                <h4>Technical Logs & Waterfall</h4>
+                                <p>Inspect exact diagnostics for every spin:</p>
                                 <ul class="step-list">
-                                    <li><strong>100% Local:</strong> All history and mixes are stored in your browser's localStorage.</li>
-                                    <li><strong>No Tracking:</strong> No analytics, no cookies, no server-side storage of any kind.</li>
-                                    <li><strong>Open Source:</strong> The entire codebase is <a href="https://github.com/fastfingertips/movie-roulette" target="_blank" rel="noopener" style="color: var(--color-green);">publicly available</a> for inspection.</li>
+                                    <li>Click the <strong>info icon</strong> on the result card to view technical logs.</li>
+                                    <li>Review exact probability percentages, pool breakdown, and winner verification.</li>
+                                    <li>Inspect pipeline execution waterfall timings (Metadata → Selection → Film Enrichment).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="step-num">8</div>
+                            <div class="step-body">
+                                <h4>Privacy & 7 Custom Themes</h4>
+                                <p>Fast, lightweight, and customizable:</p>
+                                <ul class="step-list">
+                                    <li><strong>100% Local Storage:</strong> Zero tracking, zero third-party analytics, and no server cookies.</li>
+                                    <li><strong>7 Curated Themes:</strong> Switch between Classic Light/Dark, Pine & Orchid, Citron & Berry, Forest & Lime, AMOLED Black, and Midnight Lime.</li>
+                                    <li><strong>Open Source:</strong> Transparent and publicly hosted on <a href="https://github.com/fastfingertips/movie-roulette" target="_blank" rel="noopener" style="color: var(--color-green);">GitHub</a>.</li>
                                 </ul>
                             </div>
                         </div>

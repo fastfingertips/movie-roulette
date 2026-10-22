@@ -1104,7 +1104,16 @@
         .shortcut-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--color-text-secondary); }
         .shortcut-item kbd { margin: 0; min-width: 24px; text-align: center; }
 
-        .modal-content--wide { max-width: 800px; padding: 24px; }
+        .modal-content--wide { 
+            max-width: 800px; 
+            padding: 24px; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            scrollbar-width: thin; 
+            scrollbar-color: var(--color-border) transparent; 
+        }
+        .modal-content--wide::-webkit-scrollbar { width: 6px; }
+        .modal-content--wide::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
 
         .modal-grid { 
             display: grid; 
