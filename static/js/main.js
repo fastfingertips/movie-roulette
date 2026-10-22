@@ -4,7 +4,7 @@ import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls, initFieldStats, attachWatchlistWatcher, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
-import { checkUrlParams, stripOrigin } from './modules/utils.js';
+import { parseUrlParams, stripOrigin } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
 import { applyServerError, classifyError } from './modules/fieldErrors.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
@@ -569,13 +569,26 @@ initKeyboardShortcuts({
 
 initFieldStats(updateUI);
 updateUI();
-checkUrlParams(({ urls, shouldRun, hasDuplicateWatchlist }) => {
+/** Fill the form from URL query params, then optionally auto-run. */
+const bootstrapFromUrl = () => {
+    const { urls, shouldRun, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    if (urls.length === 0) return;
+
+    const firstInput = document.querySelector('#randomize-form input');
+    urls.forEach((url, index) => {
+        if (index === 0) firstInput.value = url;
+        else addField(updateUI, url);
+    });
+
+    // Clean up URL to prevent accidental re-runs on refresh
+    window.history.replaceState({}, document.title, window.location.pathname);
+
     updateUI();
-    if (hasDuplicateWatchlist) {
-        showToast("Duplicate list was excluded.");
-    }
-    if (urls.length > 0) refreshAllCounts();
+    if (hasDuplicateWatchlist) showToast("Duplicate list was excluded.");
+    refreshAllCounts();
     if (shouldRun) performRandomize(urls);
-}, updateUI);
+};
+
+bootstrapFromUrl();
 initStatsTabs();
 if (window.lucide) window.lucide.createIcons();

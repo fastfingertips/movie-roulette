@@ -1,6 +1,3 @@
-import { $ } from './dom.js';
-import { addField } from './fields.js';
-
 /** Slugs that represent Letterboxd profile sections, not user identifiers */
 export const RESERVED_SLUGS = ['films', 'following', 'followers', 'reviews', 'lists', 'activity', 'members'];
 
@@ -44,10 +41,17 @@ export const canonicalKey = (raw) => {
     return null;
 };
 
-export const checkUrlParams = (onReady, onFieldChange = () => {}) => {
-    const params = new URLSearchParams(window.location.search);
+/**
+ * Parse list sources from a query string. Pure: does not touch the DOM or history.
+ * Duplicates (by canonical key) are dropped and `user/watchlist` is normalized to `user`.
+ * @param {string} search Query string, e.g. window.location.search
+ * @param {number} maxUrls Maximum number of sources to return
+ * @returns {{urls: string[], shouldRun: boolean, hasDuplicateWatchlist: boolean}}
+ */
+export const parseUrlParams = (search, maxUrls = 5) => {
+    const params = new URLSearchParams(search);
     const rawTokens = [];
-    
+
     const shouldRun = params.get('run') !== '0' && params.get('auto') !== '0';
 
     ['url', 'urls', 'src', 'sources', 'list', 'lists'].forEach(key => {
@@ -80,25 +84,7 @@ export const checkUrlParams = (onReady, onFieldChange = () => {}) => {
         }
     });
 
-    const finalUrls = urlsToRun.slice(0, 5);
-    
-    if (finalUrls.length > 0) {
-        const inputs = Array.from($('randomize-form').querySelectorAll('input'));
-        
-        finalUrls.forEach((url, index) => {
-            if (index === 0) {
-                inputs[0].value = url;
-            } else {
-                addField(onFieldChange, url);
-            }
-        });
-        
-        // Clean up URL to prevent accidental re-runs on refresh
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        // Trigger the callback with extracted data
-        onReady({ urls: finalUrls, shouldRun, hasDuplicateWatchlist });
-    }
+    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, hasDuplicateWatchlist };
 };
 
 export const formatListUrl = (url) => {
