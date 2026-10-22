@@ -1,6 +1,7 @@
 import logging
+import os
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
 from .constants import PORT, ROOT_DIR
 from .scraper import (
@@ -19,12 +20,19 @@ if not logger.handlers:
         datefmt="%H:%M:%S",
     )
 
-app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
+STATIC_DIR = os.path.join(ROOT_DIR, "static")
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
 
 
 @app.route("/")
+@app.route("/index.html")
 def index():
-    return app.send_static_file("index.html")
+    return send_from_directory(ROOT_DIR, "index.html")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(STATIC_DIR, "favicon.svg", mimetype="image/svg+xml")
 
 
 @app.route("/api/metadata", methods=["POST"])

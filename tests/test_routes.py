@@ -4,6 +4,24 @@ class TestIndexRoute:
         assert res.status_code == 200
         assert b"<!doctype html>" in res.data or b"<html" in res.data
 
+    def test_index_html_alias_returns_html(self, client):
+        res = client.get("/index.html")
+        assert res.status_code == 200
+        assert b"<!doctype html>" in res.data or b"<html" in res.data
+
+    def test_static_asset_accessible(self, client):
+        res = client.get("/static/css/style.css")
+        assert res.status_code == 200
+
+    def test_favicon_accessible(self, client):
+        res = client.get("/favicon.ico")
+        assert res.status_code == 200
+
+    def test_root_files_not_exposed(self, client):
+        assert client.get("/requirements.txt").status_code == 404
+        assert client.get("/vercel.json").status_code == 404
+        assert client.get("/.env.local").status_code == 404
+
 
 class TestMetadataRoute:
     def test_metadata_no_urls_returns_400(self, client):
