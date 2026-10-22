@@ -374,23 +374,25 @@ $('url-1').addEventListener('input', () => {
 });
 attachWatchlistWatcher($('url-1'), updateUI);
 
-const debugBtn = $('debug-toggle');
-const syncDebugButton = () => {
-    if (!debugBtn) return;
+const debugCheckbox = $('debug-toggle');
+const debugWrapper = $('console-toggle-wrapper');
+const syncDebugCheckbox = () => {
+    if (!debugCheckbox) return;
     const active = Log.isEnabled();
-    debugBtn.classList.toggle('is-active', active);
-    debugBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    debugBtn.title = active
-        ? 'Console Logs: Enabled (click to disable)'
-        : 'Console Logs: Disabled (click to enable)';
+    debugCheckbox.checked = active;
+    if (debugWrapper) {
+        debugWrapper.title = active
+            ? 'Console Logs: Enabled (click to disable)'
+            : 'Console Logs: Disabled (click to enable)';
+    }
 };
 
-if (debugBtn) {
-    syncDebugButton();
-    debugBtn.addEventListener('click', () => {
-        const nextState = !Log.isEnabled();
+if (debugCheckbox) {
+    syncDebugCheckbox();
+    debugCheckbox.addEventListener('change', () => {
+        const nextState = debugCheckbox.checked;
         Log.setDebug(nextState);
-        syncDebugButton();
+        syncDebugCheckbox();
         if (nextState) {
             console.log(
                 '%c[DEBUG] Console logs enabled. Randomizer steps will now appear here.',

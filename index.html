@@ -126,9 +126,6 @@
                     </button>
                 </div>
             </div>
-            <button class="icon-btn" id="debug-toggle" title="Console Logs Disabled (click to enable)" aria-label="Toggle Console Logs" aria-pressed="false">
-                <i data-lucide="terminal"></i>
-            </button>
             <button class="icon-btn" id="info-btn" title="How it works">
                 <i data-lucide="info"></i>
             </button>
@@ -296,6 +293,13 @@
                     </div>
                 </div>
             </footer>
+            <div class="console-toggle-wrapper" id="console-toggle-wrapper" title="Toggle browser console logs">
+                <span class="console-toggle-label"><i data-lucide="terminal"></i> Console Logs</span>
+                <label class="switch switch--sm" for="debug-toggle" aria-label="Toggle Console Logs">
+                    <input type="checkbox" id="debug-toggle" />
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
     </div>
 
