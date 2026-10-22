@@ -125,10 +125,19 @@ def get_error_response(e):
             return msg, 500
 
 
+def error_response(message, status=400, **extra):
+    """Builds a JSON error response. Extra keyword fields are merged into the body.
+
+    The body always has an "error" key; clients rely on optional structured
+    fields such as "user", "slug" and "is_empty" to target the offending list.
+    """
+    return jsonify({"error": message, **extra}), status
+
+
 def json_error(e, log_message=None, logger_func=None):
     """Maps an exception to a JSON error response and logs it."""
     if log_message:
         log = logger_func or logger.exception
         log(log_message)
     msg, status = get_error_response(e)
-    return jsonify({"error": msg}), status
+    return error_response(msg, status)

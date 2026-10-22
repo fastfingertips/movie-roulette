@@ -15,7 +15,7 @@ from .scraper import (
     get_random_movie_meta,
     pick_weighted_list,
 )
-from .utils import extract_info, json_error
+from .utils import error_response, extract_info, json_error
 
 logger = logging.getLogger("movie_roulette")
 if not logger.handlers:
@@ -47,7 +47,7 @@ def api_metadata():
         urls = [u.strip() for u in (request.json or {}).get("urls", []) if u.strip()]
         logger.info("api_metadata requested with %d urls", len(urls))
         if not urls:
-            return jsonify({"error": "No URLs"}), 400
+            return error_response("No URLs")
 
         # Pre-validate and extract user/slug upfront with duplicate detection
         parsed_items = []
@@ -55,24 +55,14 @@ def api_metadata():
         for url in urls:
             info = extract_info(url)
             if not info or not info[0]:
-                return jsonify({"error": "Invalid list URL"}), 400
+                return error_response("Invalid list URL")
             user, slug = info[0], info[1]
             is_watchlist = getattr(info, "is_watchlist", slug == "watchlist")
             key = (user, slug, is_watchlist)
             if key in seen_keys:
                 if is_watchlist:
-                    return (
-                        jsonify(
-                            {
-                                "error": f"Duplicate watchlist detected for '{user}'."
-                            }
-                        ),
-                        400,
-                    )
-                return (
-                    jsonify({"error": f"Duplicate list detected: '{user}/{slug}'."}),
-                    400,
-                )
+                    return error_response(f"Duplicate watchlist detected for '{user}'.")
+                return error_response(f"Duplicate list detected: '{user}/{slug}'.")
             seen_keys.add(key)
             parsed_items.append((user, slug, is_watchlist, url))
 
@@ -149,17 +139,13 @@ def api_metadata():
         for item in results:
             if item["count"] <= 0:
                 target = "watchlist" if item.get("is_watchlist") else f"list '{item['slug']}'"
-                return (
-                    jsonify(
-                        {
-                            "error": f"The {target} for '{item['user']}' is empty on Letterboxd",
-                            "user": item["user"],
-                            "slug": item["slug"],
-                            "is_watchlist": item.get("is_watchlist", False),
-                            "is_empty": True,
-                        }
-                    ),
+                return error_response(
+                    f"The {target} for '{item['user']}' is empty on Letterboxd",
                     422,
+                    user=item["user"],
+                    slug=item["slug"],
+                    is_watchlist=item.get("is_watchlist", False),
+                    is_empty=True,
                 )
             list_data.append(
                 {
@@ -199,7 +185,7 @@ def api_select():
             mode,
         )
         if not lists:
-            return jsonify({"error": "No lists"}), 400
+            return error_response("No lists")
 
         # Pick a list: equal odds per list vs weighted by movie count
         if mode == "equal":
@@ -208,7 +194,7 @@ def api_select():
             selected = pick_weighted_list(lists, total)
 
         if not selected:
-            return jsonify({"error": "Failed to pick a list"}), 400
+            return error_response("Failed to pick a list")
 
         logger.debug("Selected list: %s/%s (mode: %s)", selected["user"], selected["slug"], mode)
         # Get random movie meta
@@ -219,12 +205,8 @@ def api_select():
             is_watchlist=selected.get("is_watchlist"),
         )
         if not meta:
-            return (
-                jsonify(
-                    {
-                        "error": "Failed to pick a movie from the selected list. Please try again."
-                    }
-                ),
+            return error_response(
+                "Failed to pick a movie from the selected list. Please try again.",
                 502,
             )
 
@@ -241,7 +223,7 @@ def api_details():
         data = request.json or {}
         slug = data.get("slug")
         if not slug:
-            return jsonify({"error": "No slug"}), 400
+            return error_response("No slug")
         movie = get_movie_details(slug)
         return jsonify({"movie": movie})
     except Exception as e:

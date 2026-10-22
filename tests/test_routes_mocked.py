@@ -64,6 +64,13 @@ class TestMockedRouteFlow:
             json={"urls": ["user1/good", "user2/empty"]},
         )
         assert res.status_code == 422
+        data = res.get_json()
+        # The frontend uses these structured fields to mark only the offending field
+        assert data["is_empty"] is True
+        assert data["user"] == "user2"
+        assert data["slug"] == "empty"
+        assert data["is_watchlist"] is False
+        assert "user2" in data["error"]
 
     @patch("api.index.get_random_movie_meta")
     def test_select_success(self, mock_select, client):
