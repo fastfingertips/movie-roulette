@@ -217,6 +217,12 @@
         .icon-btn:hover { 
             color: var(--color-text); 
         }
+        .icon-btn.is-active {
+            color: var(--color-green);
+        }
+        .icon-btn.is-active svg {
+            filter: drop-shadow(0 0 6px var(--color-green-glow));
+        }
         [data-theme^="dark"] .icon-btn:hover { color: #fff; }
         .icon-btn svg { width: 18px; height: 18px; }
         .sun-icon { color: #f59e0b; }

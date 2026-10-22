@@ -107,12 +107,19 @@ const handleUseList = (url) => {
 };
 
 // --- Debug Logging ---
+let isDebugEnabled = localStorage.getItem('movie_roulette_debug') === 'true';
+
 const Log = {
-    info: (msg, data = '') => console.log(`%c[INFO] ${msg}`, 'color: #007aff; font-weight: bold;', data),
-    success: (msg, data = '') => console.log(`%c[OK] ${msg}`, 'color: #34c759; font-weight: bold;', data),
-    warn: (msg, data = '') => console.warn(`%c[WARN] ${msg}`, 'color: #ff9500; font-weight: bold;', data),
+    isEnabled: () => isDebugEnabled,
+    setDebug: (enabled) => {
+        isDebugEnabled = Boolean(enabled);
+        localStorage.setItem('movie_roulette_debug', isDebugEnabled ? 'true' : 'false');
+    },
+    info: (msg, data = '') => isDebugEnabled && console.log(`%c[INFO] ${msg}`, 'color: #007aff; font-weight: bold;', data),
+    success: (msg, data = '') => isDebugEnabled && console.log(`%c[OK] ${msg}`, 'color: #34c759; font-weight: bold;', data),
+    warn: (msg, data = '') => isDebugEnabled && console.warn(`%c[WARN] ${msg}`, 'color: #ff9500; font-weight: bold;', data),
     error: (msg, data = '') => console.error(`%c[FAIL] ${msg}`, 'color: #ff3b30; font-weight: bold;', data),
-    step: (name) => console.log(`%c>> ${name}`, 'background: #007aff; color: white; padding: 2px 5px; border-radius: 3px; font-size: 10px; font-weight: bold;')
+    step: (name) => isDebugEnabled && console.log(`%c>> ${name}`, 'background: #007aff; color: white; padding: 2px 5px; border-radius: 3px; font-size: 10px; font-weight: bold;')
 };
 
 
@@ -366,6 +373,34 @@ $('url-1').addEventListener('input', () => {
     updateUI();
 });
 attachWatchlistWatcher($('url-1'), updateUI);
+
+const debugBtn = $('debug-toggle');
+const syncDebugButton = () => {
+    if (!debugBtn) return;
+    const active = Log.isEnabled();
+    debugBtn.classList.toggle('is-active', active);
+    debugBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    debugBtn.title = active
+        ? 'Console Logs: Enabled (click to disable)'
+        : 'Console Logs: Disabled (click to enable)';
+};
+
+if (debugBtn) {
+    syncDebugButton();
+    debugBtn.addEventListener('click', () => {
+        const nextState = !Log.isEnabled();
+        Log.setDebug(nextState);
+        syncDebugButton();
+        if (nextState) {
+            console.log(
+                '%c[DEBUG] Console logs enabled. Randomizer steps will now appear here.',
+                'color: #10b981; font-weight: bold;'
+            );
+        } else {
+            console.clear();
+        }
+    });
+}
 
 $('info-btn').addEventListener('click', () => setView('info'));
 $('close-modal-btn').addEventListener('click', () => setView('form'));

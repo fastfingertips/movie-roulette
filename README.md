@@ -86,18 +86,7 @@ npm run cpd
 
 ## Contributing
 
-[Husky](https://typicode.github.io/husky/) runs quality checks on every commit:
-
-- **Pre-commit** — `lint-staged` runs ESLint on JS, Stylelint on CSS, and Ruff on Python
-- **Commit-msg** — subject line must be **≤ 62 characters**
-
-```text
-# ✅ Valid
-feat: cancel stale requests with AbortController
-
-# ❌ Invalid (>62 chars)
-feat: this commit message title is way too long and exceeds the limit
-```
+Contributions are welcome! Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, commit conventions (Husky git hooks, ≤ 62 char limit), and testing guidelines.
 
 ---
 
@@ -105,8 +94,10 @@ feat: this commit message title is way too long and exceeds the limit
 
 Deployed on **Vercel** as a serverless Python web service.
 
-- Serverless timeout: `60s` ([vercel.json](vercel.json))
-- Security headers: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`
+- **Configuration:** Serverless timeout `60s` ([vercel.json](vercel.json))
+- **Security Headers:** `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`
+- **Edge Security:** Vercel Bot Protection (JS challenge for automated requests) and AI bot crawlers blocked
+- **Application Firewall:** Strict Pydantic request validation and 32 KB payload limit ([api/security.py](api/security.py))
 
 ---
 
