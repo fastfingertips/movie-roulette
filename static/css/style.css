@@ -58,13 +58,7 @@ body {
     transition: var(--transition);
 }
 
-[data-theme^="dark"] .grid-background { 
-    background-image: 
-        linear-gradient(to right, var(--color-grid-line, rgb(255, 255, 255, 0.05)) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--color-grid-line, rgb(255, 255, 255, 0.05)) 1px, transparent 1px);
-    background-size: 32px 32px;
-    opacity: 0.8; 
-}
+[data-theme^="dark"] .grid-background { opacity: 0.8; }
 
 .backdrop-wrapper {
     position: absolute;
@@ -337,7 +331,6 @@ input { user-select: text; }
     font-size: 9px;
     padding: 1px 4px;
 }
-[data-theme^="dark"] .field__status { background: var(--color-pill-bg, rgb(255, 255, 255, 0.15)); color: var(--color-pill-text, #fff); }
 .field__status.is-visible { opacity: 0.85; transform: scale(1); pointer-events: auto; }
 [data-theme^="dark"] .field__status.is-visible { opacity: 0.9; }
 .field__status.is-invalid { opacity: 0.9; color: #fe5a5a; background: rgb(254, 90, 90, 0.12); border-color: rgb(254, 90, 90, 0.25); cursor: help; }
@@ -371,7 +364,7 @@ input { user-select: text; }
     letter-spacing: 0.02em;
     color: var(--color-green);
     background: var(--color-green-glow);
-    border: 1px solid rgb(16, 185, 129, 0.3);
+    border: 1px solid color-mix(in srgb, var(--color-green) 35%, transparent);
     border-radius: 4px;
     padding: 2px 0;
     max-width: 0;
@@ -387,11 +380,6 @@ input { user-select: text; }
                 transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
     cursor: help;
-}
-
-[data-theme^="dark"] .field__ratio {
-    background: rgb(16, 185, 129, 0.12);
-    border-color: rgb(16, 185, 129, 0.35);
 }
 
 .field__ratio.is-visible {
@@ -971,6 +959,8 @@ input { user-select: text; }
     }
 
     [data-theme^="dark"] .btn-hero-side {
+        background: var(--color-surface);
+        border-color: var(--color-border);
         box-shadow: 0 10px 40px rgb(0, 0, 0, 0.25);
     }
 
@@ -1309,17 +1299,6 @@ input { user-select: text; }
     transform: translateY(-1px);
 }
 
-[data-theme^="dark"] .genre-pill {
-    background: var(--color-pill-bg, rgb(255, 255, 255, 0.06));
-    color: var(--color-pill-text, #94a3b8);
-    border: 1px solid var(--color-pill-border, transparent);
-}
-
-[data-theme^="dark"] .genre-pill:hover {
-    background: var(--color-accent-subtle);
-    color: var(--color-blue);
-    border-color: var(--color-blue);
-}
 
 .stats-trigger {
     background: none;

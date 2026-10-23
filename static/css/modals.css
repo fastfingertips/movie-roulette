@@ -150,7 +150,6 @@ kbd {
     background: transparent;
     border: none;
 }
-[data-theme^="dark"] .modal-panel { background: transparent; }
 
 
 @media (width <= 600px) {
@@ -696,9 +695,6 @@ kbd {
 
 [data-theme^="dark"] .stats-action-btn {
     background: rgb(255, 255, 255, 0.04);
-    border-color: var(--color-border);
-    color: var(--color-text-secondary);
-    box-shadow: none;
 }
 
 .stats-action-btn:hover {
