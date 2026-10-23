@@ -21,3 +21,5 @@ export const clearRecentLists = () => localStorage.removeItem('lb_recent_lists')
 export const getSamplingMode = () => localStorage.getItem('lb_sampling_mode') || 'proportional';
 export const saveSamplingMode = (mode) => localStorage.setItem('lb_sampling_mode', mode);
 
+export const getDebugMode = () => localStorage.getItem('movie_roulette_debug') === 'true';
+export const saveDebugMode = (enabled) => localStorage.setItem('movie_roulette_debug', enabled ? 'true' : 'false');

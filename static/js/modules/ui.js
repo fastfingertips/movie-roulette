@@ -431,6 +431,7 @@ export const renderStatsModal = (data) => {
     if (specsEl && data.movie) {
         const m = data.movie;
         const genresStr = m.genres ? (Array.isArray(m.genres) ? m.genres.map(g => g.name || g).join(', ') : m.genres) : '-';
+        const directorsStr = m.directors?.length ? m.directors.map(d => d.name || d).join(', ') : (m.director || 'N/A');
         specsEl.innerHTML = `
             <div class="spec-tile">
                 <span class="spec-label">Title & Year</span>
@@ -438,7 +439,7 @@ export const renderStatsModal = (data) => {
             </div>
             <div class="spec-tile">
                 <span class="spec-label">Director</span>
-                <span class="spec-val">${escapeHtml(m.director || 'N/A')}</span>
+                <span class="spec-val">${escapeHtml(directorsStr)}</span>
             </div>
             <div class="spec-tile">
                 <span class="spec-label">Rating</span>
@@ -466,7 +467,7 @@ export const renderStatsModal = (data) => {
                 year: data.movie.year,
                 slug: data.movie.slug,
                 rating: data.movie.rating,
-                director: data.movie.director,
+                director: data.movie.directors?.length ? data.movie.directors.map(d => d.name || d).join(', ') : (data.movie.director || null),
                 genres: data.movie.genres ? data.movie.genres.map(g => g.name || g) : [],
                 letterboxd_url: data.movie.url || `https://letterboxd.com/film/${data.movie.slug}/`
             },

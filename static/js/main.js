@@ -1,7 +1,7 @@
 import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast } from './modules/ui.js';
 
-import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode } from './modules/storage.js';
+import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getDebugMode, saveDebugMode } from './modules/storage.js';
 import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls, initFieldStats, attachWatchlistWatcher, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
 import { parseUrlParams, stripOrigin } from './modules/utils.js';
@@ -107,13 +107,13 @@ const handleUseList = (url) => {
 };
 
 // --- Debug Logging ---
-let isDebugEnabled = localStorage.getItem('movie_roulette_debug') === 'true';
+let isDebugEnabled = getDebugMode();
 
 const Log = {
     isEnabled: () => isDebugEnabled,
     setDebug: (enabled) => {
         isDebugEnabled = Boolean(enabled);
-        localStorage.setItem('movie_roulette_debug', isDebugEnabled ? 'true' : 'false');
+        saveDebugMode(isDebugEnabled);
     },
     info: (msg, data = '') => isDebugEnabled && console.log(`%c[INFO] ${msg}`, 'color: #007aff; font-weight: bold;', data),
     success: (msg, data = '') => isDebugEnabled && console.log(`%c[OK] ${msg}`, 'color: #34c759; font-weight: bold;', data),
@@ -318,6 +318,7 @@ export const performRandomize = async (urls) => {
         clearInterval(bgIntervals.prg);
         setView('form');
         showToast(err.message || 'Processing failed');
+        refreshAllCounts();
         Log.error('Randomization Flow Interrupted', err);
 
         // Highlight the offending field if a list was not found, is private, or is empty
@@ -422,11 +423,6 @@ if (elements.samplingToggle) {
         if (elements.samplingToggleWrapper) {
             elements.samplingToggleWrapper.classList.toggle('is-active', isChecked);
         }
-        if (elements.samplingToggleDesc) {
-            elements.samplingToggleDesc.textContent = isChecked
-                ? 'Pick a list with equal 1/N odds, ignoring film counts'
-                : 'Films have equal odds across pool (weighted by list size)';
-        }
     });
 
     const savedMode = getSamplingMode();
@@ -434,9 +430,6 @@ if (elements.samplingToggle) {
         elements.samplingToggle.checked = true;
         if (elements.samplingToggleWrapper) {
             elements.samplingToggleWrapper.classList.add('is-active');
-        }
-        if (elements.samplingToggleDesc) {
-            elements.samplingToggleDesc.textContent = 'Pick a list with equal 1/N odds, ignoring film counts';
         }
     }
 
