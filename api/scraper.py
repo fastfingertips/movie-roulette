@@ -2,6 +2,7 @@ import math
 import random
 
 from letterboxdpy.constants.project import DOMAIN
+from letterboxdpy.core.exceptions import PrivateRouteError, ResourceNotFoundError
 from letterboxdpy.core.scraper import parse_url
 from letterboxdpy.pages.movie_profile import MovieProfile
 from letterboxdpy.pages.user_list import UserList
@@ -20,6 +21,47 @@ def get_list_metadata(user, slug, is_watchlist=None):
         return f"{user}'s Watchlist", watchlist.get_count()
     user_list = UserList(user, slug)
     return user_list.get_title(), user_list.get_count()
+
+
+def resolve_metadata_error(exc, user, slug, is_watchlist):
+    """Enrich Letterboxd 404/403 exceptions with user-friendly messages."""
+    if isinstance(exc, PrivateRouteError):
+        target = "watchlist" if is_watchlist else f"list '{user}/{slug}'"
+        return PrivateRouteError(
+            url=exc.url,
+            message=f"The {target} for '{user}' is private on Letterboxd",
+        )
+
+    if is_watchlist:
+        # Watchlist 404: check profile to distinguish user vs watchlist 404
+        try:
+            parse_url(f"{DOMAIN}/{user}/")
+        except PrivateRouteError:
+            return PrivateRouteError(
+                url=f"{DOMAIN}/{user}/watchlist/",
+                message=(
+                    f"The watchlist or profile for '{user}' "
+                    "is private on Letterboxd"
+                ),
+            )
+        except Exception:
+            return ResourceNotFoundError(
+                url=f"{DOMAIN}/{user}/",
+                message=f"User '{user}' could not be found on Letterboxd",
+            )
+        # Profile exists but watchlist is gone/empty
+        return ResourceNotFoundError(
+            url=f"{DOMAIN}/{user}/watchlist/",
+            message=(
+                f"User '{user}' exists, but their watchlist "
+                "could not be found on Letterboxd"
+            ),
+        )
+
+    return ResourceNotFoundError(
+        url=f"{DOMAIN}/{user}/list/{slug}/",
+        message=f"The list '{user}/{slug}' could not be found on Letterboxd",
+    )
 
 
 def pick_weighted_list(lists, total=None):
