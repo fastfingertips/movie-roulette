@@ -622,8 +622,11 @@ const bootstrapFromUrl = () => {
 
     updateUI();
     if (hasDuplicateWatchlist) showToast("Duplicate list was excluded.");
-    refreshAllCounts();
-    if (shouldRun) performRandomize(urls);
+    if (shouldRun) {
+        performRandomize(urls);
+    } else {
+        refreshAllCounts();
+    }
 };
 
 bootstrapFromUrl();
