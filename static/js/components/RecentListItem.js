@@ -11,10 +11,10 @@ export const createRecentListItem = (url, activeIndex) => {
             <div class="history-item__body">
                 <div class="history-item__row">
                     <span class="history-item__name history-item__name--mono">${escapeHtml(name)}</span>
-                    ${type ? `<span class="field__status field__status--inline is-visible">${type}</span>` : ''}
+                    ${type ? `<span class="field__status field__status--inline is-visible" aria-hidden="true">${type}</span>` : ''}
                 </div>
             </div>
-            <div class="history-item__action" title="${actionTooltip}">
+            <div class="history-item__action" title="${actionTooltip}" aria-hidden="true">
                 ${isActive ? `<span class="icon-default">#${activeIndex + 1}</span><i data-lucide="minus" class="icon-hover"></i>` : '<i data-lucide="plus"></i>'}
             </div>
         </div>

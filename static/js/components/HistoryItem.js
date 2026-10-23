@@ -3,7 +3,7 @@ import { escapeHtml } from '../modules/utils.js';
 export const createHistoryItem = (item, formatTimeFn) => {
     const tooltip = `View ${item.movie.name} on Letterboxd`;
     return `
-        <a href="${escapeHtml(item.movie.url)}" target="_blank" rel="noopener" class="history-item" title="${escapeHtml(tooltip)}" aria-label="${escapeHtml(tooltip)}">
+        <a href="${escapeHtml(item.movie.url)}" target="_blank" rel="noopener" class="history-item" title="${escapeHtml(tooltip)}">
             <div class="history-item__body">
                 <span class="history-item__name">${escapeHtml(item.movie.name)}</span>
                 <div class="history-item__sub">
@@ -12,7 +12,7 @@ export const createHistoryItem = (item, formatTimeFn) => {
                     <span>${formatTimeFn(item.timestamp)}</span>
                 </div>
             </div>
-            <div class="history-item__arrow">→</div>
+            <div class="history-item__arrow" aria-hidden="true">→</div>
         </a>
     `;
 };

@@ -36,6 +36,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link rel="modulepreload" href="/static/js/main.js" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/static/css/themes.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
@@ -132,7 +134,7 @@
         </div>
     </header>
 
-    <div class="page-container">
+    <main class="page-container">
         <div class="card">
             <div class="toast" id="error-msg" role="alert" aria-live="polite">
                 <i data-lucide="alert-circle"></i>
@@ -301,7 +303,7 @@
                 </label>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- How it Works Popup -->
     <div id="info-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
@@ -543,7 +545,7 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/lucide@1.59.0/dist/umd/lucide.min.js" integrity="sha384-4VQAGBhahgTiMVvXUqbh6qcs45zGzR/8znv7XORRfWkxZfzRbhLL5Uh+fSdvdqdM" crossorigin="anonymous"></script>
+    <script defer src="https://unpkg.com/lucide@1.59.0/dist/umd/lucide.min.js" integrity="sha384-4VQAGBhahgTiMVvXUqbh6qcs45zGzR/8znv7XORRfWkxZfzRbhLL5Uh+fSdvdqdM" crossorigin="anonymous"></script>
     <script type="module" src="/static/js/main.js"></script>
 
 </body>
