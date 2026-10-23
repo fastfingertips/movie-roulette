@@ -91,6 +91,15 @@ const encodeTextFragment = (text) => {
         .replace(/,/g, '%2C');
 };
 
+const getListHomeUrl = (list) => {
+    if (!list || !list.user) return null;
+    const isWatchlist = list.is_watchlist !== undefined ? list.is_watchlist : list.slug === 'watchlist';
+    if (isWatchlist) {
+        return `https://letterboxd.com/${list.user}/watchlist/`;
+    }
+    return `https://letterboxd.com/${list.user}/list/${list.slug}/`;
+};
+
 const getListHighlightUrl = (list, movie, page = 1) => {
     if (!list || !list.user) return null;
     const isWatchlist = list.is_watchlist !== undefined ? list.is_watchlist : list.slug === 'watchlist';
@@ -108,15 +117,20 @@ const getListHighlightUrl = (list, movie, page = 1) => {
 
 export const renderResult = (data) => {
     // 1. Text & Links
+    const isWatchlist = data.list?.is_watchlist !== undefined ? data.list.is_watchlist : data.list?.slug === 'watchlist';
+    const listHomeUrl = getListHomeUrl(data.list);
     const listHighlightUrl = getListHighlightUrl(data.list, data.movie, data.page || data.list?.page || 1);
 
     // Render name and year inline (like Letterboxd)
     elements.resMovie.innerHTML = `${escapeHtml(data.movie.name)} <span class="result-year">${data.movie.year ? escapeHtml(data.movie.year) : ''}</span>`;
     
-    if (listHighlightUrl) {
-        elements.resMeta.innerHTML = `from <a href="${listHighlightUrl}" target="_blank" rel="noopener" class="result-list-link" title="Open in Letterboxd list with highlight">${escapeHtml(data.list.title)}</a>`;
+    const listLabel = isWatchlist ? 'Watchlist' : (data.list?.title || 'List');
+    if (listHomeUrl && data.list?.user) {
+        const userUrl = `https://letterboxd.com/${encodeURIComponent(data.list.user)}/`;
+        const listTitleAttr = isWatchlist ? 'Open watchlist on Letterboxd' : 'Open list on Letterboxd';
+        elements.resMeta.innerHTML = `from <a href="${listHomeUrl}" target="_blank" rel="noopener" class="result-list-link" title="${listTitleAttr}">${escapeHtml(listLabel)}</a> by <a href="${userUrl}" target="_blank" rel="noopener" class="result-list-link" title="Open ${escapeHtml(data.list.user)}'s Letterboxd profile">${escapeHtml(data.list.user)}</a>`;
     } else {
-        elements.resMeta.innerHTML = `from ${escapeHtml(data.list.title)}`;
+        elements.resMeta.innerHTML = `from ${escapeHtml(data.list?.title || '')}`;
     }
     
     // Director (immediately under meta, styled inline/beautifully)
@@ -179,9 +193,9 @@ export const renderResult = (data) => {
             elements.resListLink.href = listHighlightUrl;
             const btnText = elements.resListLink.querySelector('.btn-text');
             if (btnText) {
-                btnText.textContent = data.list.slug === 'watchlist' ? 'Watchlist' : 'View in List';
+                btnText.textContent = isWatchlist ? 'Watchlist' : 'View in List';
             }
-            elements.resListLink.title = data.list.slug === 'watchlist'
+            elements.resListLink.title = isWatchlist
                 ? 'Open watchlist page in Letterboxd'
                 : 'View film highlighted in source list';
             elements.resListLink.classList.remove('is-hidden');
