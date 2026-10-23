@@ -1,10 +1,10 @@
 import { $, elements } from './modules/dom.js';
-import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast } from './modules/ui.js';
+import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast, updateBackdrop, updateShareButtonText } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getDebugMode, saveDebugMode } from './modules/storage.js';
 import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
-import { parseUrlParams, stripOrigin } from './modules/utils.js';
+import { parseUrlParams, stripOrigin, copyToClipboard } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
 import { applyServerError, classifyError } from './modules/fieldErrors.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
@@ -15,31 +15,6 @@ let bgIntervals = { slot: null, prg: null };
 let currentUrlsForRetry = [];
 
 initTheme();
-
-
-const updateBackdrop = (url) => {
-    if (!elements.backdrop || !elements.backdropImg) return;
-    
-    if (url) {
-        // Start fade out current backdrop if any
-        elements.backdrop.classList.remove('loaded');
-        
-        // Preload new image
-        const img = new Image();
-        img.src = url;
-        img.onload = () => {
-            elements.backdropImg.style.backgroundImage = `url('${url}')`;
-            elements.backdrop.classList.add('loaded');
-        };
-    } else {
-        elements.backdrop.classList.remove('loaded');
-        setTimeout(() => {
-            if (!elements.backdrop.classList.contains('loaded')) {
-                elements.backdropImg.style.backgroundImage = 'none';
-            }
-        }, 1000);
-    }
-};
 
 
 
@@ -68,14 +43,16 @@ const updateUI = () => {
     const inputs = document.querySelectorAll('.field__input');
     inputs.forEach(detectFieldType);
 
+    const activeUrls = getActiveUrls();
     // Disable spin button if no URLs are entered or if any field is invalid/duplicate
-    const hasValue = getActiveUrls().length > 0;
+    const hasValue = activeUrls.length > 0;
     const hasInvalid = Array.from(document.querySelectorAll('.field__status.is-invalid')).length > 0;
     const submitBtn = elements.formArea.querySelector('button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = !hasValue || hasInvalid;
     }
 
+    updateShareButtonText(activeUrls.length);
     applyRatios();
     syncUrlToAddressBar();
 };
@@ -238,7 +215,6 @@ export const performRandomize = async (urls) => {
 
         Log.info('Rendering result...', finalData);
         renderResult(finalData);
-        updateShareButtonText();
         setView('result');
         saveHistory(finalData);
         saveRecentLists(urls);
@@ -370,30 +346,6 @@ elements.statsModal.addEventListener('click', (e) => {
     if(e.target === elements.statsModal) setView('result'); 
 });
 
-const copyToClipboard = async (text) => {
-    try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-            return true;
-        }
-    } catch {
-        // Fall back to document.execCommand
-    }
-    try {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textarea);
-        return successful;
-    } catch {
-        return false;
-    }
-};
-
 elements.copyStatsBtn.addEventListener('click', async () => {
     const success = await copyToClipboard(elements.statsJson.textContent);
     if (success) {
@@ -419,7 +371,7 @@ const handleFormSubmit = async () => {
 
     // If any input currently has 'username/watchlist', resolve it first before submitting
     const pendingInputs = Array.from(document.querySelectorAll('.field__input')).filter(inp => {
-        const parts = inp.value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?letterboxd\.com\//, '').replace(/\/+$/, '').split('/').filter(Boolean);
+        const parts = stripOrigin(inp.value).split('/').filter(Boolean);
         return parts.length === 2 && parts[1] === 'watchlist';
     });
     for (const inp of pendingInputs) {
@@ -469,18 +421,6 @@ const handleShareMix = async () => {
                 btnTextNode.textContent = originalText;
             }, 2000);
         }
-    }
-};
-
-const updateShareButtonText = () => {
-    const urls = getActiveUrls();
-    
-    const shareBtn = $('share-blend-btn');
-    const btnTextNode = shareBtn.querySelector('.btn-text');
-    if (shareBtn && btnTextNode) {
-        const isMix = urls.length > 1;
-        btnTextNode.textContent = isMix ? 'Share this Mix' : 'Share';
-        shareBtn.title = isMix ? 'Share this Mix' : 'Share';
     }
 };
 

@@ -536,3 +536,36 @@ export const hideToast = () => {
     if (elements.error) elements.error.classList.remove('is-active');
 };
 
+export const updateBackdrop = (url) => {
+    if (!elements.backdrop || !elements.backdropImg) return;
+
+    if (url) {
+        // Start fade out current backdrop if any
+        elements.backdrop.classList.remove('loaded');
+
+        // Preload new image
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+            elements.backdropImg.style.backgroundImage = `url('${url}')`;
+            elements.backdrop.classList.add('loaded');
+        };
+    } else {
+        elements.backdrop.classList.remove('loaded');
+        setTimeout(() => {
+            if (!elements.backdrop.classList.contains('loaded')) {
+                elements.backdropImg.style.backgroundImage = 'none';
+            }
+        }, 1000);
+    }
+};
+
+export const updateShareButtonText = (urlCount) => {
+    const shareBtn = $('share-blend-btn');
+    const btnTextNode = shareBtn?.querySelector('.btn-text');
+    if (shareBtn && btnTextNode) {
+        const isMix = urlCount > 1;
+        btnTextNode.textContent = isMix ? 'Share this Mix' : 'Share';
+        shareBtn.title = isMix ? 'Share this Mix' : 'Share';
+    }
+};
