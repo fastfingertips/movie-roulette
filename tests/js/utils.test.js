@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    buildSpinResult,
     canonicalKey,
     escapeHtml,
     formatListUrl,
@@ -102,5 +103,50 @@ describe('escapeHtml', () => {
     it('returns an empty string for nullish values', () => {
         expect(escapeHtml(null)).toBe('');
         expect(escapeHtml(undefined)).toBe('');
+    });
+});
+
+describe('buildSpinResult', () => {
+    const baseInput = {
+        metaData: {
+            total: 100,
+            lists: [
+                { user: 'u1', slug: 'watchlist', title: "u1's Watchlist", count: 80, is_watchlist: true },
+                { user: 'u2', slug: 'favs', title: 'Favs', count: 20, is_watchlist: false },
+            ],
+        },
+        selectData: {
+            list: { user: 'u2', slug: 'favs', title: 'Favs', count: 20, is_watchlist: false },
+            meta: { slug: 'film-1', page: 2 },
+            mode: 'proportional',
+        },
+        detailData: {
+            movie: { name: 'Film 1', year: '2020', slug: 'film-1' },
+        },
+        samplingMode: 'proportional',
+        urls: ['u1', 'u2/favs'],
+        timings: { metadata: 0.5, selection: 0.2, details: 0.3, total: 1.0 },
+    };
+
+    it('calculates proportional probability and winner breakdown', () => {
+        const res = buildSpinResult(baseInput);
+        expect(res.page).toBe(2);
+        expect(res.stats.sampling_mode).toBe('proportional');
+        expect(res.stats.probability).toBe('1.00');
+        expect(res.stats.odds).toBe('1 in 100');
+        expect(res.stats.lists[0]).toMatchObject({ percentage: 80, is_winner: false });
+        expect(res.stats.lists[1]).toMatchObject({ percentage: 20, is_winner: true });
+    });
+
+    it('calculates equal odds probability and equal list percentages', () => {
+        const res = buildSpinResult({
+            ...baseInput,
+            selectData: { ...baseInput.selectData, mode: 'equal' },
+            samplingMode: 'equal',
+        });
+        expect(res.stats.sampling_mode).toBe('equal');
+        expect(res.stats.probability).toBe('2.50');
+        expect(res.stats.lists[0].percentage).toBe(50);
+        expect(res.stats.lists[1].percentage).toBe(50);
     });
 });

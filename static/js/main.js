@@ -5,7 +5,7 @@ import { initStatsModal } from './modules/statsModal.js';
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getDebugMode, saveDebugMode } from './modules/storage.js';
 import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
-import { parseUrlParams, stripOrigin, copyToClipboard } from './modules/utils.js';
+import { parseUrlParams, stripOrigin, copyToClipboard, buildSpinResult } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
 import { applyServerError, classifyError } from './modules/fieldErrors.js';
 import { startMetadataFetch, parseApiResponse, selectRandomMovie, fetchMovieDetails } from './modules/api.js';
@@ -165,52 +165,19 @@ export const performRandomize = async (urls) => {
 
         // Assemble final data for rendering
         const totalDuration = (Date.now() - startTime) / 1000;
-        const isModeEqual = (selectData.mode || samplingMode) === 'equal';
-        const numLists = (metaData.lists || []).length || 1;
-        const selectedListCount = selectData.list?.count || 1;
-        const probability = isModeEqual
-            ? ((1 / numLists) * (1 / selectedListCount)) * 100
-            : (1 / metaData.total) * 100;
-        const oddsText = isModeEqual
-            ? `1 in ${(numLists * selectedListCount).toLocaleString()} (${numLists} lists × ${selectedListCount.toLocaleString()} films)`
-            : `1 in ${metaData.total.toLocaleString()}`;
-
-        const finalData = {
-            movie: detailData.movie,
-            list: selectData.list,
-            page: selectData.meta?.page || 1,
-            stats: {
-                total_pool: metaData.total,
-                probability: probability < 0.001 ? probability.toFixed(4) : probability.toFixed(2),
-                odds: oddsText,
-                sampling_mode: isModeEqual ? 'equal' : 'proportional',
-                timing: {
-                    metadata: metaDuration.toFixed(2),
-                    selection: selectDuration.toFixed(2),
-                    details: detailDuration.toFixed(2),
-                    total: totalDuration.toFixed(2)
-                },
-                lists: (metaData.lists || []).map(l => {
-                    const isWinner = l.user === selectData.list.user
-                        && l.slug === selectData.list.slug
-                        && (Boolean(l.is_watchlist) === Boolean(selectData.list.is_watchlist));
-                    return {
-                        title: l.title || `${l.user}'s List`,
-                        user: l.user,
-                        slug: l.slug,
-                        count: l.count,
-                        is_watchlist: Boolean(l.is_watchlist),
-                        type: l.is_watchlist ? 'Watchlist' : 'List',
-                        percentage: isModeEqual
-                            ? Number((100 / numLists).toFixed(1))
-                            : Number(((l.count / metaData.total) * 100).toFixed(1)),
-                        is_winner: isWinner
-                    };
-                }),
-                inputs: urls,
-                timestamp: new Date().toISOString()
-            }
-        };
+        const finalData = buildSpinResult({
+            metaData,
+            selectData,
+            detailData,
+            samplingMode,
+            urls,
+            timings: {
+                metadata: metaDuration,
+                selection: selectDuration,
+                details: detailDuration,
+                total: totalDuration,
+            },
+        });
 
         Log.info('Rendering result...', finalData);
         renderResult(finalData);

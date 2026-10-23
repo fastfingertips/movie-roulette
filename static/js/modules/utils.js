@@ -132,3 +132,59 @@ export const copyToClipboard = async (text) => {
         return false;
     }
 };
+
+export const buildSpinResult = ({
+    metaData,
+    selectData,
+    detailData,
+    samplingMode,
+    urls,
+    timings,
+}) => {
+    const isModeEqual = (selectData.mode || samplingMode) === 'equal';
+    const numLists = (metaData.lists || []).length || 1;
+    const selectedListCount = selectData.list?.count || 1;
+    const probability = isModeEqual
+        ? ((1 / numLists) * (1 / selectedListCount)) * 100
+        : (1 / metaData.total) * 100;
+    const oddsText = isModeEqual
+        ? `1 in ${(numLists * selectedListCount).toLocaleString()} (${numLists} lists × ${selectedListCount.toLocaleString()} films)`
+        : `1 in ${metaData.total.toLocaleString()}`;
+
+    return {
+        movie: detailData.movie,
+        list: selectData.list,
+        page: selectData.meta?.page || 1,
+        stats: {
+            total_pool: metaData.total,
+            probability: probability < 0.001 ? probability.toFixed(4) : probability.toFixed(2),
+            odds: oddsText,
+            sampling_mode: isModeEqual ? 'equal' : 'proportional',
+            timing: {
+                metadata: timings.metadata.toFixed(2),
+                selection: timings.selection.toFixed(2),
+                details: timings.details.toFixed(2),
+                total: timings.total.toFixed(2),
+            },
+            lists: (metaData.lists || []).map(l => {
+                const isWinner = l.user === selectData.list.user
+                    && l.slug === selectData.list.slug
+                    && (Boolean(l.is_watchlist) === Boolean(selectData.list.is_watchlist));
+                return {
+                    title: l.title || `${l.user}'s List`,
+                    user: l.user,
+                    slug: l.slug,
+                    count: l.count,
+                    is_watchlist: Boolean(l.is_watchlist),
+                    type: l.is_watchlist ? 'Watchlist' : 'List',
+                    percentage: isModeEqual
+                        ? Number((100 / numLists).toFixed(1))
+                        : Number(((l.count / metaData.total) * 100).toFixed(1)),
+                    is_winner: isWinner,
+                };
+            }),
+            inputs: urls,
+            timestamp: new Date().toISOString(),
+        },
+    };
+};
