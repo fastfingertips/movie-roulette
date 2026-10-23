@@ -1,5 +1,6 @@
 import { $, elements } from './modules/dom.js';
-import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast, updateBackdrop, updateShareButtonText } from './modules/ui.js';
+import { renderHistory, renderResult, setView, showToast, hideToast, updateBackdrop, updateShareButtonText } from './modules/ui.js';
+import { initStatsModal } from './modules/statsModal.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getDebugMode, saveDebugMode } from './modules/storage.js';
 import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
@@ -211,8 +212,6 @@ export const performRandomize = async (urls) => {
             }
         };
 
-        window.lastFullResult = finalData;
-
         Log.info('Rendering result...', finalData);
         renderResult(finalData);
         setView('result');
@@ -333,32 +332,6 @@ if (elements.samplingToggle) {
     }
 }
 
-elements.statsBtn.addEventListener('click', () => {
-    if (window.lastFullResult) {
-        renderStatsModal(window.lastFullResult);
-        setView('stats');
-    }
-});
-
-
-$('close-stats-btn').addEventListener('click', () => setView('result'));
-elements.statsModal.addEventListener('click', (e) => { 
-    if(e.target === elements.statsModal) setView('result'); 
-});
-
-elements.copyStatsBtn.addEventListener('click', async () => {
-    const success = await copyToClipboard(elements.statsJson.textContent);
-    if (success) {
-        const originalText = elements.copyStatsBtn.innerHTML;
-        elements.copyStatsBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
-        if (window.lucide) window.lucide.createIcons();
-        setTimeout(() => {
-            elements.copyStatsBtn.innerHTML = originalText;
-            if (window.lucide) window.lucide.createIcons();
-        }, 2000);
-    }
-});
-
 const handleAddField = () => {
     addField(updateUI);
     const inputs = document.querySelectorAll('.field__input');
@@ -478,5 +451,5 @@ const bootstrapFromUrl = () => {
 };
 
 bootstrapFromUrl();
-initStatsTabs();
+initStatsModal(setView);
 if (window.lucide) window.lucide.createIcons();
