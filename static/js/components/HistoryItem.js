@@ -12,7 +12,7 @@ export const createHistoryItem = (item, formatTimeFn) => {
                     <span>${formatTimeFn(item.timestamp)}</span>
                 </div>
             </div>
-            <div style="opacity: 0.3; font-size: 10px;">→</div>
+            <div class="history-item__arrow">→</div>
         </a>
     `;
 };

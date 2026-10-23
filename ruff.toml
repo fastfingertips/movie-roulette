@@ -10,9 +10,12 @@ select = [
     "UP",  # pyupgrade
     "B",   # flake8-bugbear
     "SIM", # flake8-simplify
+    "C4",  # flake8-comprehensions
+    "RET", # flake8-return
+    "PIE", # flake8-pie
+    "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501",   # Line too long
     "SIM105", # Use contextlib.suppress
 ]
 

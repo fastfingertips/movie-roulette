@@ -334,6 +334,11 @@
         .field__badges .field__status {
             position: static;
         }
+        .field__status--inline {
+            position: static;
+            font-size: 9px;
+            padding: 1px 4px;
+        }
         [data-theme^="dark"] .field__status { background: var(--color-pill-bg, rgb(255, 255, 255, 0.15)); color: var(--color-pill-text, #fff); }
         .field__status.is-visible { opacity: 0.85; transform: scale(1); pointer-events: auto; }
         [data-theme^="dark"] .field__status.is-visible { opacity: 0.9; }
@@ -1286,6 +1291,7 @@
         .result-stars svg { width: 12px; height: 12px; }
         .result-stars svg.star-full { fill: currentcolor; }
         .result-stars svg.star-half { fill: none; }
+        .result-stars svg.star-empty { opacity: 0.2; }
         .result-rating-num { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); margin-left: 3px; opacity: 0.95; transition: var(--transition); }
         [data-theme^="dark"] .result-rating-num { color: #94a3b8; }
         
@@ -2064,9 +2070,13 @@
 
         .history-list { display: flex; flex-direction: column; }
         .history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; text-decoration: none; border-bottom: 1px solid var(--color-border); transition: 0.2s; }
+        .history-item--recent { cursor: pointer; }
         .history-item:last-child { border-bottom: none; }
         .history-item__body { min-width: 0; flex: 1; }
+        .history-item__row { display: flex; align-items: center; gap: 8px; }
+        .history-item__name--mono { font-size: 11px; font-family: monospace; }
         .history-item__sub { font-size: 11px; color: var(--color-text-muted); }
+        .history-item__arrow { opacity: 0.3; font-size: 10px; }
 
         /* Loading UI */
         .loading-view { text-align: center; padding: 24px 0; display: flex; flex-direction: column; gap: 20px; }
@@ -2250,7 +2260,8 @@
         
         /* Active State for Recent Lists */
         .history-item.is-active-list .history-item__name { color: var(--color-green); opacity: 0.6 !important; }
-        .history-item__action { opacity: 0.3; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .history-item__action { opacity: 0.3; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: monospace; font-size: 10px; color: inherit; }
+        .history-item.is-active-list .history-item__action { color: var(--color-green); }
         .history-item:hover .history-item__action { opacity: 1; }
         .history-item__action svg { width: 14px; height: 14px; }
         
@@ -2338,5 +2349,16 @@
 
             .header-actions {
                 justify-content: flex-end;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
             }
         }

@@ -75,7 +75,7 @@ def extract_info(val):
     if len(parts) >= 3 and parts[1] == "list":
         return ExtractedInfo(parts[0], parts[2], is_watchlist=False)
     # Format: user/slug or user/watchlist
-    elif len(parts) >= 2:
+    if len(parts) >= 2:
         # ignore generic pages but ALLOW 'watchlist'
         if parts[1] == "watchlist":
             return ExtractedInfo(parts[0], "watchlist", is_watchlist=True)

@@ -71,9 +71,23 @@ class DetailsRequest(BaseModel):
     )
 
 
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+}
+
+
 def init_security(app):
-    """Initializes Flask app security configs and payload error handlers."""
+    """Initializes Flask app security configs, headers, and payload error handlers."""
     app.config["MAX_CONTENT_LENGTH"] = MAX_PAYLOAD_SIZE
+
+    @app.after_request
+    def set_security_headers(response):
+        for header, value in SECURITY_HEADERS.items():
+            response.headers.setdefault(header, value)
+        return response
 
     @app.errorhandler(413)
     def request_entity_too_large(error):

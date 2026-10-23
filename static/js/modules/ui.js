@@ -197,7 +197,7 @@ export const renderResult = (data) => {
         for (let i = 1; i <= 5; i++) {
             if (rating >= i) starsHtml += '<i data-lucide="star" class="star-full"></i>';
             else if (rating >= i - 0.5) starsHtml += '<i data-lucide="star-half" class="star-half"></i>';
-            else starsHtml += '<i data-lucide="star" style="opacity: 0.2;"></i>';
+            else starsHtml += '<i data-lucide="star" class="star-empty"></i>';
         }
         elements.resStars.innerHTML = `${starsHtml} <span class="result-rating-num">${rating.toFixed(2)}</span>`;
         elements.resStars.classList.remove('is-hidden');

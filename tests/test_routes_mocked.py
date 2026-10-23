@@ -26,7 +26,10 @@ class TestMockedRouteFlow:
 
     @patch("api.index.get_list_metadata")
     def test_metadata_concurrent_multiple_urls_preserves_order(self, mock_meta, client):
-        mock_meta.side_effect = lambda user, slug: (f"Title {slug}", 10 if slug == "list-1" else 20)
+        mock_meta.side_effect = lambda user, slug: (
+            f"Title {slug}",
+            10 if slug == "list-1" else 20,
+        )
         res = client.post(
             "/api/metadata",
             json={"urls": ["user1/list-1", "user2/list-2"]},
@@ -58,7 +61,11 @@ class TestMockedRouteFlow:
 
     @patch("api.index.get_list_metadata")
     def test_metadata_one_empty_returns_422(self, mock_meta, client):
-        mock_meta.side_effect = lambda user, slug: ("Empty List", 0) if slug == "empty" else ("Good List", 50)
+        mock_meta.side_effect = (
+            lambda user, slug: ("Empty List", 0)
+            if slug == "empty"
+            else ("Good List", 50)
+        )
         res = client.post(
             "/api/metadata",
             json={"urls": ["user1/good", "user2/empty"]},
@@ -148,4 +155,3 @@ class TestMockedRouteFlow:
         assert data["lists"][0]["title"] == "user1's Watchlist"
         assert data["lists"][1]["is_watchlist"] is False
         assert data["lists"][1]["title"] == "Custom List watchlist"
-

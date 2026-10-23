@@ -54,12 +54,12 @@
         </div>
         <div class="header-actions">
             <div class="theme-picker-wrapper">
-                <button class="icon-btn" id="theme-toggle" title="Choose Theme" aria-label="Theme menu" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="icon-btn" id="theme-toggle" title="Choose Theme" aria-label="Theme menu" aria-haspopup="true" aria-expanded="false">
                     <i data-lucide="palette" class="theme-palette-icon"></i>
                 </button>
                 <div id="theme-menu" class="theme-menu is-hidden" role="menu">
                     <div class="theme-menu__section-title">Light Themes</div>
-                    <button class="theme-option" data-theme-id="light" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="light" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--light-1"></span>
                             <span class="theme-dot theme-dot--light-2"></span>
@@ -68,7 +68,7 @@
                         <span class="theme-option__name">Classic Light</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button class="theme-option" data-theme-id="light-2" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="light-2" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--light-2-1"></span>
                             <span class="theme-dot theme-dot--light-2-2"></span>
@@ -77,7 +77,7 @@
                         <span class="theme-option__name">Pine & Orchid</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button class="theme-option" data-theme-id="light-3" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="light-3" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--light-3-1"></span>
                             <span class="theme-dot theme-dot--light-3-2"></span>
@@ -86,7 +86,7 @@
                         <span class="theme-option__name">Citron & Berry</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button class="theme-option" data-theme-id="light-4" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="light-4" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--light-4-1"></span>
                             <span class="theme-dot theme-dot--light-4-2"></span>
@@ -97,7 +97,7 @@
                     </button>
                     <div class="theme-menu__divider"></div>
                     <div class="theme-menu__section-title">Dark Themes</div>
-                    <button class="theme-option" data-theme-id="dark" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="dark" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--dark-1"></span>
                             <span class="theme-dot theme-dot--dark-2"></span>
@@ -106,7 +106,7 @@
                         <span class="theme-option__name">Classic Dark</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button class="theme-option" data-theme-id="dark-2" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="dark-2" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--dark-2-1"></span>
                             <span class="theme-dot theme-dot--dark-2-2"></span>
@@ -115,7 +115,7 @@
                         <span class="theme-option__name">AMOLED Black</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button class="theme-option" data-theme-id="dark-3" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="dark-3" role="menuitem">
                         <span class="theme-option__swatches">
                             <span class="theme-dot theme-dot--dark-3-1"></span>
                             <span class="theme-dot theme-dot--dark-3-2"></span>
@@ -126,7 +126,7 @@
                     </button>
                 </div>
             </div>
-            <button class="icon-btn" id="info-btn" title="How it works">
+            <button type="button" class="icon-btn" id="info-btn" title="How it works" aria-label="How it works">
                 <i data-lucide="info"></i>
             </button>
         </div>
@@ -134,7 +134,7 @@
 
     <div class="page-container">
         <div class="card">
-            <div class="toast" id="error-msg">
+            <div class="toast" id="error-msg" role="alert" aria-live="polite">
                 <i data-lucide="alert-circle"></i>
                 <span id="error-text"></span>
             </div>
@@ -187,7 +187,7 @@
 
                     <div id="result-panel" class="is-hidden result-view">
                         <div class="result-hero-wrapper" id="result-hero-wrapper">
-                            <button class="btn-hero-side" id="back-btn" name="view-back" title="Back" aria-label="Back">
+                            <button type="button" class="btn-hero-side" id="back-btn" name="view-back" title="Back" aria-label="Back">
                                 <i data-lucide="arrow-left"></i>
                                 <span class="btn-hint">Esc</span>
                             </button>
@@ -221,7 +221,7 @@
                             </div>
 
                             <div class="result-stats" id="result-stats-area">
-                                <button class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats">
+                                <button type="button" class="stats-trigger" id="stats-btn" name="view-stats" title="View Technical Stats" aria-label="View Technical Stats">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" aria-hidden="true" class="lucide lucide-info"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
                                 </button>
                                 <div id="stats-pop-toast" class="stats-pop-toast"></div>
@@ -230,7 +230,7 @@
                             </div>
                         </div>
 
-                        <button class="btn-hero-side" id="try-again-btn" name="spin-again" title="Spin Again" aria-label="Spin Again">
+                        <button type="button" class="btn-hero-side" id="try-again-btn" name="spin-again" title="Spin Again" aria-label="Spin Again">
                             <i data-lucide="refresh-cw"></i>
                             <span class="btn-hint">R</span>
                         </button>
@@ -249,7 +249,7 @@
                             <span class="btn-hint">V</span>
                         </a>
 
-                        <button class="btn-action-main btn-action-main--share" id="share-blend-btn" title="Share this Mix">
+                        <button type="button" class="btn-action-main btn-action-main--share" id="share-blend-btn" title="Share this Mix">
                             <i data-lucide="share-2"></i>
                             <span class="btn-text">Share Mix</span>
                             <span class="btn-hint">S</span>
@@ -263,7 +263,7 @@
                 <section class="history-section is-hidden" id="recent-lists-section">
                     <div class="history-header">
                         <span class="history-label">Recent Lists</span>
-                        <button class="btn-link" id="clear-lists">Clear</button>
+                        <button type="button" class="btn-link" id="clear-lists">Clear</button>
                     </div>
                     <div class="history-list" id="recent-lists-list"></div>
                 </section>
@@ -271,7 +271,7 @@
                 <section class="history-section is-hidden" id="history-section">
                     <div class="history-header">
                         <span class="history-label">Last 4 Activity</span>
-                        <button class="btn-link" id="clear-history" name="clear-history">Clear</button>
+                        <button type="button" class="btn-link" id="clear-history" name="clear-history">Clear</button>
                     </div>
                     <div class="history-list" id="history-list"></div>
                 </section>
@@ -304,11 +304,11 @@
     </div>
 
     <!-- How it Works Popup -->
-    <div id="info-modal" class="modal-overlay is-hidden">
+    <div id="info-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
         <div class="modal-content modal-content--wide">
             <div class="modal-header">
-                <h2 class="modal-title">How it Works</h2>
-                <button class="btn-link" id="close-modal-btn" name="close-modal">Close</button>
+                <h2 class="modal-title" id="info-modal-title">How it Works</h2>
+                <button type="button" class="btn-link" id="close-modal-btn" name="close-modal">Close</button>
             </div>
             <div class="modal-grid">
                 <div class="modal-panel">
@@ -436,7 +436,7 @@
                         <p class="modal-subtitle">Sampling metrics & execution pipeline diagnostics</p>
                     </div>
                 </div>
-                <button class="btn-link" id="close-stats-btn" name="close-modal" aria-label="Close modal">Close</button>
+                <button type="button" class="btn-link" id="close-stats-btn" name="close-modal" aria-label="Close modal">Close</button>
             </div>
 
             <!-- KPI Metric Cards Grid -->
@@ -543,7 +543,7 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/lucide@1.59.0"></script>
+    <script src="https://unpkg.com/lucide@1.59.0/dist/umd/lucide.min.js" integrity="sha384-4VQAGBhahgTiMVvXUqbh6qcs45zGzR/8znv7XORRfWkxZfzRbhLL5Uh+fSdvdqdM" crossorigin="anonymous"></script>
     <script type="module" src="/static/js/main.js"></script>
 
 </body>
