@@ -84,14 +84,14 @@ export const renderHistory = (useListCallback) => {
     if (window.lucide) window.lucide.createIcons();
 };
 
-export const encodeTextFragment = (text) => {
+const encodeTextFragment = (text) => {
     if (!text) return '';
     return encodeURIComponent(text)
         .replace(/-/g, '%2D')
         .replace(/,/g, '%2C');
 };
 
-export const getListHighlightUrl = (list, movie, page = 1) => {
+const getListHighlightUrl = (list, movie, page = 1) => {
     if (!list || !list.user) return null;
     const isWatchlist = list.is_watchlist !== undefined ? list.is_watchlist : list.slug === 'watchlist';
     const pagePart = page && page > 1 ? `page/${page}/` : '';

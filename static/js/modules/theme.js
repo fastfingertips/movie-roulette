@@ -1,6 +1,6 @@
 import { $ } from './dom.js';
 
-export const THEMES = [
+const THEMES = [
     { id: 'light', name: 'Classic Light', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
     { id: 'light-2', name: 'Pine & Orchid', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
     { id: 'light-3', name: 'Citron & Berry', mode: 'light', bg: '#f5f3e6', colors: ['#3f7483', '#b32459', '#f5f3e6'] },
@@ -39,7 +39,7 @@ const getStoredTheme = () => {
  * @param {{x: number, y: number}|null} originCoords Reveal origin; defaults to the toggle button
  * @param {{persist?: boolean}} options Pass persist: false to apply without saving the choice
  */
-export const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
+const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
     if (newTheme === currentTheme) return;
 
@@ -108,7 +108,7 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
     });
 };
 
-export const toggleThemeMenu = (force = null) => {
+const toggleThemeMenu = (force = null) => {
     const menu = $('theme-menu');
     const btn = $('theme-toggle');
     if (!menu || !btn) return;
@@ -118,15 +118,8 @@ export const toggleThemeMenu = (force = null) => {
     btn.setAttribute('aria-expanded', shouldShow ? 'true' : 'false');
 };
 
-export const closeThemeMenu = () => {
+const closeThemeMenu = () => {
     toggleThemeMenu(false);
-};
-
-export const toggleTheme = () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
-    const isDark = currentTheme.startsWith('dark');
-    const targetTheme = isDark ? SYSTEM_THEME.light : SYSTEM_THEME.dark;
-    applyTheme(targetTheme);
 };
 
 export const initTheme = () => {

@@ -8,7 +8,6 @@ const counts = new Map();
 const pending = new Set();
 
 import { canonicalKey } from './utils.js';
-export { canonicalKey };
 
 const getStatusEl = (input) => {
     const wrapper = input.closest('.field__input-wrapper');

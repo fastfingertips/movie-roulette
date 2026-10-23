@@ -98,7 +98,7 @@ export const addField = (callback, value = '') => {
 
 let isAnimating = false;
 
-export const animateShorten = (inputEl, shortForm) => {
+const animateShorten = (inputEl, shortForm) => {
     isAnimating = true;
     const eraseSpeed = 30;
     const typeSpeed = 80;
