@@ -111,6 +111,7 @@
     --color-stars: #2f5711;
     --color-grid-line: rgb(22, 51, 0, 0.06);
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(159, 232, 112, 0.22), rgb(22, 51, 0, 0.08), transparent 70%);
+    --color-on-green-hint-bg: rgb(255, 255, 255, 0.18);
 }
 
 /* --- Dark Theme 2: AMOLED Black (Pure Black #000) --- */
@@ -152,6 +153,8 @@
     --color-stars: #9fe870;
     --color-grid-line: rgb(159, 232, 112, 0.04);
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(159, 232, 112, 0.16), rgb(22, 51, 0, 0.35), transparent 70%);
+    --color-on-green: #163300;
+    --color-on-green-hint-bg: rgb(22, 51, 0, 0.15);
 }
 
 /* ==========================================================================
@@ -206,24 +209,6 @@
     background: rgb(26, 29, 23, 0.95);
     border-color: rgb(159, 232, 112, 0.2);
     box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
-}
-
-[data-theme="dark-3"] .action-btn {
-    color: #163300;
-}
-
-[data-theme="dark-3"] .action-btn .btn-hint {
-    background: rgb(22, 51, 0, 0.15);
-    color: #163300;
-}
-
-[data-theme="dark-3"] .stats-badge--winner {
-    color: #163300;
-}
-
-[data-theme="light-4"] .action-btn .btn-hint {
-    background: rgb(255, 255, 255, 0.18);
-    color: #fff;
 }
 
 @keyframes menu-pop {

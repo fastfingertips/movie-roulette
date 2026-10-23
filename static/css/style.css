@@ -482,7 +482,7 @@ input { user-select: text; }
     color: #fe5a5a;
 }
 
-.action-btn { position: relative; background: var(--color-green); color: #fff; font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; box-shadow: 0 4px 14px var(--color-green-glow); }
+.action-btn { position: relative; background: var(--color-green); color: var(--color-on-green, #fff); font-weight: 700; border: none; border-radius: var(--radius-sharp); height: 46px; width: 100%; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; box-shadow: 0 4px 14px var(--color-green-glow); }
 .action-btn:hover:not(:disabled) { filter: brightness(1.08); box-shadow: 0 6px 20px var(--color-green-glow); }
 .action-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(0.5); pointer-events: none; }
 
@@ -619,6 +619,10 @@ input { user-select: text; }
     pointer-events: none;
 }
 [data-theme^="dark"] .btn-hint { background: rgb(255,255,255,0.1); }
+.action-btn .btn-hint {
+    background: var(--color-on-green-hint-bg, rgb(0, 0, 0, 0.08));
+    color: var(--color-on-green, #fff);
+}
 
 .add-field-trigger { 
     position: relative;

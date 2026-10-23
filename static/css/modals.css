@@ -507,7 +507,7 @@ kbd {
 
 .stats-badge--winner {
     background: var(--color-green);
-    color: #fff;
+    color: var(--color-on-green, #fff);
 }
 
 .stats-badge--count {
