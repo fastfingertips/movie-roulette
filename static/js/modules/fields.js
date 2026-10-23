@@ -9,10 +9,6 @@ import { clearServerError, reapplyServerError } from './fieldErrors.js';
 
 let urlCount = 1;
 
-
-export const setUrlCount = (val) => { urlCount = val; };
-export const getUrlCount = () => urlCount;
-
 export const getActiveUrls = () => {
     const inputs = document.querySelectorAll('.field__input');
     return Array.from(inputs)
@@ -20,7 +16,7 @@ export const getActiveUrls = () => {
         .filter(v => v !== '');
 };
 
-export const renumberFields = () => {
+const renumberFields = () => {
     const fields = Array.from($('url-fields').querySelectorAll('.field'))
         .filter(f => !f.classList.contains('is-removing'));
     fields.forEach((field, i) => {
@@ -66,6 +62,29 @@ export const renumberFields = () => {
     }
 };
 
+const bindFieldEvents = (fieldEl, callback) => {
+    const input = fieldEl.querySelector('input');
+    const removeBtn = fieldEl.querySelector('.field__remove');
+
+    input.addEventListener('input', () => {
+        renumberFields(); // Keep tooltips in sync as user types
+        callback();
+    });
+    attachWatchlistWatcher(input, callback);
+
+    removeBtn.addEventListener('click', () => {
+        if (input.value !== '') {
+            input.value = '';
+            renumberFields(); // Update tooltips immediately after clearing
+        } else if (urlCount > 1) {
+            fieldEl.remove();
+            urlCount--;
+            renumberFields();
+        }
+        callback();
+    });
+};
+
 export const addField = (callback, value = '') => {
     if (urlCount >= CONFIG.MAX_URLS) return null;
 
@@ -75,25 +94,76 @@ export const addField = (callback, value = '') => {
     renumberFields();
     if (window.lucide) window.lucide.createIcons();
 
-    const input = div.querySelector('input');
-    input.addEventListener('input', () => {
-        renumberFields(); // Keep tooltips in sync as user types
-        callback();
-    });
-    attachWatchlistWatcher(input, callback);
-    
-    div.querySelector('.field__remove').addEventListener('click', () => { 
-        if (input.value !== '') {
-            input.value = '';
-            renumberFields(); // Update tooltips immediately after clearing
-        } else if (urlCount > 1) {
-            div.remove(); 
-            urlCount--; 
+    bindFieldEvents(div, callback);
+    return div.querySelector('input');
+};
+
+export const toggleFieldUrl = (url, updateUICallback) => {
+    const inputs = Array.from($('randomize-form').querySelectorAll('input'));
+    const existingInput = inputs.find(i => i.value.trim() === url);
+
+    if (existingInput) {
+        if (inputs.length > 1) {
+            existingInput.closest('.field').remove();
+            urlCount--;
             renumberFields();
+        } else {
+            existingInput.value = '';
         }
-        callback();
-    });
-    return input;
+    } else {
+        const emptyInput = inputs.find(i => i.value === '');
+        if (emptyInput) {
+            emptyInput.value = url;
+        } else if (urlCount < CONFIG.MAX_URLS) {
+            addField(updateUICallback, url);
+        } else {
+            inputs[0].value = url;
+        }
+    }
+};
+
+export const cleanEmptyFields = async (updateUICallback, onLog) => {
+    const fields = Array.from(document.querySelectorAll('.field'));
+    const emptyFields = fields.filter(f => f.querySelector('input').value.trim() === '');
+
+    // Don't remove if it's the only field
+    if (emptyFields.length === 0 || fields.length === 1) return;
+
+    if (onLog) onLog(`Cleaning ${emptyFields.length} empty fields sequentially...`);
+
+    // Remove empty fields one-by-one with staggered animation
+    for (const f of emptyFields) {
+        f.classList.add('is-removing');
+        renumberFields();
+        if (updateUICallback) updateUICallback();
+
+        f.style.maxHeight = f.scrollHeight + 'px';
+        f.style.overflow = 'hidden';
+        f.style.transition = 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+        f.offsetHeight;
+
+        requestAnimationFrame(() => {
+            f.style.opacity = '0';
+            f.style.transform = 'translateX(60px) scale(0.9)';
+            f.style.filter = 'blur(20px)';
+            f.style.maxHeight = '0';
+            f.style.marginTop = '0';
+            f.style.marginBottom = '0';
+            f.style.paddingTop = '0';
+            f.style.paddingBottom = '0';
+            f.style.pointerEvents = 'none';
+        });
+
+        await new Promise(r => setTimeout(r, 600));
+    }
+
+    await new Promise(r => setTimeout(r, 700));
+
+    emptyFields.forEach(f => f.remove());
+    urlCount = document.querySelectorAll('.field').length;
+    renumberFields();
+
+    await new Promise(r => setTimeout(r, 600));
 };
 
 let isAnimating = false;
@@ -217,7 +287,7 @@ export const checkAndResolveWatchlistSuffix = async (inputEl, updateUICallback) 
     }
 };
 
-export const attachWatchlistWatcher = (input, updateUICallback) => {
+const attachWatchlistWatcher = (input, updateUICallback) => {
     input.addEventListener('input', () => {
         const parts = stripOrigin(input.value).split('/').filter(Boolean);
         if (parts.length === 2 && parts[1] === 'watchlist') {
@@ -230,8 +300,13 @@ export const attachWatchlistWatcher = (input, updateUICallback) => {
     });
 };
 
-// Fetch a list's film count as soon as the user leaves its textbox
+// Initialize primary field events and fetch a list's film count when the user leaves its textbox
 export const initFieldStats = (updateUICallback) => {
+    const primaryField = $('url-1')?.closest('.field');
+    if (primaryField) {
+        bindFieldEvents(primaryField, updateUICallback);
+    }
+
     $('url-fields').addEventListener('focusout', (e) => {
         if (isAnimating || !e.target.matches('.field__input')) return;
         const inputEl = e.target;

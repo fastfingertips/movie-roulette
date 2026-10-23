@@ -2,7 +2,7 @@ import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, renderStatsModal, initStatsTabs, setView, showToast, hideToast } from './modules/ui.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getDebugMode, saveDebugMode } from './modules/storage.js';
-import { addField, renumberFields, getUrlCount, setUrlCount, detectFieldType, getActiveUrls, initFieldStats, attachWatchlistWatcher, checkAndResolveWatchlistSuffix } from './modules/fields.js';
+import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
 import { parseUrlParams, stripOrigin } from './modules/utils.js';
 import { initTheme } from './modules/theme.js';
@@ -81,27 +81,7 @@ const updateUI = () => {
 };
 
 const handleUseList = (url) => {
-    const inputs = Array.from($('randomize-form').querySelectorAll('input'));
-    const existingInput = inputs.find(i => i.value.trim() === url);
-
-    if (existingInput) {
-        if (inputs.length > 1) {
-            existingInput.closest('.field').remove();
-            setUrlCount(getUrlCount() - 1);
-            renumberFields();
-        } else {
-            existingInput.value = '';
-        }
-    } else {
-        const emptyInput = inputs.find(i => i.value === '');
-        if (emptyInput) {
-            emptyInput.value = url;
-        } else if (getUrlCount() < CONFIG.MAX_URLS) {
-            addField(updateUI, url);
-        } else {
-            inputs[0].value = url;
-        }
-    }
+    toggleFieldUrl(url, updateUI);
     updateUI();
     refreshAllCounts();
 };
@@ -125,52 +105,6 @@ const Log = {
 
 // --- API Execution ---
 
-// --- Sequential Cleanup ---
-
-const cleanEmptyFields = async () => {
-    const fields = Array.from(document.querySelectorAll('.field'));
-    const emptyFields = fields.filter(f => f.querySelector('input').value.trim() === '');
-    
-    // Don't remove if it's the only field
-    if (emptyFields.length === 0 || fields.length === 1) return;
-
-    Log.info(`Cleaning ${emptyFields.length} empty fields sequentially...`);
-
-    // Remove empty fields one-by-one with staggered animation
-    for (const f of emptyFields) {
-        f.classList.add('is-removing');
-        renumberFields();
-        updateUI();
-
-        f.style.maxHeight = f.scrollHeight + 'px';
-        f.style.overflow = 'hidden';
-        f.style.transition = 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
-        f.offsetHeight;
-
-        requestAnimationFrame(() => {
-            f.style.opacity = '0';
-            f.style.transform = 'translateX(60px) scale(0.9)';
-            f.style.filter = 'blur(20px)';
-            f.style.maxHeight = '0';
-            f.style.marginTop = '0';
-            f.style.marginBottom = '0';
-            f.style.paddingTop = '0';
-            f.style.paddingBottom = '0';
-            f.style.pointerEvents = 'none';
-        });
-
-        await new Promise(r => setTimeout(r, 600));
-    }
-
-    await new Promise(r => setTimeout(r, 700));
-
-    emptyFields.forEach(f => f.remove());
-    setUrlCount(document.querySelectorAll('.field').length);
-    renumberFields();
-    
-    await new Promise(r => setTimeout(r, 600));
-};
-
 let activeAbortController = null;
 
 export const performRandomize = async (urls) => {
@@ -182,7 +116,7 @@ export const performRandomize = async (urls) => {
     const { signal } = activeAbortController;
 
     // 0. Start UI Cleanup AND Metadata Fetch in parallel
-    const cleanupTask = cleanEmptyFields();
+    const cleanupTask = cleanEmptyFields(updateUI, Log.info);
     
     // Start Step 1 fetch immediately (optimistic start)
     const metaFetchPromise = startMetadataFetch(urls, signal);
@@ -355,25 +289,6 @@ export const performRandomize = async (urls) => {
 
 
 // --- Listeners & Boots ---
-
-$('remove-url-1').addEventListener('click', () => {
-    const input = $('url-1');
-    if (input.value !== '') {
-        input.value = '';
-        renumberFields();
-    } else if (getUrlCount() > 1) {
-        input.closest('.field').remove();
-        setUrlCount(getUrlCount() - 1);
-        renumberFields();
-    }
-    updateUI();
-});
-
-$('url-1').addEventListener('input', () => {
-    renumberFields(); // Sync tooltips as user types
-    updateUI();
-});
-attachWatchlistWatcher($('url-1'), updateUI);
 
 const debugCheckbox = $('debug-toggle');
 const debugWrapper = $('console-toggle-wrapper');
