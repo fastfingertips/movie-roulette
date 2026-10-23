@@ -207,9 +207,20 @@ export const renderResult = (data) => {
 
     // 3. Poster
     if (data.movie.poster) {
-        elements.resPoster.src = data.movie.poster;
+        if (data.movie.poster.includes('-0-600-0-900-crop')) {
+            const smallPoster = data.movie.poster.replace('-0-600-0-900-crop', '-0-250-0-375-crop');
+            elements.resPoster.srcset = `${smallPoster} 250w, ${data.movie.poster} 600w`;
+            elements.resPoster.sizes = '(max-width: 480px) 125px, 120px';
+            elements.resPoster.src = smallPoster;
+        } else {
+            elements.resPoster.removeAttribute('srcset');
+            elements.resPoster.removeAttribute('sizes');
+            elements.resPoster.src = data.movie.poster;
+        }
         elements.resPoster.classList.remove('is-hidden');
     } else {
+        elements.resPoster.removeAttribute('srcset');
+        elements.resPoster.removeAttribute('sizes');
         elements.resPoster.src = '';
         elements.resPoster.classList.add('is-hidden');
     }

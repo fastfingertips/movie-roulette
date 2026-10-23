@@ -1154,10 +1154,7 @@
         /* Dynamically expand card when result is active for wider premium screen */
         .card:has(#result-panel:not(.is-hidden)),
         .card:has(.result-view:not(.is-hidden)) {
-            --card-pad-y: 28px;
-            --card-pad-x: 36px;
             max-width: 800px;
-            padding: var(--card-pad-y) var(--card-pad-x);
             transition: max-width 0.3s ease;
         }
 
