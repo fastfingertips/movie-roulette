@@ -12,6 +12,8 @@ from letterboxdpy.core.exceptions import (
 )
 from werkzeug.exceptions import HTTPException
 
+from .constants import RESERVED_SLUGS
+
 logger = logging.getLogger("movie_roulette")
 
 LETTERBOXD_UNAVAILABLE_MESSAGE = (
@@ -67,8 +69,11 @@ def extract_info(val):
 
     parts = [p for p in val.split("/") if p]
 
+    if not parts or parts[0] in RESERVED_SLUGS:
+        return None, None
+
     # Handle single username (treat as watchlist)
-    if len(parts) == 1 and parts[0] not in ("films", "lists", "activity", "members"):
+    if len(parts) == 1:
         return ExtractedInfo(parts[0], "watchlist", is_watchlist=True)
 
     # Format: user/list/slug (always a custom list, even if slug is 'watchlist')
@@ -80,13 +85,7 @@ def extract_info(val):
         if parts[1] == "watchlist":
             return ExtractedInfo(parts[0], "watchlist", is_watchlist=True)
 
-        if parts[1] not in (
-            "films",
-            "following",
-            "followers",
-            "reviews",
-            "lists",
-        ):
+        if parts[1] not in RESERVED_SLUGS:
             return ExtractedInfo(parts[0], parts[1], is_watchlist=False)
 
     return None, None
