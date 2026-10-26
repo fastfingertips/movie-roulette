@@ -14,7 +14,7 @@ from tests.conftest import (
 
 
 class TestMockedRouteFlow:
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_success(self, mock_meta, client):
         mock_meta.return_value = (TEST_LIST_TITLE, TEST_TOTAL_COUNT)
         res = client.post("/api/metadata", json={"urls": [TEST_LIST_URL]})
@@ -24,7 +24,7 @@ class TestMockedRouteFlow:
         assert len(data["lists"]) == 1
         assert data["lists"][0]["title"] == TEST_LIST_TITLE
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_pre_selects_candidate_in_shuffle_mode(self, mock_meta, client):
         mock_meta.return_value = (TEST_LIST_TITLE, TEST_TOTAL_COUNT, TEST_MOVIE_META)
         res = client.post(
@@ -38,7 +38,7 @@ class TestMockedRouteFlow:
         assert data["selected"]["list"]["slug"] == TEST_LIST_ITEM["slug"]
         assert data["selected"]["random_mode"] == "letterboxd"
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_no_pre_select_in_custom_mode(self, mock_meta, client):
         mock_meta.return_value = (TEST_LIST_TITLE, TEST_TOTAL_COUNT, None)
         res = client.post(
@@ -49,7 +49,7 @@ class TestMockedRouteFlow:
         data = res.get_json()
         assert "selected" not in data
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_concurrent_multiple_urls_preserves_order(self, mock_meta, client):
         mock_meta.side_effect = lambda user, slug: (
             f"Title {slug}",
@@ -68,7 +68,7 @@ class TestMockedRouteFlow:
         assert data["lists"][1]["slug"] == "list-2"
         assert data["lists"][1]["title"] == "Title list-2"
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_multi_list_forces_custom_random_mode(self, mock_meta, client):
         mock_meta.side_effect = (
             lambda user, slug, is_watchlist=None, random_mode="letterboxd": (
@@ -90,7 +90,7 @@ class TestMockedRouteFlow:
         for call_args in mock_meta.call_args_list:
             assert call_args.kwargs.get("random_mode") == "custom"
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_one_fails_propagates_error(self, mock_meta, client):
         def _side_effect(user, slug):
             if slug == "bad-list":
@@ -106,7 +106,7 @@ class TestMockedRouteFlow:
         data = res.get_json()
         assert "user2/bad-list" in data["error"]
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_one_empty_returns_422(self, mock_meta, client):
         mock_meta.side_effect = (
             lambda user, slug: ("Empty List", 0)
@@ -126,7 +126,7 @@ class TestMockedRouteFlow:
         assert data["is_watchlist"] is False
         assert "user2" in data["error"]
 
-    @patch("api.index.get_random_movie_meta")
+    @patch("api.routes.select.get_random_movie_meta")
     def test_select_success(self, mock_select, client):
         mock_select.return_value = TEST_MOVIE_META
         res = client.post(
@@ -139,7 +139,7 @@ class TestMockedRouteFlow:
         assert data["meta"]["slug"] == TEST_MOVIE_META["slug"]
         assert data["mode"] == "proportional"
 
-    @patch("api.index.get_random_movie_meta")
+    @patch("api.routes.select.get_random_movie_meta")
     def test_select_equal_mode_success(self, mock_select, client):
         mock_select.return_value = TEST_MOVIE_META
         other_list = {"user": "other", "slug": "watchlist", "count": 10}
@@ -157,7 +157,7 @@ class TestMockedRouteFlow:
         assert data["random_mode"] == "custom"
         assert data["list"]["slug"] in ("turkish", "watchlist")
 
-    @patch("api.index.get_random_movie_meta")
+    @patch("api.routes.select.get_random_movie_meta")
     def test_select_letterboxd_random_mode(self, mock_select, client):
         mock_select.return_value = TEST_MOVIE_META
         res = client.post(
@@ -179,7 +179,7 @@ class TestMockedRouteFlow:
             random_mode="letterboxd",
         )
 
-    @patch("api.index.get_random_movie_meta")
+    @patch("api.routes.select.get_random_movie_meta")
     def test_select_custom_random_mode(self, mock_select, client):
         mock_select.return_value = TEST_MOVIE_META
         res = client.post(
@@ -201,7 +201,7 @@ class TestMockedRouteFlow:
             random_mode="custom",
         )
 
-    @patch("api.index.get_movie_details")
+    @patch("api.routes.details.get_movie_details")
     def test_details_success(self, mock_details, client):
         mock_details.return_value = TEST_MOVIE_DETAILS
         res = client.post("/api/details", json={"slug": TEST_MOVIE_SLUG})
@@ -228,7 +228,7 @@ class TestMockedRouteFlow:
         data = res.get_json()
         assert "Duplicate list detected" in data["error"]
 
-    @patch("api.index.get_list_metadata")
+    @patch("api.routes.metadata.get_list_metadata")
     def test_metadata_allows_both_user_watchlist_and_custom_list_named_watchlist(
         self, mock_meta, client
     ):
