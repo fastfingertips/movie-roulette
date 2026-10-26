@@ -34,7 +34,7 @@ const postJson = async (endpoint, payload, fallbackError, signal = null) => {
     return parseResponse(res, fallbackError);
 };
 
-export const startMetadataFetch = (urls, signal = null, samplingMode = 'proportional', randomMode = 'letterboxd') => fetch('/api/metadata', {
+export const startMetadataFetch = (urls, signal = null, samplingMode = 'proportional', randomMode = 'custom') => fetch('/api/metadata', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ urls, sampling_mode: samplingMode, random_mode: randomMode }),
@@ -43,13 +43,13 @@ export const startMetadataFetch = (urls, signal = null, samplingMode = 'proporti
 
 export const parseApiResponse = (responsePromise, fallbackError) => parseResponse(responsePromise, fallbackError);
 
-export const fetchMetadata = (urls, signal = null, samplingMode = 'proportional', randomMode = 'letterboxd') => postJson(
+export const fetchMetadata = (urls, signal = null, samplingMode = 'proportional', randomMode = 'custom') => postJson(
     '/api/metadata',
     { urls, sampling_mode: samplingMode, random_mode: randomMode },
     'Metadata failed',
     signal
 );
 
-export const selectRandomMovie = (lists, total, signal = null, mode = 'proportional', randomMode = 'letterboxd') => postJson('/api/select', { lists, total, mode, random_mode: randomMode }, 'Selection failed', signal);
+export const selectRandomMovie = (lists, total, signal = null, mode = 'proportional', randomMode = 'custom') => postJson('/api/select', { lists, total, mode, random_mode: randomMode }, 'Selection failed', signal);
 
 export const fetchMovieDetails = (slug, signal = null) => postJson('/api/details', { slug }, 'Details failed', signal);

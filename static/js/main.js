@@ -34,8 +34,10 @@ const syncUrlToAddressBar = () => {
             url.searchParams.delete('url');
         }
         if (elements.randomToggle && elements.randomToggle.checked) {
-            url.searchParams.set('random', 'custom');
+            url.searchParams.set('shuffle', '1');
+            url.searchParams.delete('random');
         } else {
+            url.searchParams.delete('shuffle');
             url.searchParams.delete('random');
         }
         window.history.replaceState({}, '', url.toString());
@@ -120,7 +122,7 @@ export const performRandomize = async (urls, options = {}) => {
     const cleanupTask = cleanEmptyFields(updateUI, Log.info);
     
     const samplingMode = elements.samplingToggle && elements.samplingToggle.checked ? 'equal' : 'proportional';
-    const randomMode = elements.randomToggle && elements.randomToggle.checked ? 'custom' : 'letterboxd';
+    const randomMode = elements.randomToggle && elements.randomToggle.checked ? 'letterboxd' : 'custom';
 
     // Start Step 1 fetch immediately (optimistic start)
     const metaFetchPromise = startMetadataFetch(urls, signal, samplingMode, randomMode);
@@ -336,26 +338,26 @@ $('clear-history').addEventListener('click', () => { clearHistory(); updateUI();
 $('clear-lists').addEventListener('click', () => { clearRecentLists(); updateUI(); });
 
 if (elements.randomToggle) {
-    const syncRandomToggleUI = (isCustom) => {
-        elements.randomToggle.checked = isCustom;
+    const syncRandomToggleUI = (isShuffle) => {
+        elements.randomToggle.checked = isShuffle;
         if (elements.randomToggleWrapper) {
-            elements.randomToggleWrapper.classList.toggle('is-active', isCustom);
-            elements.randomToggleWrapper.title = isCustom
-                ? 'Deep Sample (Active) — Scans across all catalog pages. Click for Fast Shuffle.'
-                : 'Fast Shuffle (Default) — Click to enable Deep Sample across all pages.';
+            elements.randomToggleWrapper.classList.toggle('is-active', isShuffle);
+            elements.randomToggleWrapper.title = isShuffle
+                ? 'Use /shuffle (Active) — Fast shuffle using Letterboxd\'s /by/shuffle. Click to return to deep catalog sampling.'
+                : 'Use /shuffle (Off) — Deep catalog sampling is active by default. Toggle to use Letterboxd\'s /shuffle (Page 1 only).';
         }
     };
 
     elements.randomToggle.addEventListener('change', () => {
-        const isCustom = elements.randomToggle.checked;
-        const mode = isCustom ? 'custom' : 'letterboxd';
+        const isShuffle = elements.randomToggle.checked;
+        const mode = isShuffle ? 'letterboxd' : 'custom';
         saveRandomMode(mode);
-        syncRandomToggleUI(isCustom);
+        syncRandomToggleUI(isShuffle);
         syncUrlToAddressBar();
     });
 
     const savedRandomMode = getRandomMode();
-    syncRandomToggleUI(savedRandomMode === 'custom');
+    syncRandomToggleUI(savedRandomMode === 'letterboxd');
 
     if (elements.randomToggleWrapper) {
         elements.randomToggleWrapper.addEventListener('click', (e) => {
@@ -440,9 +442,9 @@ const handleShareMix = async () => {
     if (urls.length === 0) return;
 
     const baseUrl = window.location.origin + window.location.pathname;
-    const isCustom = elements.randomToggle && elements.randomToggle.checked;
-    const randomParam = isCustom ? '&random=custom' : '';
-    const shareUrl = `${baseUrl}?url=${encodeURIComponent(urls.join(','))}${randomParam}`;
+    const isShuffle = elements.randomToggle && elements.randomToggle.checked;
+    const shuffleParam = isShuffle ? '&shuffle=1' : '';
+    const shareUrl = `${baseUrl}?url=${encodeURIComponent(urls.join(','))}${shuffleParam}`;
 
     const success = await copyToClipboard(shareUrl);
     if (success) {
@@ -498,9 +500,9 @@ const bootstrapFromUrl = () => {
         Log.setDebug(true);
     }
     if (randomMode) {
-        const isCustom = randomMode === 'custom';
+        const isShuffle = randomMode === 'letterboxd';
         if (elements.randomToggle) {
-            elements.randomToggle.checked = isCustom;
+            elements.randomToggle.checked = isShuffle;
             elements.randomToggle.dispatchEvent(new Event('change'));
         }
     }

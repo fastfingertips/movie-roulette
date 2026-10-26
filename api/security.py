@@ -28,7 +28,7 @@ class MetadataRequest(BaseModel):
         max_length=MAX_URLS,
     )
     sampling_mode: Literal["proportional", "equal"] = "proportional"
-    random_mode: Literal["letterboxd", "custom"] = "letterboxd"
+    random_mode: Literal["letterboxd", "custom"] = "custom"
 
     @field_validator("urls", mode="after")
     @classmethod
@@ -59,7 +59,7 @@ class SelectRequest(BaseModel):
     lists: list[ListItem] = Field(min_length=1, max_length=MAX_URLS)
     total: int = Field(gt=0)
     mode: Literal["proportional", "equal"] = "proportional"
-    random_mode: Literal["letterboxd", "custom"] = "letterboxd"
+    random_mode: Literal["letterboxd", "custom"] = "custom"
 
 
 class DetailsRequest(BaseModel):

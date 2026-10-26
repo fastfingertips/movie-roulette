@@ -38,7 +38,7 @@ def extract_watchlist_count_from_dom(dom):
 
 
 @progress_step("Fetching List Metadata")
-def get_list_metadata(user, slug, is_watchlist=None, random_mode="letterboxd"):
+def get_list_metadata(user, slug, is_watchlist=None, random_mode="custom"):
     """Returns (title, count, candidate)."""
     is_wl = is_watchlist is True or (is_watchlist is None and slug == "watchlist")
     if is_wl:
@@ -145,7 +145,7 @@ def pick_weighted_list(lists, total=None):
 
 @progress_step("Selecting Random Movie from List")
 def get_random_movie_meta(
-    user, slug, count, is_watchlist=None, random_mode="letterboxd"
+    user, slug, count, is_watchlist=None, random_mode="custom"
 ):
     """Fetches random movie from list using shuffle or uniform sampling."""
     if is_watchlist is True or (is_watchlist is None and slug == "watchlist"):

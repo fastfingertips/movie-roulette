@@ -100,7 +100,10 @@ describe('parseUrlParams', () => {
 
     it('parses randomMode from query string', () => {
         expect(parseUrlParams('?url=a&random=custom').randomMode).toBe('custom');
+        expect(parseUrlParams('?url=a&random=deep').randomMode).toBe('custom');
         expect(parseUrlParams('?url=a&random=letterboxd').randomMode).toBe('letterboxd');
+        expect(parseUrlParams('?url=a&shuffle=1').randomMode).toBe('letterboxd');
+        expect(parseUrlParams('?url=a&shuffle=true').randomMode).toBe('letterboxd');
         expect(parseUrlParams('?url=a').randomMode).toBeNull();
     });
 });
