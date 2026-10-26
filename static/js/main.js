@@ -77,6 +77,9 @@ const Log = {
     setDebug: (enabled) => {
         isDebugEnabled = Boolean(enabled);
         saveDebugMode(isDebugEnabled);
+        if (typeof syncDebugCheckbox === 'function') {
+            syncDebugCheckbox();
+        }
         if (isDebugEnabled) {
             console.log(
                 '%c[MovieRoulette] Debug logging active. Run MovieRoulette.disableDebug() to turn off.',
@@ -279,16 +282,18 @@ export const performRandomize = async (urls, options = {}) => {
 
 const debugCheckbox = $('debug-toggle');
 const debugWrapper = $('console-toggle-wrapper');
-const syncDebugCheckbox = () => {
+
+function syncDebugCheckbox() {
     if (!debugCheckbox) return;
     const active = Log.isEnabled();
     debugCheckbox.checked = active;
     if (debugWrapper) {
+        debugWrapper.classList.toggle('is-active', active);
         debugWrapper.title = active
             ? 'Console Logs: Enabled (click to disable)'
             : 'Console Logs: Disabled (click to enable)';
     }
-};
+}
 
 if (debugCheckbox) {
     syncDebugCheckbox();
@@ -305,6 +310,14 @@ if (debugCheckbox) {
             console.clear();
         }
     });
+
+    if (debugWrapper) {
+        debugWrapper.addEventListener('click', (e) => {
+            if (e.target.closest('.switch')) return;
+            debugCheckbox.checked = !debugCheckbox.checked;
+            debugCheckbox.dispatchEvent(new Event('change'));
+        });
+    }
 }
 
 $('info-btn').addEventListener('click', () => setView('info'));
