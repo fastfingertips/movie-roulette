@@ -6,7 +6,7 @@
    ========================================================================== */
 
 :root,
-[data-theme="light"] {
+[data-theme="classic-light"] {
     --font-ui: 'DM Sans', sans-serif;
     --font-sans: var(--font-ui);
     --font-serif: 'Lora', serif;
@@ -31,7 +31,7 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(16, 185, 129, 0.08), transparent 70%);
 }
 
-[data-theme="dark"] {
+[data-theme="classic-dark"] {
     --color-bg: #0f1117;
     --color-surface: rgb(22, 27, 34, 0.65);
     --color-border: rgb(255, 255, 255, 0.08);
@@ -50,9 +50,9 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(61, 126, 94, 0.12), transparent 70%);
 }
 
-/* --- Light Theme 2: Pine & Orchid (Blush Background) --- */
+/* --- Light Theme: Pine & Orchid (Blush Background) --- */
 /* Palette: #F8FAFC, #2C6058, #D384EE, #FBDBEC, #535C9D, #53B019 */
-[data-theme="light-2"] {
+[data-theme="pine-orchid"] {
     --color-bg: #faeef5;
     --color-surface: rgb(255, 255, 255, 0.72);
     --color-border: rgb(44, 96, 88, 0.2);
@@ -71,9 +71,9 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(211, 132, 238, 0.18), rgb(83, 176, 25, 0.08), transparent 70%);
 }
 
-/* --- Light Theme 3: Citron & Berry (Warm Oat Background) --- */
+/* --- Light Theme: Citron & Berry (Warm Oat Background) --- */
 /* Palette: #F8FAFC, #B6C514, #9192B6, #E8E5C4, #3F7483, #4AB033, #B32459 */
-[data-theme="light-3"] {
+[data-theme="citron-berry"] {
     --color-bg: #f5f3e6;
     --color-surface: rgb(255, 255, 255, 0.75);
     --color-border: rgb(63, 116, 131, 0.22);
@@ -92,9 +92,9 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(182, 197, 20, 0.2), rgb(179, 36, 89, 0.1), transparent 70%);
 }
 
-/* --- Light Theme 4: Forest & Lime --- */
+/* --- Light Theme: Forest & Lime --- */
 /* Palette: #163300 (Forest Green), #9FE870 (Bright Lime), #153A3A (Dark Teal), #0E0F0C (Primary Text) */
-[data-theme="light-4"] {
+[data-theme="forest-lime"] {
     --color-bg: #f6f8f5;
     --color-surface: rgb(255, 255, 255, 0.8);
     --color-border: rgb(14, 15, 12, 0.12);
@@ -114,8 +114,8 @@
     --color-on-green-hint-bg: rgb(255, 255, 255, 0.18);
 }
 
-/* --- Dark Theme 2: AMOLED Black (Pure Black #000) --- */
-[data-theme="dark-2"] {
+/* --- Dark Theme: AMOLED Black (Pure Black #000) --- */
+[data-theme="amoled"] {
     --color-bg: #000;
     --color-surface: rgb(14, 14, 16, 0.72);
     --color-border: rgb(255, 255, 255, 0.12);
@@ -134,9 +134,9 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(46, 160, 67, 0.08), transparent 70%);
 }
 
-/* --- Dark Theme 3: Midnight Lime --- */
+/* --- Dark Theme: Midnight Lime --- */
 /* Palette: #121511 (Base Dark), #21231D (Surface), #9FE870 (Bright Lime), #A0E1E1 (Bright Blue) */
-[data-theme="dark-3"] {
+[data-theme="midnight-lime"] {
     --color-bg: #121511;
     --color-surface: rgb(33, 35, 29, 0.72);
     --color-border: rgb(159, 232, 112, 0.14);
@@ -194,18 +194,18 @@
     animation: menu-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-[data-theme^="dark"] .theme-menu {
+[data-mode="dark"] .theme-menu {
     background: rgb(22, 27, 34, 0.92);
     box-shadow: 0 16px 36px rgb(0, 0, 0, 0.4);
 }
 
-[data-theme="dark-2"] .theme-menu {
+[data-theme="amoled"] .theme-menu {
     background: rgb(10, 10, 12, 0.95);
     border-color: rgb(255, 255, 255, 0.15);
     box-shadow: 0 16px 40px rgb(0, 0, 0, 0.7);
 }
 
-[data-theme="dark-3"] .theme-menu {
+[data-theme="midnight-lime"] .theme-menu {
     background: rgb(26, 29, 23, 0.95);
     border-color: rgb(159, 232, 112, 0.2);
     box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
@@ -260,7 +260,7 @@
     background: rgb(0, 0, 0, 0.05);
 }
 
-[data-theme^="dark"] .theme-option:hover {
+[data-mode="dark"] .theme-option:hover {
     background: rgb(255, 255, 255, 0.06);
 }
 
@@ -284,33 +284,33 @@
     box-shadow: 0 1px 2px rgb(0, 0, 0, 0.15);
 }
 
-.theme-dot--light-1 { background: #10b981; }
-.theme-dot--light-2 { background: #3b82f6; }
-.theme-dot--light-3 { background: #f8fafc; border: 1px solid rgb(0, 0, 0, 0.15); }
+.theme-dot--classic-light-1 { background: #10b981; }
+.theme-dot--classic-light-2 { background: #3b82f6; }
+.theme-dot--classic-light-3 { background: #f8fafc; border: 1px solid rgb(0, 0, 0, 0.15); }
 
-.theme-dot--light-2-1 { background: #2c6058; }
-.theme-dot--light-2-2 { background: #d384ee; }
-.theme-dot--light-2-3 { background: #faeef5; border: 1px solid rgb(0, 0, 0, 0.15); }
+.theme-dot--pine-orchid-1 { background: #2c6058; }
+.theme-dot--pine-orchid-2 { background: #d384ee; }
+.theme-dot--pine-orchid-3 { background: #faeef5; border: 1px solid rgb(0, 0, 0, 0.15); }
 
-.theme-dot--light-3-1 { background: #3f7483; }
-.theme-dot--light-3-2 { background: #b32459; }
-.theme-dot--light-3-3 { background: #f5f3e6; border: 1px solid rgb(0, 0, 0, 0.15); }
+.theme-dot--citron-berry-1 { background: #3f7483; }
+.theme-dot--citron-berry-2 { background: #b32459; }
+.theme-dot--citron-berry-3 { background: #f5f3e6; border: 1px solid rgb(0, 0, 0, 0.15); }
 
-.theme-dot--light-4-1 { background: #163300; }
-.theme-dot--light-4-2 { background: #9fe870; }
-.theme-dot--light-4-3 { background: #f6f8f5; border: 1px solid rgb(0, 0, 0, 0.15); }
+.theme-dot--forest-lime-1 { background: #163300; }
+.theme-dot--forest-lime-2 { background: #9fe870; }
+.theme-dot--forest-lime-3 { background: #f6f8f5; border: 1px solid rgb(0, 0, 0, 0.15); }
 
-.theme-dot--dark-1 { background: #3d7e5e; }
-.theme-dot--dark-2 { background: #58a6ff; }
-.theme-dot--dark-3 { background: #0f1117; border: 1px solid rgb(255, 255, 255, 0.2); }
+.theme-dot--classic-dark-1 { background: #3d7e5e; }
+.theme-dot--classic-dark-2 { background: #58a6ff; }
+.theme-dot--classic-dark-3 { background: #0f1117; border: 1px solid rgb(255, 255, 255, 0.2); }
 
-.theme-dot--dark-2-1 { background: #2ea043; }
-.theme-dot--dark-2-2 { background: #40a9ff; }
-.theme-dot--dark-2-3 { background: #000; border: 1px solid rgb(255, 255, 255, 0.25); }
+.theme-dot--amoled-1 { background: #2ea043; }
+.theme-dot--amoled-2 { background: #40a9ff; }
+.theme-dot--amoled-3 { background: #000; border: 1px solid rgb(255, 255, 255, 0.25); }
 
-.theme-dot--dark-3-1 { background: #9fe870; }
-.theme-dot--dark-3-2 { background: #a0e1e1; }
-.theme-dot--dark-3-3 { background: #121511; border: 1px solid rgb(255, 255, 255, 0.2); }
+.theme-dot--midnight-lime-1 { background: #9fe870; }
+.theme-dot--midnight-lime-2 { background: #a0e1e1; }
+.theme-dot--midnight-lime-3 { background: #121511; border: 1px solid rgb(255, 255, 255, 0.2); }
 
 .theme-option__name {
     flex: 1;

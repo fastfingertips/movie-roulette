@@ -1,13 +1,22 @@
-import { $ } from './dom.js';
 
-const THEMES = [
-    { id: 'light', name: 'Classic Light', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
-    { id: 'light-2', name: 'Pine & Orchid', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
-    { id: 'light-3', name: 'Citron & Berry', mode: 'light', bg: '#f5f3e6', colors: ['#3f7483', '#b32459', '#f5f3e6'] },
-    { id: 'light-4', name: 'Forest & Lime', mode: 'light', bg: '#f6f8f5', colors: ['#163300', '#9fe870', '#f6f8f5'] },
-    { id: 'dark', name: 'Classic Dark', mode: 'dark', bg: '#0f1117', colors: ['#3d7e5e', '#58a6ff', '#0f1117'] },
-    { id: 'dark-2', name: 'AMOLED Black', mode: 'dark', bg: '#000000', colors: ['#2ea043', '#40a9ff', '#000000'] },
-    { id: 'dark-3', name: 'Midnight Lime', mode: 'dark', bg: '#121511', colors: ['#9fe870', '#a0e1e1', '#121511'] }
+export const THEME_MIGRATION_MAP = {
+    light: 'classic-light',
+    'light-2': 'pine-orchid',
+    'light-3': 'citron-berry',
+    'light-4': 'forest-lime',
+    dark: 'classic-dark',
+    'dark-2': 'amoled',
+    'dark-3': 'midnight-lime'
+};
+
+export const THEMES = [
+    { id: 'classic-light', name: 'Classic Light', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
+    { id: 'pine-orchid', name: 'Pine & Orchid', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
+    { id: 'citron-berry', name: 'Citron & Berry', mode: 'light', bg: '#f5f3e6', colors: ['#3f7483', '#b32459', '#f5f3e6'] },
+    { id: 'forest-lime', name: 'Forest & Lime', mode: 'light', bg: '#f6f8f5', colors: ['#163300', '#9fe870', '#f6f8f5'] },
+    { id: 'classic-dark', name: 'Classic Dark', mode: 'dark', bg: '#0f1117', colors: ['#3d7e5e', '#58a6ff', '#0f1117'] },
+    { id: 'amoled', name: 'AMOLED Black', mode: 'dark', bg: '#000000', colors: ['#2ea043', '#40a9ff', '#000000'] },
+    { id: 'midnight-lime', name: 'Midnight Lime', mode: 'dark', bg: '#121511', colors: ['#9fe870', '#a0e1e1', '#121511'] }
 ];
 
 const updateActiveThemeInMenu = (themeId) => {
@@ -22,15 +31,23 @@ const updateActiveThemeInMenu = (themeId) => {
 const THEME_STORAGE_KEY = 'theme';
 
 /** Default light and dark themes (used for system scheme and quick toggle) */
-const SYSTEM_THEME = { light: 'light-4', dark: 'dark-3' };
+export const SYSTEM_THEME = { light: 'forest-lime', dark: 'midnight-lime' };
 
-const systemQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+const systemQuery = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-const getSystemTheme = () => (systemQuery && systemQuery.matches ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
+export const getSystemTheme = () => (systemQuery && systemQuery.matches ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
 
-const getStoredTheme = () => {
+export const resolveTheme = (themeId) => {
+    if (!themeId) return null;
+    const migratedId = THEME_MIGRATION_MAP[themeId] || themeId;
+    return THEMES.find(t => t.id === migratedId) || null;
+};
+
+export const getStoredTheme = () => {
+    if (typeof localStorage === 'undefined') return null;
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    return THEMES.some(t => t.id === stored) ? stored : null;
+    const resolved = resolveTheme(stored);
+    return resolved ? resolved.id : null;
 };
 
 /**
@@ -39,9 +56,13 @@ const getStoredTheme = () => {
  * @param {{x: number, y: number}|null} originCoords Reveal origin; defaults to the toggle button
  * @param {{persist?: boolean}} options Pass persist: false to apply without saving the choice
  */
-const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
+export const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
+    const resolvedTheme = resolveTheme(newTheme);
+    const targetThemeId = resolvedTheme ? resolvedTheme.id : newTheme;
     const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
-    if (newTheme === currentTheme) return;
+    if (targetThemeId === currentTheme) return;
+
+    const targetMode = resolvedTheme ? resolvedTheme.mode : (targetThemeId.includes('dark') || targetThemeId === 'amoled' ? 'dark' : 'light');
 
     let x = window.innerWidth - 40;
     let y = 30;
@@ -49,7 +70,7 @@ const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
         x = originCoords.x;
         y = originCoords.y;
     } else {
-        const toggleBtn = $('theme-toggle');
+        const toggleBtn = document.getElementById('theme-toggle');
         if (toggleBtn) {
             const rect = toggleBtn.getBoundingClientRect();
             x = rect.left + rect.width / 2;
@@ -58,9 +79,10 @@ const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
     }
 
     const performToggle = () => {
-        document.documentElement.setAttribute('data-theme', newTheme);
-        if (persist) localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-        updateActiveThemeInMenu(newTheme);
+        document.documentElement.setAttribute('data-theme', targetThemeId);
+        document.documentElement.setAttribute('data-mode', targetMode);
+        if (persist) localStorage.setItem(THEME_STORAGE_KEY, targetThemeId);
+        updateActiveThemeInMenu(targetThemeId);
         if (window.lucide) window.lucide.createIcons();
     };
 
@@ -70,8 +92,7 @@ const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
         overlay.style.position = 'fixed';
         overlay.style.inset = '0';
         overlay.style.zIndex = '9999';
-        const themeObj = THEMES.find(t => t.id === newTheme);
-        overlay.style.background = themeObj ? themeObj.bg : (newTheme.startsWith('dark') ? '#0f1117' : '#f8fafc');
+        overlay.style.background = resolvedTheme ? resolvedTheme.bg : (targetMode === 'dark' ? '#0f1117' : '#f8fafc');
         overlay.style.clipPath = `circle(0% at ${x}px ${y}px)`;
         overlay.style.transition = 'clip-path 0.5s ease-in-out';
         document.body.appendChild(overlay);
@@ -109,8 +130,8 @@ const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
 };
 
 const toggleThemeMenu = (force = null) => {
-    const menu = $('theme-menu');
-    const btn = $('theme-toggle');
+    const menu = document.getElementById('theme-menu');
+    const btn = document.getElementById('theme-toggle');
     if (!menu || !btn) return;
 
     const shouldShow = force !== null ? force : menu.classList.contains('is-hidden');
@@ -125,8 +146,11 @@ const closeThemeMenu = () => {
 export const initTheme = () => {
     // Explicit user choice wins; otherwise follow the system color scheme
     const initialTheme = getStoredTheme() || getSystemTheme();
+    const resolved = resolveTheme(initialTheme);
+    const mode = resolved ? resolved.mode : 'light';
 
     document.documentElement.setAttribute('data-theme', initialTheme);
+    document.documentElement.setAttribute('data-mode', mode);
     updateActiveThemeInMenu(initialTheme);
 
     // Keep following the system until the user picks a theme manually
@@ -137,7 +161,7 @@ export const initTheme = () => {
         });
     }
 
-    const themeBtn = $('theme-toggle');
+    const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) {
         themeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
