@@ -33,14 +33,14 @@ Open **[http://127.0.0.1:5050](http://127.0.0.1:5050)** in your browser.
 [Husky](https://typicode.github.io/husky/) automatically validates commits:
 
 ### 1. Commit Message Subject Length (`commit-msg`)
-The subject line (first line) of every commit must be **≤ 62 characters**.
+The subject line (first line) of every commit must be **<= 62 characters**.
 
 ```text
-# ✅ Valid (≤62 chars)
+# Valid (<= 62 chars)
 feat: add debug logging toggle to navigation
 fix: handle empty watchlist response gracefully
 
-# ❌ Invalid (>62 chars)
+# Invalid (> 62 chars)
 feat: this commit message title is way too long and exceeds the sixty-two character limit
 ```
 
