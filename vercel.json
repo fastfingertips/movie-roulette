@@ -28,6 +28,18 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "redirect"
+        }
+      ],
+      "destination": "/api/index.py"
+    },
+    { "source": "/r", "destination": "/api/index.py" },
+    { "source": "/r/(.*)", "destination": "/api/index.py" },
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/api", "destination": "/api/index.py" }
   ]

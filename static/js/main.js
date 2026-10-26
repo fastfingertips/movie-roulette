@@ -495,7 +495,7 @@ initFieldStats(updateUI);
 updateUI();
 /** Fill the form from URL query params, then optionally auto-run. */
 const bootstrapFromUrl = () => {
-    const { urls, shouldRun, shouldRedirect, randomMode, isDebug, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    const { urls, shouldRun, shouldRedirect, randomMode, isDebug, hasDuplicateWatchlist, error } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
     if (isDebug) {
         Log.setDebug(true);
     }
@@ -505,6 +505,9 @@ const bootstrapFromUrl = () => {
             elements.randomToggle.checked = isShuffle;
             elements.randomToggle.dispatchEvent(new Event('change'));
         }
+    }
+    if (error) {
+        showToast(error, 'error');
     }
     if (urls.length === 0) return;
 
@@ -519,7 +522,7 @@ const bootstrapFromUrl = () => {
 
     updateUI();
     if (hasDuplicateWatchlist) showToast("Duplicate list was excluded.");
-    if (shouldRun) {
+    if (shouldRun && !error) {
         performRandomize(urls, { redirect: shouldRedirect });
     } else {
         refreshAllCounts();
