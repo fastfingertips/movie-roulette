@@ -89,7 +89,10 @@ export const parseUrlParams = (search, maxUrls = 5) => {
         }
     });
 
-    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, shouldRedirect, randomMode, hasDuplicateWatchlist };
+    const debugParam = params.get('debug')?.toLowerCase();
+    const isDebug = debugParam === '1' || debugParam === 'true';
+
+    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, shouldRedirect, randomMode, isDebug, hasDuplicateWatchlist };
 };
 
 export const formatListUrl = (url) => {
