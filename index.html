@@ -8,10 +8,31 @@
     <script>
         // Apply the saved theme (or the system color scheme) before first paint
         (function () {
-            var ids = ['light', 'light-2', 'light-3', 'light-4', 'dark', 'dark-2', 'dark-3'];
+            var migration = {
+                'light': 'classic-light',
+                'light-2': 'pine-orchid',
+                'light-3': 'citron-berry',
+                'light-4': 'forest-lime',
+                'dark': 'classic-dark',
+                'dark-2': 'amoled',
+                'dark-3': 'midnight-lime'
+            };
+            var themes = {
+                'classic-light': 'light',
+                'pine-orchid': 'light',
+                'citron-berry': 'light',
+                'forest-lime': 'light',
+                'classic-dark': 'dark',
+                'amoled': 'dark',
+                'midnight-lime': 'dark'
+            };
             var saved = localStorage.getItem('theme');
+            if (saved && migration[saved]) saved = migration[saved];
             var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', ids.indexOf(saved) !== -1 ? saved : (dark ? 'dark-3' : 'light-4'));
+            var theme = (saved && themes[saved]) ? saved : (dark ? 'midnight-lime' : 'forest-lime');
+            var mode = themes[theme] || (dark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-mode', mode);
         })();
     </script>
     
@@ -68,67 +89,67 @@
                 </button>
                 <div id="theme-menu" class="theme-menu is-hidden" role="menu">
                     <div class="theme-menu__section-title">Light Themes</div>
-                    <button type="button" class="theme-option" data-theme-id="light" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="classic-light" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--light-1"></span>
-                            <span class="theme-dot theme-dot--light-2"></span>
-                            <span class="theme-dot theme-dot--light-3"></span>
+                            <span class="theme-dot theme-dot--classic-light-1"></span>
+                            <span class="theme-dot theme-dot--classic-light-2"></span>
+                            <span class="theme-dot theme-dot--classic-light-3"></span>
                         </span>
                         <span class="theme-option__name">Classic Light</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button type="button" class="theme-option" data-theme-id="light-2" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="pine-orchid" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--light-2-1"></span>
-                            <span class="theme-dot theme-dot--light-2-2"></span>
-                            <span class="theme-dot theme-dot--light-2-3"></span>
+                            <span class="theme-dot theme-dot--pine-orchid-1"></span>
+                            <span class="theme-dot theme-dot--pine-orchid-2"></span>
+                            <span class="theme-dot theme-dot--pine-orchid-3"></span>
                         </span>
                         <span class="theme-option__name">Pine & Orchid</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button type="button" class="theme-option" data-theme-id="light-3" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="citron-berry" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--light-3-1"></span>
-                            <span class="theme-dot theme-dot--light-3-2"></span>
-                            <span class="theme-dot theme-dot--light-3-3"></span>
+                            <span class="theme-dot theme-dot--citron-berry-1"></span>
+                            <span class="theme-dot theme-dot--citron-berry-2"></span>
+                            <span class="theme-dot theme-dot--citron-berry-3"></span>
                         </span>
                         <span class="theme-option__name">Citron & Berry</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button type="button" class="theme-option" data-theme-id="light-4" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="forest-lime" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--light-4-1"></span>
-                            <span class="theme-dot theme-dot--light-4-2"></span>
-                            <span class="theme-dot theme-dot--light-4-3"></span>
+                            <span class="theme-dot theme-dot--forest-lime-1"></span>
+                            <span class="theme-dot theme-dot--forest-lime-2"></span>
+                            <span class="theme-dot theme-dot--forest-lime-3"></span>
                         </span>
                         <span class="theme-option__name">Forest & Lime</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
                     <div class="theme-menu__divider"></div>
                     <div class="theme-menu__section-title">Dark Themes</div>
-                    <button type="button" class="theme-option" data-theme-id="dark" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="classic-dark" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--dark-1"></span>
-                            <span class="theme-dot theme-dot--dark-2"></span>
-                            <span class="theme-dot theme-dot--dark-3"></span>
+                            <span class="theme-dot theme-dot--classic-dark-1"></span>
+                            <span class="theme-dot theme-dot--classic-dark-2"></span>
+                            <span class="theme-dot theme-dot--classic-dark-3"></span>
                         </span>
                         <span class="theme-option__name">Classic Dark</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button type="button" class="theme-option" data-theme-id="dark-2" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="amoled" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--dark-2-1"></span>
-                            <span class="theme-dot theme-dot--dark-2-2"></span>
-                            <span class="theme-dot theme-dot--dark-2-3"></span>
+                            <span class="theme-dot theme-dot--amoled-1"></span>
+                            <span class="theme-dot theme-dot--amoled-2"></span>
+                            <span class="theme-dot theme-dot--amoled-3"></span>
                         </span>
                         <span class="theme-option__name">AMOLED Black</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
-                    <button type="button" class="theme-option" data-theme-id="dark-3" role="menuitem">
+                    <button type="button" class="theme-option" data-theme-id="midnight-lime" role="menuitem">
                         <span class="theme-option__swatches">
-                            <span class="theme-dot theme-dot--dark-3-1"></span>
-                            <span class="theme-dot theme-dot--dark-3-2"></span>
-                            <span class="theme-dot theme-dot--dark-3-3"></span>
+                            <span class="theme-dot theme-dot--midnight-lime-1"></span>
+                            <span class="theme-dot theme-dot--midnight-lime-2"></span>
+                            <span class="theme-dot theme-dot--midnight-lime-3"></span>
                         </span>
                         <span class="theme-option__name">Midnight Lime</span>
                         <i data-lucide="check" class="theme-option__check"></i>
