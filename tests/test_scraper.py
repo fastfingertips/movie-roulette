@@ -1,4 +1,9 @@
-from api.scraper import pick_weighted_list
+from unittest.mock import MagicMock, patch
+
+import pytest
+from letterboxdpy.core.exceptions import ResourceNotFoundError
+
+from api.scraper import get_list_metadata, get_random_movie_meta, pick_weighted_list
 
 
 class TestPickWeightedList:
@@ -35,3 +40,49 @@ class TestPickWeightedList:
         # Check that list-a is chosen roughly 80% (between 73% and 87%)
         ratio_a = counts["list-a"] / trials
         assert 0.73 <= ratio_a <= 0.87, f"Expected ~0.80, got {ratio_a}"
+
+
+class TestScraperFallback:
+    @patch("api.scraper.UserList")
+    @patch("api.scraper.parse_url")
+    def test_get_list_metadata_shuffle_fallback(self, mock_parse_url, mock_user_list):
+        # Simulate Cloudflare 403 / challenge block on shuffle URL
+        mock_parse_url.side_effect = Exception("Cloudflare 403 Challenge")
+        mock_instance = MagicMock()
+        mock_instance.get_title.return_value = "Fallback List"
+        mock_instance.get_count.return_value = 42
+        mock_user_list.return_value = mock_instance
+
+        title, count, candidate = get_list_metadata(
+            "alice", "my-list", random_mode="letterboxd"
+        )
+        assert title == "Fallback List"
+        assert count == 42
+        assert candidate is None
+
+    @patch("api.scraper.parse_url")
+    def test_get_list_metadata_reraises_404(self, mock_parse_url):
+        mock_parse_url.side_effect = ResourceNotFoundError("List not found")
+        with pytest.raises(ResourceNotFoundError):
+            get_list_metadata("alice", "missing-list", random_mode="letterboxd")
+
+    @patch("api.scraper.extract_movies_from_vertical_list")
+    @patch("api.scraper.parse_url")
+    def test_get_random_movie_meta_shuffle_fallback(
+        self, mock_parse_url, mock_extract_movies
+    ):
+        # First call (shuffle_url) raises block, second call (page 1) succeeds
+        mock_parse_url.side_effect = [
+            Exception("Cloudflare 403 Challenge"),
+            MagicMock(),  # page dom
+        ]
+        mock_extract_movies.return_value = {
+            "movie-1": {"name": "Test Film", "slug": "test-film"}
+        }
+
+        meta = get_random_movie_meta(
+            "alice", "my-list", count=10, random_mode="letterboxd"
+        )
+        assert meta is not None
+        assert meta["slug"] == "test-film"
+        assert meta["strategy"] == "custom"
