@@ -5,7 +5,12 @@ from letterboxdpy.constants.project import DOMAIN
 from letterboxdpy.core.exceptions import PrivateRouteError, ResourceNotFoundError
 from letterboxdpy.core.scraper import parse_url
 from letterboxdpy.pages.movie_profile import MovieProfile
-from letterboxdpy.pages.user_list import UserList
+from letterboxdpy.pages.user_list import (
+    UserList,
+    extract_count,
+    extract_title,
+    get_movie_count_from_meta,
+)
 from letterboxdpy.pages.user_watchlist import UserWatchlist
 from letterboxdpy.utils.movies_extractor import extract_movies_from_vertical_list
 from letterboxdpy.utils.utils_url import get_page_url
@@ -13,14 +18,57 @@ from letterboxdpy.utils.utils_url import get_page_url
 from .utils import progress_step
 
 
+def extract_watchlist_count_from_dom(dom):
+    div = dom.find("div", class_="s-watchlist-content")
+    if div and "data-num-entries" in div.attrs:
+        return int(div["data-num-entries"])
+    span = dom.find("span", class_="js-watchlist-count")
+    if span:
+        return int(span.text.split()[0].replace(",", ""))
+    try:
+        count = get_movie_count_from_meta(dom)
+        if count is not None:
+            return count
+    except Exception:
+        pass
+    return 0
+
+
 @progress_step("Fetching List Metadata")
-def get_list_metadata(user, slug, is_watchlist=None):
-    """Returns (title, count)"""
-    if is_watchlist is True or (is_watchlist is None and slug == "watchlist"):
+def get_list_metadata(user, slug, is_watchlist=None, random_mode="letterboxd"):
+    """Returns (title, count, candidate)."""
+    is_wl = is_watchlist is True or (is_watchlist is None and slug == "watchlist")
+    if is_wl:
+        base_url = f"{DOMAIN}/{user}/watchlist/"
+    else:
+        base_url = UserList.LIST_PATTERN % (user, slug)
+
+    if random_mode == "letterboxd":
+        shuffle_url = f"{base_url.rstrip('/')}/by/shuffle/"
+        dom = parse_url(shuffle_url)
+        if is_wl:
+            title = f"{user}'s Watchlist"
+            count = extract_watchlist_count_from_dom(dom)
+        else:
+            title = extract_title(dom)
+            count = extract_count(dom)
+
+        movies = extract_movies_from_vertical_list(dom)
+        candidate = None
+        if movies:
+            candidate_id = random.choice(list(movies.keys()))
+            candidate = dict(movies[candidate_id])
+            candidate["page"] = 1
+            candidate["strategy"] = "letterboxd"
+
+        return title, count, candidate
+
+    # Custom mode (Deep Sample)
+    if is_wl:
         watchlist = UserWatchlist(user)
-        return f"{user}'s Watchlist", watchlist.get_count()
+        return f"{user}'s Watchlist", watchlist.get_count(), None
     user_list = UserList(user, slug)
-    return user_list.get_title(), user_list.get_count()
+    return user_list.get_title(), user_list.get_count(), None
 
 
 def resolve_metadata_error(exc, user, slug, is_watchlist):

@@ -101,10 +101,13 @@ export const performRandomize = async (urls, options = {}) => {
     // 0. Start UI Cleanup AND Metadata Fetch in parallel
     const cleanupTask = cleanEmptyFields(updateUI, Log.info);
     
-    // Start Step 1 fetch immediately (optimistic start)
-    const metaFetchPromise = startMetadataFetch(urls, signal);
+    const samplingMode = elements.samplingToggle && elements.samplingToggle.checked ? 'equal' : 'proportional';
+    const randomMode = elements.randomToggle && elements.randomToggle.checked ? 'custom' : 'letterboxd';
 
-    Log.info('Booting Randomizer...', { urls });
+    // Start Step 1 fetch immediately (optimistic start)
+    const metaFetchPromise = startMetadataFetch(urls, signal, samplingMode, randomMode);
+
+    Log.info('Booting Randomizer...', { urls, samplingMode, randomMode });
     currentUrlsForRetry = urls;
     const submitBtn = elements.formArea.querySelector('button[type="submit"]');
     const resultBtns = elements.resultArea.querySelectorAll('.action-btn');
@@ -144,14 +147,20 @@ export const performRandomize = async (urls, options = {}) => {
         // 2. Selection (Honest Progress)
         Log.step('2. SELECT RANDOM MOVIE');
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[2];
-        const samplingMode = elements.samplingToggle && elements.samplingToggle.checked ? 'equal' : 'proportional';
-        const randomMode = elements.randomToggle && elements.randomToggle.checked ? 'custom' : 'letterboxd';
         Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total, mode: samplingMode, randomMode });
 
-        const selectStart = Date.now();
-        const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode, randomMode);
-        const selectDuration = (Date.now() - selectStart) / 1000;
-        Log.success('Selection complete', selectData);
+        let selectData;
+        let selectDuration = 0;
+        if (metaData.selected) {
+            // Fast Shuffle: Winner pre-selected in metadata phase (0 additional HTTP requests!)
+            selectData = metaData.selected;
+            Log.success('Selection pre-computed via shuffle in metadata step', selectData);
+        } else {
+            const selectStart = Date.now();
+            selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode, randomMode);
+            selectDuration = (Date.now() - selectStart) / 1000;
+            Log.success('Selection complete', selectData);
+        }
 
         if (options.redirect && selectData?.meta) {
             const filmUrl = selectData.meta.url || `https://letterboxd.com/film/${selectData.meta.slug}/`;

@@ -27,6 +27,8 @@ class MetadataRequest(BaseModel):
         min_length=1,
         max_length=MAX_URLS,
     )
+    sampling_mode: Literal["proportional", "equal"] = "proportional"
+    random_mode: Literal["letterboxd", "custom"] = "letterboxd"
 
     @field_validator("urls", mode="after")
     @classmethod
@@ -131,12 +133,12 @@ def format_validation_error(err: ValidationError) -> str:
 def validate_metadata_input(data):
     """Validates /api/metadata input using Pydantic."""
     if not isinstance(data, dict):
-        return None, error_response("Invalid payload", 400)
+        return None, None, None, error_response("Invalid payload", 400)
     try:
         req = MetadataRequest.model_validate(data)
-        return req.urls, None
+        return req.urls, req.sampling_mode, req.random_mode, None
     except ValidationError as e:
-        return None, error_response(format_validation_error(e), 400)
+        return None, None, None, error_response(format_validation_error(e), 400)
 
 
 def validate_select_input(data):

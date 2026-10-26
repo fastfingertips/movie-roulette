@@ -50,11 +50,16 @@ def favicon():
 @app.route("/metadata", methods=["POST"])
 def api_metadata():
     try:
-        urls, err = validate_metadata_input(request.json)
+        urls, sampling_mode, random_mode, err = validate_metadata_input(request.json)
         if err:
             return err
 
-        logger.info("api_metadata requested with %d urls", len(urls))
+        logger.info(
+            "api_metadata requested with %d urls, sampling_mode: %s, random_mode: %s",
+            len(urls),
+            sampling_mode,
+            random_mode,
+        )
 
         # Pre-validate and extract user/slug upfront with duplicate detection
         parsed_items = []
@@ -77,13 +82,23 @@ def api_metadata():
             user, slug, is_watchlist, url = item
             try:
                 try:
-                    title, count = get_list_metadata(
-                        user, slug, is_watchlist=is_watchlist
+                    res = get_list_metadata(
+                        user, slug, is_watchlist=is_watchlist, random_mode=random_mode
                     )
                 except TypeError:
-                    title, count = get_list_metadata(user, slug)
+                    try:
+                        res = get_list_metadata(user, slug, is_watchlist=is_watchlist)
+                    except TypeError:
+                        res = get_list_metadata(user, slug)
             except (ResourceNotFoundError, PrivateRouteError) as e:
                 raise resolve_metadata_error(e, user, slug, is_watchlist) from e
+
+            if len(res) == 3:
+                title, count, candidate = res
+            else:
+                title, count = res
+                candidate = None
+
             return {
                 "user": user,
                 "slug": slug,
@@ -91,6 +106,7 @@ def api_metadata():
                 "count": count,
                 "url": url,
                 "is_watchlist": is_watchlist,
+                "candidate": candidate,
             }
 
         # Fetch metadata concurrently with ThreadPoolExecutor (order preserved)
@@ -143,12 +159,40 @@ def api_metadata():
             logger.debug("Found %d items in %s", item["count"], item["title"])
 
         total_count = sum(item["count"] for item in list_data)
+        response_payload = {"lists": list_data, "total": total_count}
+
+        # Fast Shuffle Optimization: Pre-select candidate in memory (0 extra requests)
+        if random_mode == "letterboxd":
+            valid_candidates = [
+                item for item in results if item.get("candidate") and item["count"] > 0
+            ]
+            if valid_candidates:
+                if sampling_mode == "equal":
+                    winner_item = random.choice(valid_candidates)
+                else:
+                    winner_item = pick_weighted_list(valid_candidates, total_count)
+
+                if winner_item and winner_item.get("candidate"):
+                    response_payload["selected"] = {
+                        "meta": winner_item["candidate"],
+                        "list": {
+                            "user": winner_item["user"],
+                            "slug": winner_item["slug"],
+                            "title": winner_item["title"],
+                            "count": winner_item["count"],
+                            "is_watchlist": winner_item["is_watchlist"],
+                        },
+                        "mode": sampling_mode,
+                        "random_mode": "letterboxd",
+                    }
+
         logger.info(
-            "api_metadata success (%d lists, %d total movies)",
+            "api_metadata success (%d lists, %d total movies, pre_selected=%s)",
             len(list_data),
             total_count,
+            bool(response_payload.get("selected")),
         )
-        return jsonify({"lists": list_data, "total": total_count})
+        return jsonify(response_payload)
 
     except Exception as e:
         return json_error(e, "api_metadata encountered an unexpected error")

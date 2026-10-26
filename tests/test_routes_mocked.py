@@ -25,6 +25,31 @@ class TestMockedRouteFlow:
         assert data["lists"][0]["title"] == TEST_LIST_TITLE
 
     @patch("api.index.get_list_metadata")
+    def test_metadata_pre_selects_candidate_in_shuffle_mode(self, mock_meta, client):
+        mock_meta.return_value = (TEST_LIST_TITLE, TEST_TOTAL_COUNT, TEST_MOVIE_META)
+        res = client.post(
+            "/api/metadata",
+            json={"urls": [TEST_LIST_URL], "random_mode": "letterboxd"},
+        )
+        assert res.status_code == 200
+        data = res.get_json()
+        assert "selected" in data
+        assert data["selected"]["meta"]["slug"] == TEST_MOVIE_META["slug"]
+        assert data["selected"]["list"]["slug"] == TEST_LIST_ITEM["slug"]
+        assert data["selected"]["random_mode"] == "letterboxd"
+
+    @patch("api.index.get_list_metadata")
+    def test_metadata_no_pre_select_in_custom_mode(self, mock_meta, client):
+        mock_meta.return_value = (TEST_LIST_TITLE, TEST_TOTAL_COUNT, None)
+        res = client.post(
+            "/api/metadata",
+            json={"urls": [TEST_LIST_URL], "random_mode": "custom"},
+        )
+        assert res.status_code == 200
+        data = res.get_json()
+        assert "selected" not in data
+
+    @patch("api.index.get_list_metadata")
     def test_metadata_concurrent_multiple_urls_preserves_order(self, mock_meta, client):
         mock_meta.side_effect = lambda user, slug: (
             f"Title {slug}",
