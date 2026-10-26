@@ -53,6 +53,7 @@ export const parseUrlParams = (search, maxUrls = 5) => {
     const rawTokens = [];
 
     const shouldRun = params.get('run') !== '0' && params.get('auto') !== '0';
+    const shouldRedirect = params.get('redirect') === '1' || params.get('redirect') === 'true';
 
     ['url', 'urls', 'src', 'sources', 'list', 'lists'].forEach(key => {
         params.getAll(key).forEach(val => {
@@ -84,7 +85,7 @@ export const parseUrlParams = (search, maxUrls = 5) => {
         }
     });
 
-    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, hasDuplicateWatchlist };
+    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, shouldRedirect, hasDuplicateWatchlist };
 };
 
 export const formatListUrl = (url) => {

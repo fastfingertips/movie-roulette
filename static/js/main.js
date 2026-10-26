@@ -85,7 +85,7 @@ const Log = {
 
 let activeAbortController = null;
 
-export const performRandomize = async (urls) => {
+export const performRandomize = async (urls, options = {}) => {
     // Abort any existing in-flight randomize requests to prevent race conditions
     if (activeAbortController) {
         activeAbortController.abort();
@@ -127,7 +127,9 @@ export const performRandomize = async (urls) => {
 
         // 1. Await Metadata (Started earlier)
         Log.step('1. FETCH METADATA');
-        elements.slot.textContent = CONFIG.LOADING_MESSAGES[1];
+        elements.slot.textContent = options.redirect
+            ? 'Selecting a random film from your list...'
+            : CONFIG.LOADING_MESSAGES[1];
         const metaStart = Date.now();
         const metaData = await parseApiResponse(metaFetchPromise, 'Metadata failed');
         const metaDuration = (Date.now() - metaStart) / 1000;
@@ -144,6 +146,18 @@ export const performRandomize = async (urls) => {
         const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode);
         const selectDuration = (Date.now() - selectStart) / 1000;
         Log.success('Selection complete', selectData);
+
+        if (options.redirect && selectData?.meta) {
+            const filmUrl = selectData.meta.url || `https://letterboxd.com/film/${selectData.meta.slug}/`;
+            const filmTitle = selectData.meta.name ? `"${selectData.meta.name}"` : 'film';
+            elements.slot.textContent = `Redirecting to ${filmTitle} on Letterboxd...`;
+            elements.bar.style.width = '100%';
+            clearInterval(bgIntervals.prg);
+            saveRecentLists(urls);
+            Log.info('Direct redirect triggered:', filmUrl);
+            window.location.replace(filmUrl);
+            return;
+        }
         
         // 3. Details (Honest Progress)
         Log.step('3. FETCH MOVIE DETAILS');
@@ -396,7 +410,7 @@ initFieldStats(updateUI);
 updateUI();
 /** Fill the form from URL query params, then optionally auto-run. */
 const bootstrapFromUrl = () => {
-    const { urls, shouldRun, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    const { urls, shouldRun, shouldRedirect, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
     if (urls.length === 0) return;
 
     const firstInput = document.querySelector('#randomize-form input');
@@ -411,7 +425,7 @@ const bootstrapFromUrl = () => {
     updateUI();
     if (hasDuplicateWatchlist) showToast("Duplicate list was excluded.");
     if (shouldRun) {
-        performRandomize(urls);
+        performRandomize(urls, { redirect: shouldRedirect });
     } else {
         refreshAllCounts();
     }

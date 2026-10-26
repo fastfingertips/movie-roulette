@@ -75,6 +75,17 @@ describe('parseUrlParams', () => {
         expect(parseUrlParams('?url=a').shouldRun).toBe(true);
         expect(parseUrlParams('').urls).toEqual([]);
     });
+
+    it.each([
+        '?url=a&redirect=1',
+        '?url=a&redirect=true',
+    ])('enables direct redirect with %s', (search) => {
+        expect(parseUrlParams(search).shouldRedirect).toBe(true);
+    });
+
+    it('defaults shouldRedirect to false when absent', () => {
+        expect(parseUrlParams('?url=a').shouldRedirect).toBe(false);
+    });
 });
 
 describe('formatListUrl', () => {
