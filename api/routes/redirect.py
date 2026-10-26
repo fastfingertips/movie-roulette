@@ -102,6 +102,65 @@ def handle_redirect_request(list_path=None):
     if not parsed_items:
         return _build_error_redirect("No valid Letterboxd lists provided", first_url)
 
+    count_arg = request.args.get("count") or request.args.get("total")
+    pages_arg = request.args.get("pages")
+    hint_count = None
+
+    if count_arg:
+        try:
+            val = int(count_arg)
+            if val > 0:
+                hint_count = val
+        except (ValueError, TypeError):
+            pass
+    elif pages_arg:
+        try:
+            pages_val = int(pages_arg)
+            if pages_val > 0:
+                per_page = 28 if parsed_items[0][2] else 100
+                hint_count = pages_val * per_page
+        except (ValueError, TypeError):
+            pass
+
+    # Fast single-request path when count/pages hint is supplied for a single list
+    if len(parsed_items) == 1 and hint_count and random_mode == "custom":
+        user, slug, is_watchlist, raw = parsed_items[0]
+        try:
+            meta = get_random_movie_meta(
+                user,
+                slug,
+                hint_count,
+                is_watchlist=is_watchlist,
+                random_mode="custom",
+            )
+        except (ResourceNotFoundError, PrivateRouteError) as err:
+            resolved = resolve_metadata_error(err, user, slug, is_watchlist)
+            msg, _ = get_error_response(resolved)
+            return _build_error_redirect(msg, raw)
+        except Exception as err:
+            msg, _ = get_error_response(err)
+            logger.warning("Fast hint_count redirect selection failed: %s", msg)
+            return _build_error_redirect(msg, raw)
+
+        if not meta or not meta.get("slug"):
+            logger.warning("No movie selected with hint_count for '%s'", slug)
+            return _build_error_redirect(
+                "Failed to pick a movie from the list. Please try again.",
+                raw,
+            )
+
+        film_slug = meta["slug"]
+        dest_url = f"https://letterboxd.com/film/{film_slug}/"
+        logger.info(
+            "Single-request direct redirect to '%s' (hint_count: %d) in %.2fs",
+            dest_url,
+            hint_count,
+            time.time() - req_start,
+        )
+        if _wants_json():
+            return jsonify({"url": dest_url, "slug": film_slug, "meta": meta})
+        return _apply_no_cache(redirect(dest_url, code=302))
+
     fetch_random_mode = random_mode if len(parsed_items) == 1 else "custom"
 
     def fetch_worker(item):
