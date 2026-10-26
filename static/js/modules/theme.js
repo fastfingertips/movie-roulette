@@ -1,14 +1,4 @@
 
-export const THEME_MIGRATION_MAP = {
-    light: 'classic-light',
-    'light-2': 'pine-orchid',
-    'light-3': 'citron-berry',
-    'light-4': 'forest-lime',
-    dark: 'classic-dark',
-    'dark-2': 'amoled',
-    'dark-3': 'midnight-lime'
-};
-
 export const THEMES = [
     { id: 'classic-light', name: 'Classic Light', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
     { id: 'pine-orchid', name: 'Pine & Orchid', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
@@ -39,8 +29,7 @@ export const getSystemTheme = () => (systemQuery && systemQuery.matches ? SYSTEM
 
 export const resolveTheme = (themeId) => {
     if (!themeId) return null;
-    const migratedId = THEME_MIGRATION_MAP[themeId] || themeId;
-    return THEMES.find(t => t.id === migratedId) || null;
+    return THEMES.find(t => t.id === themeId) || null;
 };
 
 export const getStoredTheme = () => {
@@ -57,12 +46,11 @@ export const getStoredTheme = () => {
  * @param {{persist?: boolean}} options Pass persist: false to apply without saving the choice
  */
 export const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
-    const resolvedTheme = resolveTheme(newTheme);
-    const targetThemeId = resolvedTheme ? resolvedTheme.id : newTheme;
-    const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
-    if (targetThemeId === currentTheme) return;
+    const themeObj = resolveTheme(newTheme);
+    if (!themeObj) return;
 
-    const targetMode = resolvedTheme ? resolvedTheme.mode : (targetThemeId.includes('dark') || targetThemeId === 'amoled' ? 'dark' : 'light');
+    const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
+    if (themeObj.id === currentTheme) return;
 
     let x = window.innerWidth - 40;
     let y = 30;
@@ -79,10 +67,10 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
     }
 
     const performToggle = () => {
-        document.documentElement.setAttribute('data-theme', targetThemeId);
-        document.documentElement.setAttribute('data-mode', targetMode);
-        if (persist) localStorage.setItem(THEME_STORAGE_KEY, targetThemeId);
-        updateActiveThemeInMenu(targetThemeId);
+        document.documentElement.setAttribute('data-theme', themeObj.id);
+        document.documentElement.setAttribute('data-mode', themeObj.mode);
+        if (persist) localStorage.setItem(THEME_STORAGE_KEY, themeObj.id);
+        updateActiveThemeInMenu(themeObj.id);
         if (window.lucide) window.lucide.createIcons();
     };
 
@@ -92,7 +80,7 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
         overlay.style.position = 'fixed';
         overlay.style.inset = '0';
         overlay.style.zIndex = '9999';
-        overlay.style.background = resolvedTheme ? resolvedTheme.bg : (targetMode === 'dark' ? '#0f1117' : '#f8fafc');
+        overlay.style.background = themeObj.bg;
         overlay.style.clipPath = `circle(0% at ${x}px ${y}px)`;
         overlay.style.transition = 'clip-path 0.5s ease-in-out';
         document.body.appendChild(overlay);
