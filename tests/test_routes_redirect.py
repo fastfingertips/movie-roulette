@@ -162,3 +162,75 @@ class TestRedirectRoutes:
         assert response.status_code == 302
         assert "error=" in response.headers["Location"]
         assert "could+not+be+found" in response.headers["Location"].lower()
+
+    @patch("api.routes.redirect.get_random_movie_meta")
+    @patch("api.routes.redirect.get_list_metadata")
+    def test_redirect_with_count_hint_bypasses_metadata(
+        self, mock_metadata, mock_random, client
+    ):
+        mock_random.return_value = TEST_MOVIE_META
+
+        response = client.get(f"/r?url={TEST_LIST_URL}&count=1200")
+
+        assert response.status_code == 302
+        assert response.headers["Location"] == (
+            f"https://letterboxd.com/film/{TEST_MOVIE_SLUG}/"
+        )
+        # Ensure get_list_metadata was completely bypassed
+        mock_metadata.assert_not_called()
+        mock_random.assert_called_once_with(
+            "bugracoskun",
+            "turkish",
+            1200,
+            is_watchlist=False,
+            random_mode="custom",
+        )
+
+    @patch("api.routes.redirect.get_random_movie_meta")
+    @patch("api.routes.redirect.get_list_metadata")
+    def test_redirect_with_pages_hint_calculates_count(
+        self, mock_metadata, mock_random, client
+    ):
+        mock_random.return_value = TEST_MOVIE_META
+
+        response = client.get(f"/r/{TEST_USER}/watchlist?pages=5")
+
+        assert response.status_code == 302
+        mock_metadata.assert_not_called()
+        # Watchlist per_page is 28 -> 5 * 28 = 140
+        mock_random.assert_called_once_with(
+            TEST_USER,
+            "watchlist",
+            140,
+            is_watchlist=True,
+            random_mode="custom",
+        )
+
+    @patch("api.routes.redirect.get_random_movie_meta")
+    @patch("api.routes.redirect.get_list_metadata")
+    def test_redirect_invalid_count_falls_back_to_metadata(
+        self, mock_metadata, mock_random, client
+    ):
+        mock_metadata.return_value = (TEST_LIST_TITLE, TEST_TOTAL_COUNT, None)
+        mock_random.return_value = TEST_MOVIE_META
+
+        response = client.get(f"/r?url={TEST_LIST_URL}&count=-5")
+
+        assert response.status_code == 302
+        mock_metadata.assert_called_once()
+
+    @patch("api.routes.redirect.get_random_movie_meta")
+    @patch("api.routes.redirect.get_list_metadata")
+    def test_redirect_with_count_handles_not_found(
+        self, mock_metadata, mock_random, client
+    ):
+        mock_random.side_effect = ResourceNotFoundError(
+            url=TEST_LIST_URL,
+            message="User could not be found",
+        )
+
+        response = client.get(f"/r?url={TEST_LIST_URL}&count=1200")
+
+        assert response.status_code == 302
+        assert "error=" in response.headers["Location"]
+        assert "could+not+be+found" in response.headers["Location"].lower()

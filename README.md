@@ -50,6 +50,7 @@ All redirect responses include `Cache-Control: no-cache, no-store, must-revalida
 |---|---|
 | `https://roulette.bugra.co/r/<username>` | Pick from a user's watchlist (e.g. `/r/bugracoskun`) |
 | `https://roulette.bugra.co/r/<username>/list/<slug>` | Pick from a specific custom list |
+| `https://roulette.bugra.co/r/<username>/<slug>?count=1200` | Ultra-fast single-request deep sample by providing approximate film count |
 | `https://roulette.bugra.co/r?url=<url>&shuffle=1` | Fast single-request pick using Letterboxd shuffle |
 | `https://roulette.bugra.co/r?url=user1,user2&mode=equal` | Combine multiple lists with equal selection chances |
 | `https://roulette.bugra.co/r?url=<username>&format=json` | Headless JSON output with movie metadata and film URL |
@@ -66,6 +67,8 @@ The web application and redirect endpoints accept the following query parameters
 | Parameter | Accepted Values | Description |
 |---|---|---|
 | `url`, `urls`, `list`, `src` | Strings (comma-separated or multiple) | Letterboxd URLs or usernames (up to 5 sources) |
+| `count`, `total` | Positive integer (e.g. `1200`) | Bypasses initial metadata request on `/r` for 50% faster deep sampling |
+| `pages` | Positive integer (e.g. `12`) | Bypasses initial metadata request by specifying page count on `/r` |
 | `redirect` | `1`, `true` | Bypasses the UI and performs an immediate server-side 302 redirect |
 | `shuffle` | `1`, `true` | Enables the Fast Letterboxd `/by/shuffle/` engine |
 | `random` | `custom`, `deep`, `letterboxd`, `shuffle` | Explicitly chooses the selection strategy |
