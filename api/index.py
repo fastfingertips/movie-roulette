@@ -1,10 +1,10 @@
 import logging
 import os
 
-from flask import Flask, send_from_directory
+from flask import Flask, request, send_from_directory
 
 from .constants import PORT, ROOT_DIR
-from .routes import init_routes
+from .routes import handle_redirect_request, init_routes
 from .scraper import (
     get_list_metadata,
     get_movie_details,
@@ -35,6 +35,8 @@ init_routes(app)
 @app.route("/")
 @app.route("/index.html")
 def index():
+    if request.args.get("redirect") in ("1", "true"):
+        return handle_redirect_request()
     return send_from_directory(ROOT_DIR, "index.html")
 
 

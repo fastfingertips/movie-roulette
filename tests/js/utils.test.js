@@ -106,6 +106,11 @@ describe('parseUrlParams', () => {
         expect(parseUrlParams('?url=a&shuffle=true').randomMode).toBe('letterboxd');
         expect(parseUrlParams('?url=a').randomMode).toBeNull();
     });
+
+    it('parses error parameter from query string', () => {
+        expect(parseUrlParams('?url=a&error=List+is+empty').error).toBe('List is empty');
+        expect(parseUrlParams('?url=a').error).toBeNull();
+    });
 });
 
 describe('formatListUrl', () => {

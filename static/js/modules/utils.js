@@ -92,8 +92,17 @@ export const parseUrlParams = (search, maxUrls = 5) => {
 
     const debugParam = params.get('debug')?.toLowerCase();
     const isDebug = debugParam === '1' || debugParam === 'true';
+    const errorParam = params.get('error');
 
-    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, shouldRedirect, randomMode, isDebug, hasDuplicateWatchlist };
+    return {
+        urls: urlsToRun.slice(0, maxUrls),
+        shouldRun,
+        shouldRedirect,
+        randomMode,
+        isDebug,
+        hasDuplicateWatchlist,
+        error: errorParam,
+    };
 };
 
 export const formatListUrl = (url) => {
