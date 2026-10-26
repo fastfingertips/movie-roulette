@@ -8,15 +8,6 @@
     <script>
         // Apply the saved theme (or the system color scheme) before first paint
         (function () {
-            var migration = {
-                'light': 'classic-light',
-                'light-2': 'pine-orchid',
-                'light-3': 'citron-berry',
-                'light-4': 'forest-lime',
-                'dark': 'classic-dark',
-                'dark-2': 'amoled',
-                'dark-3': 'midnight-lime'
-            };
             var themes = {
                 'classic-light': 'light',
                 'pine-orchid': 'light',
@@ -27,12 +18,10 @@
                 'midnight-lime': 'dark'
             };
             var saved = localStorage.getItem('theme');
-            if (saved && migration[saved]) saved = migration[saved];
             var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             var theme = (saved && themes[saved]) ? saved : (dark ? 'midnight-lime' : 'forest-lime');
-            var mode = themes[theme] || (dark ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', theme);
-            document.documentElement.setAttribute('data-mode', mode);
+            document.documentElement.setAttribute('data-mode', themes[theme]);
         })();
     </script>
     
