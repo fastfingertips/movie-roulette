@@ -103,7 +103,6 @@ def handle_redirect_request(list_path=None):
         return _build_error_redirect("No valid Letterboxd lists provided", first_url)
 
     count_arg = request.args.get("count") or request.args.get("total")
-    pages_arg = request.args.get("pages")
     hint_count = None
 
     if count_arg:
@@ -113,16 +112,8 @@ def handle_redirect_request(list_path=None):
                 hint_count = val
         except (ValueError, TypeError):
             pass
-    elif pages_arg:
-        try:
-            pages_val = int(pages_arg)
-            if pages_val > 0:
-                per_page = 28 if parsed_items[0][2] else 100
-                hint_count = pages_val * per_page
-        except (ValueError, TypeError):
-            pass
 
-    # Fast single-request path when count/pages hint is supplied for a single list
+    # Fast single-request path when movie count hint is supplied for a single list
     if len(parsed_items) == 1 and hint_count and random_mode == "custom":
         user, slug, is_watchlist, raw = parsed_items[0]
         try:
