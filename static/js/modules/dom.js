@@ -34,5 +34,7 @@ export const elements = {
     backdrop: $('backdrop'),
     backdropImg: document.querySelector('.backdropimage'),
     samplingToggleWrapper: $('sampling-toggle-wrapper'),
-    samplingToggle: $('sampling-toggle')
+    samplingToggle: $('sampling-toggle'),
+    randomToggleWrapper: $('random-toggle-wrapper'),
+    randomToggle: $('random-toggle')
 };

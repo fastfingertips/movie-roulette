@@ -107,7 +107,30 @@ class TestMockedRouteFlow:
         assert res.status_code == 200
         data = res.get_json()
         assert data["mode"] == "equal"
+        assert data["random_mode"] == "letterboxd"
         assert data["list"]["slug"] in ("turkish", "watchlist")
+
+    @patch("api.index.get_random_movie_meta")
+    def test_select_custom_random_mode(self, mock_select, client):
+        mock_select.return_value = TEST_MOVIE_META
+        res = client.post(
+            "/api/select",
+            json={
+                "lists": [TEST_LIST_ITEM],
+                "total": TEST_TOTAL_COUNT,
+                "random_mode": "custom",
+            },
+        )
+        assert res.status_code == 200
+        data = res.get_json()
+        assert data["random_mode"] == "custom"
+        mock_select.assert_called_once_with(
+            TEST_LIST_ITEM["user"],
+            TEST_LIST_ITEM["slug"],
+            TEST_LIST_ITEM["count"],
+            is_watchlist=False,
+            random_mode="custom",
+        )
 
     @patch("api.index.get_movie_details")
     def test_details_success(self, mock_details, client):

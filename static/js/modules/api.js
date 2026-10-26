@@ -45,6 +45,6 @@ export const parseApiResponse = (responsePromise, fallbackError) => parseRespons
 
 export const fetchMetadata = (urls, signal = null) => postJson('/api/metadata', { urls }, 'Metadata failed', signal);
 
-export const selectRandomMovie = (lists, total, signal = null, mode = 'proportional') => postJson('/api/select', { lists, total, mode }, 'Selection failed', signal);
+export const selectRandomMovie = (lists, total, signal = null, mode = 'proportional', randomMode = 'letterboxd') => postJson('/api/select', { lists, total, mode, random_mode: randomMode }, 'Selection failed', signal);
 
 export const fetchMovieDetails = (slug, signal = null) => postJson('/api/details', { slug }, 'Details failed', signal);

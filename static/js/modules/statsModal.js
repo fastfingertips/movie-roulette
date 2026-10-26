@@ -109,9 +109,14 @@ export const renderStatsModal = (data) => {
         const detailTime = parseFloat(timing.details) || 0;
 
         const isEqualMode = data.stats.sampling_mode === 'equal';
+        const isCustomRandom = data.stats.random_mode === 'custom';
+        const randomMethodLabel = isCustomRandom ? 'Deep Sample' : 'Fast Shuffle';
+        const selectStepLabel = isEqualMode
+            ? `2. Equal Odds Selection (${randomMethodLabel})`
+            : `2. Weighted Selection (${randomMethodLabel})`;
         const steps = [
             { label: '1. Metadata & Pool Fetch', time: metaTime },
-            { label: isEqualMode ? '2. Equal Odds List Selection' : '2. Weighted Random Selection', time: selectTime },
+            { label: selectStepLabel, time: selectTime },
             { label: '3. Film Profile Enrichment', time: detailTime }
         ];
 
@@ -233,6 +238,7 @@ export const renderStatsModal = (data) => {
             sampling_math: {
                 total_pool: totalPool,
                 sampling_mode: data.stats.sampling_mode || 'proportional',
+                random_mode: data.stats.random_mode || 'letterboxd',
                 probability_percent: Number(data.stats.probability),
                 odds: data.stats.odds || `1 in ${totalPool.toLocaleString()}`,
                 selected_from: data.list ? {

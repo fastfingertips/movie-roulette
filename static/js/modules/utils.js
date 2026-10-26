@@ -54,6 +54,10 @@ export const parseUrlParams = (search, maxUrls = 5) => {
 
     const shouldRun = params.get('run') !== '0' && params.get('auto') !== '0';
     const shouldRedirect = params.get('redirect') === '1' || params.get('redirect') === 'true';
+    const randomParam = params.get('random')?.toLowerCase();
+    const randomMode = randomParam === 'custom'
+        ? 'custom'
+        : (randomParam === 'letterboxd' ? 'letterboxd' : null);
 
     ['url', 'urls', 'src', 'sources', 'list', 'lists'].forEach(key => {
         params.getAll(key).forEach(val => {
@@ -85,7 +89,7 @@ export const parseUrlParams = (search, maxUrls = 5) => {
         }
     });
 
-    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, shouldRedirect, hasDuplicateWatchlist };
+    return { urls: urlsToRun.slice(0, maxUrls), shouldRun, shouldRedirect, randomMode, hasDuplicateWatchlist };
 };
 
 export const formatListUrl = (url) => {
@@ -139,10 +143,12 @@ export const buildSpinResult = ({
     selectData,
     detailData,
     samplingMode,
+    randomMode,
     urls,
     timings,
 }) => {
     const isModeEqual = (selectData.mode || samplingMode) === 'equal';
+    const resolvedRandomMode = selectData.random_mode || selectData.meta?.strategy || randomMode || 'letterboxd';
     const numLists = (metaData.lists || []).length || 1;
     const selectedListCount = selectData.list?.count || 1;
     const probability = isModeEqual
@@ -161,6 +167,7 @@ export const buildSpinResult = ({
             probability: probability < 0.001 ? probability.toFixed(4) : probability.toFixed(2),
             odds: oddsText,
             sampling_mode: isModeEqual ? 'equal' : 'proportional',
+            random_mode: resolvedRandomMode,
             timing: {
                 metadata: timings.metadata.toFixed(2),
                 selection: timings.selection.toFixed(2),

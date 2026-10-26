@@ -57,6 +57,7 @@ class SelectRequest(BaseModel):
     lists: list[ListItem] = Field(min_length=1, max_length=MAX_URLS)
     total: int = Field(gt=0)
     mode: Literal["proportional", "equal"] = "proportional"
+    random_mode: Literal["letterboxd", "custom"] = "letterboxd"
 
 
 class DetailsRequest(BaseModel):
@@ -141,15 +142,15 @@ def validate_metadata_input(data):
 def validate_select_input(data):
     """Validates /api/select input using Pydantic."""
     if not isinstance(data, dict):
-        return None, None, None, error_response("Invalid payload", 400)
+        return None, None, None, None, error_response("Invalid payload", 400)
     if "lists" in data and not data["lists"]:
-        return None, None, None, error_response("No lists")
+        return None, None, None, None, error_response("No lists")
     try:
         req = SelectRequest.model_validate(data)
         lists = [item.model_dump() for item in req.lists]
-        return lists, req.total, req.mode, None
+        return lists, req.total, req.mode, req.random_mode, None
     except ValidationError as e:
-        return None, None, None, error_response(format_validation_error(e), 400)
+        return None, None, None, None, error_response(format_validation_error(e), 400)
 
 
 def validate_details_input(data):

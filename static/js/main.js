@@ -2,7 +2,7 @@ import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, setView, showToast, hideToast, updateBackdrop, updateShareButtonText } from './modules/ui.js';
 import { initStatsModal } from './modules/statsModal.js';
 
-import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getDebugMode, saveDebugMode } from './modules/storage.js';
+import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getRandomMode, saveRandomMode, getDebugMode, saveDebugMode } from './modules/storage.js';
 import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
 import { parseUrlParams, stripOrigin, copyToClipboard, buildSpinResult } from './modules/utils.js';
@@ -32,6 +32,11 @@ const syncUrlToAddressBar = () => {
             url.searchParams.set('url', urls.join(','));
         } else {
             url.searchParams.delete('url');
+        }
+        if (elements.randomToggle && elements.randomToggle.checked) {
+            url.searchParams.set('random', 'custom');
+        } else {
+            url.searchParams.delete('random');
         }
         window.history.replaceState({}, '', url.toString());
     }, 300);
@@ -140,10 +145,11 @@ export const performRandomize = async (urls, options = {}) => {
         Log.step('2. SELECT RANDOM MOVIE');
         elements.slot.textContent = CONFIG.LOADING_MESSAGES[2];
         const samplingMode = elements.samplingToggle && elements.samplingToggle.checked ? 'equal' : 'proportional';
-        Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total, mode: samplingMode });
+        const randomMode = elements.randomToggle && elements.randomToggle.checked ? 'custom' : 'letterboxd';
+        Log.info('Picking from pool...', { lists: metaData.lists, total: metaData.total, mode: samplingMode, randomMode });
 
         const selectStart = Date.now();
-        const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode);
+        const selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode, randomMode);
         const selectDuration = (Date.now() - selectStart) / 1000;
         Log.success('Selection complete', selectData);
 
@@ -184,6 +190,7 @@ export const performRandomize = async (urls, options = {}) => {
             selectData,
             detailData,
             samplingMode,
+            randomMode,
             urls,
             timings: {
                 metadata: metaDuration,
@@ -285,6 +292,37 @@ elements.infoModal.addEventListener('click', (e) => {
 $('clear-history').addEventListener('click', () => { clearHistory(); updateUI(); });
 $('clear-lists').addEventListener('click', () => { clearRecentLists(); updateUI(); });
 
+if (elements.randomToggle) {
+    const syncRandomToggleUI = (isCustom) => {
+        elements.randomToggle.checked = isCustom;
+        if (elements.randomToggleWrapper) {
+            elements.randomToggleWrapper.classList.toggle('is-active', isCustom);
+            elements.randomToggleWrapper.title = isCustom
+                ? 'Deep Sample (Active) — Scans across all catalog pages. Click for Fast Shuffle.'
+                : 'Fast Shuffle (Default) — Click to enable Deep Sample across all pages.';
+        }
+    };
+
+    elements.randomToggle.addEventListener('change', () => {
+        const isCustom = elements.randomToggle.checked;
+        const mode = isCustom ? 'custom' : 'letterboxd';
+        saveRandomMode(mode);
+        syncRandomToggleUI(isCustom);
+        syncUrlToAddressBar();
+    });
+
+    const savedRandomMode = getRandomMode();
+    syncRandomToggleUI(savedRandomMode === 'custom');
+
+    if (elements.randomToggleWrapper) {
+        elements.randomToggleWrapper.addEventListener('click', (e) => {
+            if (e.target.closest('.switch')) return;
+            elements.randomToggle.checked = !elements.randomToggle.checked;
+            elements.randomToggle.dispatchEvent(new Event('change'));
+        });
+    }
+}
+
 if (elements.samplingToggle) {
     elements.samplingToggle.addEventListener('change', () => {
         const isChecked = elements.samplingToggle.checked;
@@ -359,7 +397,9 @@ const handleShareMix = async () => {
     if (urls.length === 0) return;
 
     const baseUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${baseUrl}?url=${encodeURIComponent(urls.join(','))}`;
+    const isCustom = elements.randomToggle && elements.randomToggle.checked;
+    const randomParam = isCustom ? '&random=custom' : '';
+    const shareUrl = `${baseUrl}?url=${encodeURIComponent(urls.join(','))}${randomParam}`;
 
     const success = await copyToClipboard(shareUrl);
     if (success) {
@@ -410,7 +450,14 @@ initFieldStats(updateUI);
 updateUI();
 /** Fill the form from URL query params, then optionally auto-run. */
 const bootstrapFromUrl = () => {
-    const { urls, shouldRun, shouldRedirect, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    const { urls, shouldRun, shouldRedirect, randomMode, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    if (randomMode) {
+        const isCustom = randomMode === 'custom';
+        if (elements.randomToggle) {
+            elements.randomToggle.checked = isCustom;
+            elements.randomToggle.dispatchEvent(new Event('change'));
+        }
+    }
     if (urls.length === 0) return;
 
     const firstInput = document.querySelector('#randomize-form input');

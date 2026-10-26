@@ -86,6 +86,12 @@ describe('parseUrlParams', () => {
     it('defaults shouldRedirect to false when absent', () => {
         expect(parseUrlParams('?url=a').shouldRedirect).toBe(false);
     });
+
+    it('parses randomMode from query string', () => {
+        expect(parseUrlParams('?url=a&random=custom').randomMode).toBe('custom');
+        expect(parseUrlParams('?url=a&random=letterboxd').randomMode).toBe('letterboxd');
+        expect(parseUrlParams('?url=a').randomMode).toBeNull();
+    });
 });
 
 describe('formatListUrl', () => {

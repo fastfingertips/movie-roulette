@@ -302,12 +302,21 @@
                     </div>
                 </div>
             </footer>
-            <div class="console-toggle-wrapper" id="console-toggle-wrapper" title="Toggle browser console logs">
-                <span class="console-toggle-label"><i data-lucide="terminal"></i> Console Logs</span>
-                <label class="switch switch--sm" for="debug-toggle" aria-label="Toggle Console Logs">
-                    <input type="checkbox" id="debug-toggle" />
-                    <span class="slider"></span>
-                </label>
+            <div class="footer-toggles" id="footer-toggles">
+                <div class="footer-toggle" id="random-toggle-wrapper" title="Fast Shuffle (Default) — Toggle for Deep Sample across all pages">
+                    <span class="footer-toggle-label"><i data-lucide="layers"></i> Deep Sample</span>
+                    <label class="switch switch--sm" for="random-toggle" aria-label="Toggle Deep Sample Mode">
+                        <input type="checkbox" id="random-toggle" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="footer-toggle" id="console-toggle-wrapper" title="Toggle browser console logs">
+                    <span class="footer-toggle-label"><i data-lucide="terminal"></i> Console Logs</span>
+                    <label class="switch switch--sm" for="debug-toggle" aria-label="Toggle Console Logs">
+                        <input type="checkbox" id="debug-toggle" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </main>
@@ -351,12 +360,12 @@
                         <div class="workflow-step">
                             <div class="step-num">3</div>
                             <div class="step-body">
-                                <h4>Dual Sampling Modes</h4>
-                                <p>When spinning across multiple lists, choose your odds mode:</p>
+                                <h4>Dual Random & Sampling Modes</h4>
+                                <p>Control your selection algorithm and list odds:</p>
                                 <ul class="step-list">
-                                    <li><strong>Proportional (Default):</strong> Films have equal odds across the combined pool; larger lists carry proportional weight.</li>
-                                    <li><strong>Equal Odds (Scale Toggle):</strong> Each list gets an equal 1/N chance of being selected first, regardless of film count.</li>
-                                    <li>Works seamlessly with lists of any size, from 10 to 5,000+ entries.</li>
+                                    <li><strong>Fast Shuffle (Default):</strong> High-speed selection using Letterboxd's native shuffle engine.</li>
+                                    <li><strong>Deep Sample (Toggle):</strong> Multi-page uniform sampling across the entire catalog depth.</li>
+                                    <li><strong>Equal Odds (Scale Toggle):</strong> Each list gets an equal 1/N chance of being selected first when combining multiple lists.</li>
                                 </ul>
                             </div>
                         </div>

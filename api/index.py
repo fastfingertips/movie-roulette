@@ -158,15 +158,16 @@ def api_metadata():
 @app.route("/select", methods=["POST"])
 def api_select():
     try:
-        lists, total, mode, err = validate_select_input(request.json)
+        lists, total, mode, random_mode, err = validate_select_input(request.json)
         if err:
             return err
 
         logger.info(
-            "api_select from %d lists, total pool: %d, mode: %s",
+            "api_select from %d lists, total pool: %d, mode: %s, random_mode: %s",
             len(lists),
             total,
             mode,
+            random_mode,
         )
 
         # Pick a list: equal odds per list vs weighted by movie count
@@ -179,7 +180,11 @@ def api_select():
             return error_response("Failed to pick a list")
 
         logger.debug(
-            "Selected list: %s/%s (mode: %s)", selected["user"], selected["slug"], mode
+            "Selected list: %s/%s (mode: %s, random_mode: %s)",
+            selected["user"],
+            selected["slug"],
+            mode,
+            random_mode,
         )
         # Get random movie meta
         meta = get_random_movie_meta(
@@ -187,6 +192,7 @@ def api_select():
             selected["slug"],
             selected["count"],
             is_watchlist=selected.get("is_watchlist"),
+            random_mode=random_mode,
         )
         if not meta:
             return error_response(
@@ -195,7 +201,14 @@ def api_select():
             )
 
         logger.info("api_select picked movie: %s (%s)", meta["name"], meta["slug"])
-        return jsonify({"meta": meta, "list": selected, "mode": mode})
+        return jsonify(
+            {
+                "meta": meta,
+                "list": selected,
+                "mode": mode,
+                "random_mode": random_mode,
+            }
+        )
     except Exception as e:
         return json_error(e, "api_select encountered an unexpected error")
 

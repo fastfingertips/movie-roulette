@@ -83,14 +83,27 @@ def pick_weighted_list(lists, total=None):
 
 
 @progress_step("Selecting Random Movie from List")
-def get_random_movie_meta(user, slug, count, is_watchlist=None):
-    """Fetches a random page from list and picks a movie slug"""
+def get_random_movie_meta(
+    user, slug, count, is_watchlist=None, random_mode="letterboxd"
+):
+    """Fetches random movie from list using shuffle or uniform sampling."""
     if is_watchlist is True or (is_watchlist is None and slug == "watchlist"):
         list_url = f"{DOMAIN}/{user}/watchlist/"
         per_page = UserWatchlist.FILMS_PER_PAGE
     else:
         list_url = UserList.LIST_PATTERN % (user, slug)
         per_page = UserList.FILMS_PER_PAGE
+
+    if random_mode == "letterboxd":
+        shuffle_url = f"{list_url.rstrip('/')}/by/shuffle/"
+        page_dom = parse_url(shuffle_url)
+        movies_meta = extract_movies_from_vertical_list(page_dom)
+        if movies_meta:
+            candidate_id = random.choice(list(movies_meta.keys()))
+            meta = dict(movies_meta[candidate_id])
+            meta["page"] = 1
+            meta["strategy"] = "letterboxd"
+            return meta
 
     total_pages = math.ceil(count / per_page)
     random_page = random.randint(1, total_pages)
@@ -108,6 +121,7 @@ def get_random_movie_meta(user, slug, count, is_watchlist=None):
     candidate_id = random.choice(list(movies_meta.keys()))
     meta = dict(movies_meta[candidate_id])
     meta["page"] = random_page
+    meta["strategy"] = "custom"
     return meta
 
 

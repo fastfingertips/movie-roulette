@@ -1474,11 +1474,41 @@ input { user-select: text; }
 .credits__link--muted { border-bottom: none; opacity: 0.75; }
 .credits__powered { opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
 
-/* Console Debug Toggle Underneath Card */
-.console-toggle-wrapper {
+/* Footer Hidden Toggles Underneath Card */
+.footer-toggles {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+}
+
+/* Hover bridge between credits bottom and toggles */
+.footer-toggles::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 0;
+    right: 0;
+    height: 12px;
+}
+
+.credits:hover + .footer-toggles,
+.footer-toggles:hover,
+.footer-toggles:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.footer-toggle,
+.console-toggle-wrapper {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -1488,36 +1518,28 @@ input { user-select: text; }
     border-radius: 999px;
     box-shadow: 0 6px 20px rgb(0, 0, 0, 0.12);
     backdrop-filter: blur(16px) saturate(180%);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-4px);
-    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 20;
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
 }
 
-/* Hover bridge between credits bottom and toggle */
-.console-toggle-wrapper::before {
-    content: "";
-    position: absolute;
-    top: -12px;
-    left: 0;
-    right: 0;
-    height: 12px;
-}
-
+[data-theme^="dark"] .footer-toggle,
 [data-theme^="dark"] .console-toggle-wrapper {
     background: rgb(18, 21, 17, 0.95);
     box-shadow: 0 6px 20px rgb(0, 0, 0, 0.4);
 }
 
-.credits:hover + .console-toggle-wrapper,
-.console-toggle-wrapper:hover,
-.console-toggle-wrapper:focus-within {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
+.footer-toggle:hover,
+.console-toggle-wrapper:hover {
+    border-color: var(--color-text-secondary);
 }
 
+.footer-toggle.is-active {
+    border-color: var(--color-green);
+    background: var(--color-green-glow);
+}
+
+.footer-toggle-label,
 .console-toggle-label {
     display: inline-flex;
     align-items: center;
@@ -1530,9 +1552,14 @@ input { user-select: text; }
     user-select: none;
 }
 
+.footer-toggle-label svg,
 .console-toggle-label svg {
     width: 12px;
     height: 12px;
+    color: var(--color-green);
+}
+
+.footer-toggle.is-active .footer-toggle-label {
     color: var(--color-green);
 }
 
