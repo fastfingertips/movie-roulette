@@ -87,6 +87,17 @@ describe('parseUrlParams', () => {
         expect(parseUrlParams('?url=a').shouldRedirect).toBe(false);
     });
 
+    it.each([
+        '?url=a&debug=1',
+        '?url=a&debug=true',
+    ])('enables isDebug with %s', (search) => {
+        expect(parseUrlParams(search).isDebug).toBe(true);
+    });
+
+    it('defaults isDebug to false when absent', () => {
+        expect(parseUrlParams('?url=a').isDebug).toBe(false);
+    });
+
     it('parses randomMode from query string', () => {
         expect(parseUrlParams('?url=a&random=custom').randomMode).toBe('custom');
         expect(parseUrlParams('?url=a&random=letterboxd').randomMode).toBe('letterboxd');

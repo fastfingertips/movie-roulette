@@ -77,6 +77,12 @@ const Log = {
     setDebug: (enabled) => {
         isDebugEnabled = Boolean(enabled);
         saveDebugMode(isDebugEnabled);
+        if (isDebugEnabled) {
+            console.log(
+                '%c[MovieRoulette] Debug logging active. Run MovieRoulette.disableDebug() to turn off.',
+                'color: #007aff; font-weight: bold;'
+            );
+        }
     },
     info: (msg, data = '') => isDebugEnabled && console.log(`%c[INFO] ${msg}`, 'color: #007aff; font-weight: bold;', data),
     success: (msg, data = '') => isDebugEnabled && console.log(`%c[OK] ${msg}`, 'color: #34c759; font-weight: bold;', data),
@@ -84,6 +90,15 @@ const Log = {
     error: (msg, data = '') => console.error(`%c[FAIL] ${msg}`, 'color: #ff3b30; font-weight: bold;', data),
     step: (name) => isDebugEnabled && console.log(`%c>> ${name}`, 'background: #007aff; color: white; padding: 2px 5px; border-radius: 3px; font-size: 10px; font-weight: bold;')
 };
+
+if (typeof window !== 'undefined') {
+    window.MovieRoulette = {
+        enableDebug: () => Log.setDebug(true),
+        disableDebug: () => Log.setDebug(false),
+        isDebug: () => Log.isEnabled(),
+        Log,
+    };
+}
 
 
 // --- API Execution ---
@@ -459,7 +474,10 @@ initFieldStats(updateUI);
 updateUI();
 /** Fill the form from URL query params, then optionally auto-run. */
 const bootstrapFromUrl = () => {
-    const { urls, shouldRun, shouldRedirect, randomMode, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    const { urls, shouldRun, shouldRedirect, randomMode, isDebug, hasDuplicateWatchlist } = parseUrlParams(window.location.search, CONFIG.MAX_URLS);
+    if (isDebug) {
+        Log.setDebug(true);
+    }
     if (randomMode) {
         const isCustom = randomMode === 'custom';
         if (elements.randomToggle) {

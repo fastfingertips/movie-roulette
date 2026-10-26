@@ -1,3 +1,4 @@
+import logging
 import math
 import random
 
@@ -16,6 +17,8 @@ from letterboxdpy.utils.movies_extractor import extract_movies_from_vertical_lis
 from letterboxdpy.utils.utils_url import get_page_url
 
 from .utils import progress_step
+
+logger = logging.getLogger("movie_roulette")
 
 
 def extract_watchlist_count_from_dom(dom):
@@ -65,8 +68,13 @@ def get_list_metadata(user, slug, is_watchlist=None, random_mode="letterboxd"):
             return title, count, candidate
         except (ResourceNotFoundError, PrivateRouteError):
             raise
-        except Exception:
-            pass
+        except Exception as e:
+            logger.info(
+                "Shuffle metadata failed for '%s/%s' (%s), using standard metadata",
+                user,
+                slug,
+                type(e).__name__,
+            )
 
     # Custom mode (Deep Sample) or fallback on shuffle failure
     if is_wl:
@@ -160,8 +168,13 @@ def get_random_movie_meta(
                 return meta
         except (ResourceNotFoundError, PrivateRouteError):
             raise
-        except Exception:
-            pass
+        except Exception as e:
+            logger.info(
+                "Shuffle selection failed for '%s/%s' (%s), using page sampling",
+                user,
+                slug,
+                type(e).__name__,
+            )
 
     total_pages = math.ceil(count / per_page)
     random_page = random.randint(1, total_pages)

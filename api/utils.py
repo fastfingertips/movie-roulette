@@ -33,7 +33,7 @@ def progress_step(name):
             try:
                 result = func(*args, **kwargs)
                 duration = time.time() - start
-                logger.debug("Finished step -> %s (%.2fs)", name, duration)
+                logger.info("Step '%s' completed in %.2fs", name, duration)
                 return result
             except Exception as e:
                 logger.warning("FAILED step -> %s - Error: %s", name, e)

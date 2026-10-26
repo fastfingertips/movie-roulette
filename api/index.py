@@ -1,6 +1,7 @@
 import logging
 import os
 import random
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -22,13 +23,15 @@ from .security import (
 )
 from .utils import error_response, extract_info, json_error
 
+log_level = getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO)
 logger = logging.getLogger("movie_roulette")
 if not logger.handlers:
     logging.basicConfig(
-        level=logging.INFO,
+        level=log_level,
         format="[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
         datefmt="%H:%M:%S",
     )
+logger.setLevel(log_level)
 
 STATIC_DIR = os.path.join(ROOT_DIR, "static")
 app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
@@ -50,6 +53,7 @@ def favicon():
 @app.route("/metadata", methods=["POST"])
 def api_metadata():
     try:
+        req_start = time.time()
         urls, sampling_mode, random_mode, err = validate_metadata_input(request.json)
         if err:
             return err
@@ -195,10 +199,11 @@ def api_metadata():
                     }
 
         logger.info(
-            "api_metadata success (%d lists, %d total movies, pre_selected=%s)",
+            "api_metadata success (%d lists, %d movies, pre_selected=%s) in %.2fs",
             len(list_data),
             total_count,
             bool(response_payload.get("selected")),
+            time.time() - req_start,
         )
         return jsonify(response_payload)
 
@@ -210,6 +215,7 @@ def api_metadata():
 @app.route("/select", methods=["POST"])
 def api_select():
     try:
+        req_start = time.time()
         lists, total, mode, random_mode, err = validate_select_input(request.json)
         if err:
             return err
@@ -252,7 +258,14 @@ def api_select():
                 502,
             )
 
-        logger.info("api_select picked movie: %s (%s)", meta["name"], meta["slug"])
+        duration = time.time() - req_start
+        logger.info(
+            "api_select picked movie: %s (%s) from '%s' in %.2fs",
+            meta["name"],
+            meta["slug"],
+            selected["slug"],
+            duration,
+        )
         return jsonify(
             {
                 "meta": meta,
@@ -269,11 +282,15 @@ def api_select():
 @app.route("/details", methods=["POST"])
 def api_details():
     try:
+        req_start = time.time()
         slug, err = validate_details_input(request.json)
         if err:
             return err
 
         movie = get_movie_details(slug)
+        logger.info(
+            "api_details success for '%s' in %.2fs", slug, time.time() - req_start
+        )
         return jsonify({"movie": movie})
     except Exception as e:
         return json_error(
