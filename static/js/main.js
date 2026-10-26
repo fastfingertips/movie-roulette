@@ -159,7 +159,9 @@ export const performRandomize = async (urls, options = {}) => {
         const metaStart = Date.now();
         const metaData = await parseApiResponse(metaFetchPromise, 'Metadata failed');
         const metaDuration = (Date.now() - metaStart) / 1000;
-        Log.success('Metadata received', metaData);
+        const listCount = metaData.lists?.length || 0;
+        const totalFilms = (metaData.total || 0).toLocaleString();
+        Log.success(`Metadata received in ${metaDuration.toFixed(2)}s (${listCount} ${listCount === 1 ? 'list' : 'lists'}, ${totalFilms} movies)`, metaData);
         primeCounts(urls, metaData.lists);
         
         // 2. Selection (Honest Progress)
@@ -172,12 +174,15 @@ export const performRandomize = async (urls, options = {}) => {
         if (metaData.selected) {
             // Fast Shuffle: Winner pre-selected in metadata phase (0 additional HTTP requests!)
             selectData = metaData.selected;
-            Log.success('Selection pre-computed via shuffle in metadata step', selectData);
+            const filmName = selectData.meta?.name || selectData.meta?.slug;
+            Log.success(`Selection pre-computed via shuffle in metadata step ("${filmName}")`, selectData);
         } else {
             const selectStart = Date.now();
             selectData = await selectRandomMovie(metaData.lists, metaData.total, signal, samplingMode, randomMode);
             selectDuration = (Date.now() - selectStart) / 1000;
-            Log.success('Selection complete', selectData);
+            const filmName = selectData?.meta?.name || selectData?.meta?.slug;
+            const strategy = selectData?.meta?.strategy || randomMode;
+            Log.success(`Selection complete in ${selectDuration.toFixed(2)}s ("${filmName}", strategy: ${strategy})`, selectData);
         }
 
         if (options.redirect && selectData?.meta) {
@@ -200,7 +205,8 @@ export const performRandomize = async (urls, options = {}) => {
         const detailStart = Date.now();
         const detailData = await fetchMovieDetails(selectData.meta.slug, signal);
         const detailDuration = (Date.now() - detailStart) / 1000;
-        Log.success('Details received', detailData);
+        const movieYear = detailData.movie.year ? ` (${detailData.movie.year})` : '';
+        Log.success(`Details received in ${detailDuration.toFixed(2)}s for "${detailData.movie.name}"${movieYear}`, detailData);
         updateBackdrop(detailData.movie.backdrop);
 
         // 4. Finalizing
@@ -227,7 +233,7 @@ export const performRandomize = async (urls, options = {}) => {
             },
         });
 
-        Log.info('Rendering result...', finalData);
+        Log.info(`Rendering result card (total flow: ${totalDuration.toFixed(2)}s)...`, finalData);
         renderResult(finalData);
         setView('result');
         saveHistory(finalData);
