@@ -44,26 +44,31 @@ def get_list_metadata(user, slug, is_watchlist=None, random_mode="letterboxd"):
         base_url = UserList.LIST_PATTERN % (user, slug)
 
     if random_mode == "letterboxd":
-        shuffle_url = f"{base_url.rstrip('/')}/by/shuffle/"
-        dom = parse_url(shuffle_url)
-        if is_wl:
-            title = f"{user}'s Watchlist"
-            count = extract_watchlist_count_from_dom(dom)
-        else:
-            title = extract_title(dom)
-            count = extract_count(dom)
+        try:
+            shuffle_url = f"{base_url.rstrip('/')}/by/shuffle/"
+            dom = parse_url(shuffle_url)
+            if is_wl:
+                title = f"{user}'s Watchlist"
+                count = extract_watchlist_count_from_dom(dom)
+            else:
+                title = extract_title(dom)
+                count = extract_count(dom)
 
-        movies = extract_movies_from_vertical_list(dom)
-        candidate = None
-        if movies:
-            candidate_id = random.choice(list(movies.keys()))
-            candidate = dict(movies[candidate_id])
-            candidate["page"] = 1
-            candidate["strategy"] = "letterboxd"
+            movies = extract_movies_from_vertical_list(dom)
+            candidate = None
+            if movies:
+                candidate_id = random.choice(list(movies.keys()))
+                candidate = dict(movies[candidate_id])
+                candidate["page"] = 1
+                candidate["strategy"] = "letterboxd"
 
-        return title, count, candidate
+            return title, count, candidate
+        except (ResourceNotFoundError, PrivateRouteError):
+            raise
+        except Exception:
+            pass
 
-    # Custom mode (Deep Sample)
+    # Custom mode (Deep Sample) or fallback on shuffle failure
     if is_wl:
         watchlist = UserWatchlist(user)
         return f"{user}'s Watchlist", watchlist.get_count(), None
@@ -143,15 +148,20 @@ def get_random_movie_meta(
         per_page = UserList.FILMS_PER_PAGE
 
     if random_mode == "letterboxd":
-        shuffle_url = f"{list_url.rstrip('/')}/by/shuffle/"
-        page_dom = parse_url(shuffle_url)
-        movies_meta = extract_movies_from_vertical_list(page_dom)
-        if movies_meta:
-            candidate_id = random.choice(list(movies_meta.keys()))
-            meta = dict(movies_meta[candidate_id])
-            meta["page"] = 1
-            meta["strategy"] = "letterboxd"
-            return meta
+        try:
+            shuffle_url = f"{list_url.rstrip('/')}/by/shuffle/"
+            page_dom = parse_url(shuffle_url)
+            movies_meta = extract_movies_from_vertical_list(page_dom)
+            if movies_meta:
+                candidate_id = random.choice(list(movies_meta.keys()))
+                meta = dict(movies_meta[candidate_id])
+                meta["page"] = 1
+                meta["strategy"] = "letterboxd"
+                return meta
+        except (ResourceNotFoundError, PrivateRouteError):
+            raise
+        except Exception:
+            pass
 
     total_pages = math.ceil(count / per_page)
     random_page = random.randint(1, total_pages)

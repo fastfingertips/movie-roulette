@@ -69,6 +69,28 @@ class TestMockedRouteFlow:
         assert data["lists"][1]["title"] == "Title list-2"
 
     @patch("api.index.get_list_metadata")
+    def test_metadata_multi_list_forces_custom_random_mode(self, mock_meta, client):
+        mock_meta.side_effect = (
+            lambda user, slug, is_watchlist=None, random_mode="letterboxd": (
+                f"Title {slug}",
+                10,
+                None,
+            )
+        )
+        res = client.post(
+            "/api/metadata",
+            json={
+                "urls": ["user1/list-1", "user2/list-2"],
+                "random_mode": "letterboxd",
+            },
+        )
+        assert res.status_code == 200
+        data = res.get_json()
+        assert "selected" not in data
+        for call_args in mock_meta.call_args_list:
+            assert call_args.kwargs.get("random_mode") == "custom"
+
+    @patch("api.index.get_list_metadata")
     def test_metadata_one_fails_propagates_error(self, mock_meta, client):
         def _side_effect(user, slug):
             if slug == "bad-list":

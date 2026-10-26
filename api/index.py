@@ -78,12 +78,20 @@ def api_metadata():
             seen_keys.add(key)
             parsed_items.append((user, slug, is_watchlist, url))
 
+        # Single-list vs multi-list random mode for metadata phase:
+        # For single lists, Fast Shuffle fetches metadata and candidate in 1 request.
+        # For multi-list, always use standard URLs ("custom") to avoid Cloudflare 403.
+        fetch_random_mode = random_mode if len(parsed_items) == 1 else "custom"
+
         def fetch_metadata_worker(item):
             user, slug, is_watchlist, url = item
             try:
                 try:
                     res = get_list_metadata(
-                        user, slug, is_watchlist=is_watchlist, random_mode=random_mode
+                        user,
+                        slug,
+                        is_watchlist=is_watchlist,
+                        random_mode=fetch_random_mode,
                     )
                 except TypeError:
                     try:
