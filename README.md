@@ -68,7 +68,6 @@ The web application and redirect endpoints accept the following query parameters
 |---|---|---|
 | `url`, `urls`, `list`, `src` | Strings (comma-separated or multiple) | Letterboxd URLs or usernames (up to 5 sources) |
 | `count`, `total` | Positive integer (e.g. `1200`) | Bypasses initial metadata request on `/r` for 50% faster deep sampling |
-| `pages` | Positive integer (e.g. `12`) | Bypasses initial metadata request by specifying page count on `/r` |
 | `redirect` | `1`, `true` | Bypasses the UI and performs an immediate server-side 302 redirect |
 | `shuffle` | `1`, `true` | Enables the Fast Letterboxd `/by/shuffle/` engine |
 | `random` | `custom`, `deep`, `letterboxd`, `shuffle` | Explicitly chooses the selection strategy |

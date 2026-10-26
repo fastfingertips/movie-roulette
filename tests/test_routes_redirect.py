@@ -188,16 +188,15 @@ class TestRedirectRoutes:
 
     @patch("api.routes.redirect.get_random_movie_meta")
     @patch("api.routes.redirect.get_list_metadata")
-    def test_redirect_with_pages_hint_calculates_count(
+    def test_redirect_with_total_alias_hint_bypasses_metadata(
         self, mock_metadata, mock_random, client
     ):
         mock_random.return_value = TEST_MOVIE_META
 
-        response = client.get(f"/r/{TEST_USER}/watchlist?pages=5")
+        response = client.get(f"/r/{TEST_USER}/watchlist?total=140")
 
         assert response.status_code == 302
         mock_metadata.assert_not_called()
-        # Watchlist per_page is 28 -> 5 * 28 = 140
         mock_random.assert_called_once_with(
             TEST_USER,
             "watchlist",
