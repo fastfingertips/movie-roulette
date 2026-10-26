@@ -55,9 +55,10 @@ export const parseUrlParams = (search, maxUrls = 5) => {
     const shouldRun = params.get('run') !== '0' && params.get('auto') !== '0';
     const shouldRedirect = params.get('redirect') === '1' || params.get('redirect') === 'true';
     const randomParam = params.get('random')?.toLowerCase();
-    const randomMode = randomParam === 'custom'
-        ? 'custom'
-        : (randomParam === 'letterboxd' ? 'letterboxd' : null);
+    const shuffleParam = params.get('shuffle')?.toLowerCase();
+    const randomMode = (shuffleParam === '1' || shuffleParam === 'true' || randomParam === 'letterboxd' || randomParam === 'shuffle')
+        ? 'letterboxd'
+        : (randomParam === 'custom' || randomParam === 'deep' ? 'custom' : null);
 
     ['url', 'urls', 'src', 'sources', 'list', 'lists'].forEach(key => {
         params.getAll(key).forEach(val => {

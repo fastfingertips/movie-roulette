@@ -303,9 +303,9 @@
                 </div>
             </footer>
             <div class="footer-toggles" id="footer-toggles">
-                <div class="footer-toggle" id="random-toggle-wrapper" title="Fast Shuffle (Default) — Toggle for Deep Sample across all pages">
-                    <span class="footer-toggle-label"><i data-lucide="layers"></i> Deep Sample</span>
-                    <label class="switch switch--sm" for="random-toggle" aria-label="Toggle Deep Sample Mode">
+                <div class="footer-toggle" id="random-toggle-wrapper" title="Use /shuffle (Off) — Deep catalog sampling is active by default. Toggle to use Letterboxd's /shuffle (Page 1 only).">
+                    <span class="footer-toggle-label"><i data-lucide="shuffle"></i> Use /shuffle</span>
+                    <label class="switch switch--sm" for="random-toggle" aria-label="Toggle Letterboxd Shuffle Mode">
                         <input type="checkbox" id="random-toggle" />
                         <span class="slider"></span>
                     </label>
@@ -363,8 +363,8 @@
                                 <h4>Dual Random & Sampling Modes</h4>
                                 <p>Control your selection algorithm and list odds:</p>
                                 <ul class="step-list">
-                                    <li><strong>Fast Shuffle (Default):</strong> High-speed selection using Letterboxd's native shuffle engine.</li>
-                                    <li><strong>Deep Sample (Toggle):</strong> Multi-page uniform sampling across the entire catalog depth.</li>
+                                    <li><strong>Deep Sample (Default):</strong> Multi-page uniform sampling across the entire catalog depth. Fast, reliable, and Cloudflare-safe.</li>
+                                    <li><strong>Use /shuffle (Toggle):</strong> Opt-in to Letterboxd's native <code>/by/shuffle</code> view (samples from Page 1).</li>
                                     <li><strong>Equal Odds (Scale Toggle):</strong> Each list gets an equal 1/N chance of being selected first when combining multiple lists.</li>
                                 </ul>
                             </div>
