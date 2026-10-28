@@ -1,13 +1,39 @@
-import { $, elements } from './dom.js';
+import { $, elements, hydrateModal, refreshIcons } from './dom.js';
 import { escapeHtml, copyToClipboard } from './utils.js';
 
 let lastResult = null;
+let statsEls = null;
+let setViewHandler = null;
 
-export const initStatsModal = (setView) => {
-    const btnOverview = $('tab-btn-overview');
-    const btnRaw = $('tab-btn-raw');
-    const panelOverview = $('stats-tab-overview');
-    const panelRaw = $('stats-tab-raw');
+const ensureStatsModal = () => {
+    if (statsEls) return statsEls;
+    if (!elements.statsModal) return null;
+
+    hydrateModal(elements.statsModal);
+
+    statsEls = {
+        btnOverview: $('tab-btn-overview'),
+        btnRaw: $('tab-btn-raw'),
+        panelOverview: $('stats-tab-overview'),
+        panelRaw: $('stats-tab-raw'),
+        closeBtn: $('close-stats-btn'),
+        copyStatsBtn: $('copy-stats-btn'),
+        kpiPool: $('stats-kpi-pool'),
+        kpiOdds: $('stats-kpi-odds'),
+        kpiOddsSub: $('stats-kpi-odds-sub'),
+        kpiLatency: $('stats-kpi-latency'),
+        kpiLatencySub: $('stats-kpi-latency-sub'),
+        kpiSource: $('stats-kpi-source'),
+        kpiSourceSub: $('stats-kpi-source-sub'),
+        waterfall: $('stats-waterfall'),
+        totalTime: $('stats-total-time'),
+        sourcesList: $('stats-sources-list'),
+        poolMeta: $('stats-pool-meta'),
+        specsGrid: $('stats-specs-grid'),
+        json: $('stats-json')
+    };
+
+    const { btnOverview, btnRaw, panelOverview, panelRaw, closeBtn, copyStatsBtn, json } = statsEls;
 
     if (btnOverview && btnRaw && panelOverview && panelRaw) {
         btnOverview.addEventListener('click', () => {
@@ -31,78 +57,56 @@ export const initStatsModal = (setView) => {
         });
     }
 
-    if (elements.statsBtn) {
-        elements.statsBtn.addEventListener('click', () => {
-            if (lastResult) {
-                setView('stats');
-            }
-        });
-    }
-
-    const closeBtn = $('close-stats-btn');
     if (closeBtn) {
-        closeBtn.addEventListener('click', () => setView('result'));
-    }
-
-    if (elements.statsModal) {
-        elements.statsModal.addEventListener('click', (e) => {
-            if (e.target === elements.statsModal) setView('result');
+        closeBtn.addEventListener('click', () => {
+            if (setViewHandler) setViewHandler('result');
         });
     }
 
-    if (elements.copyStatsBtn && elements.statsJson) {
-        elements.copyStatsBtn.addEventListener('click', async () => {
-            const success = await copyToClipboard(elements.statsJson.textContent);
+    if (copyStatsBtn && json) {
+        copyStatsBtn.addEventListener('click', async () => {
+            const success = await copyToClipboard(json.textContent);
             if (success) {
-                const originalText = elements.copyStatsBtn.innerHTML;
-                elements.copyStatsBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
-                if (window.lucide) window.lucide.createIcons();
+                const originalText = copyStatsBtn.innerHTML;
+                copyStatsBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
+                refreshIcons(copyStatsBtn);
                 setTimeout(() => {
-                    elements.copyStatsBtn.innerHTML = originalText;
-                    if (window.lucide) window.lucide.createIcons();
+                    copyStatsBtn.innerHTML = originalText;
+                    refreshIcons(copyStatsBtn);
                 }, 2000);
             }
         });
     }
+
+    return statsEls;
 };
 
-export const renderStatsModal = (data) => {
-    if (!data || !data.stats) return;
-    lastResult = data;
-
-    // 1. KPI Cards
-    const kpiPool = $('stats-kpi-pool');
-    const kpiOdds = $('stats-kpi-odds');
-    const kpiOddsSub = $('stats-kpi-odds-sub');
-    const kpiLatency = $('stats-kpi-latency');
-    const kpiLatencySub = $('stats-kpi-latency-sub');
-    const kpiSource = $('stats-kpi-source');
-    const kpiSourceSub = $('stats-kpi-source-sub');
+const populateStatsModal = (data) => {
+    const els = ensureStatsModal();
+    if (!els || !data || !data.stats) return;
 
     const totalPool = data.stats.total_pool || 0;
     const timing = data.stats.timing || {};
 
-    if (kpiPool) kpiPool.textContent = totalPool.toLocaleString();
-    if (kpiOdds) kpiOdds.textContent = `${data.stats.probability}%`;
-    if (kpiOddsSub) kpiOddsSub.textContent = data.stats.odds || `1 in ${totalPool.toLocaleString()}`;
-    if (kpiLatency) kpiLatency.textContent = timing.total ? `${timing.total}s` : '-';
-    if (kpiLatencySub) kpiLatencySub.textContent = timing.metadata ? `meta: ${timing.metadata}s` : 'end-to-end';
+    if (els.kpiPool) els.kpiPool.textContent = totalPool.toLocaleString();
+    if (els.kpiOdds) els.kpiOdds.textContent = `${data.stats.probability}%`;
+    if (els.kpiOddsSub) els.kpiOddsSub.textContent = data.stats.odds || `1 in ${totalPool.toLocaleString()}`;
+    if (els.kpiLatency) els.kpiLatency.textContent = timing.total ? `${timing.total}s` : '-';
+    if (els.kpiLatencySub) els.kpiLatencySub.textContent = timing.metadata ? `meta: ${timing.metadata}s` : 'end-to-end';
 
-    if (kpiSource) {
-        kpiSource.textContent = data.list ? (data.list.title || data.list.slug) : 'Letterboxd';
-        kpiSource.title = kpiSource.textContent;
+    if (els.kpiSource) {
+        els.kpiSource.textContent = data.list ? (data.list.title || data.list.slug) : 'Letterboxd';
+        els.kpiSource.title = els.kpiSource.textContent;
     }
-    if (kpiSourceSub) {
+    if (els.kpiSourceSub) {
         const typeLabel = data.list?.is_watchlist ? 'Watchlist' : 'List';
-        kpiSourceSub.textContent = data.list ? `@${data.list.user} · ${typeLabel}` : 'random selection';
+        els.kpiSourceSub.textContent = data.list ? `@${data.list.user} · ${typeLabel}` : 'random selection';
     }
 
     // 2. Pipeline Waterfall
-    const waterfallEl = $('stats-waterfall');
-    const totalTimeEl = $('stats-total-time');
-    if (totalTimeEl) totalTimeEl.textContent = timing.total ? `${timing.total}s total` : '';
+    if (els.totalTime) els.totalTime.textContent = timing.total ? `${timing.total}s total` : '';
 
-    if (waterfallEl) {
+    if (els.waterfall) {
         const totalNum = parseFloat(timing.total) || 1;
         const metaTime = parseFloat(timing.metadata) || 0;
         const selectTime = parseFloat(timing.selection) || 0;
@@ -120,7 +124,7 @@ export const renderStatsModal = (data) => {
             { label: '3. Film Profile Enrichment', time: detailTime }
         ];
 
-        waterfallEl.innerHTML = steps.map(step => {
+        els.waterfall.innerHTML = steps.map(step => {
             const pct = Math.min(100, Math.max(10, Math.round((step.time / totalNum) * 100)));
             return `
                 <div class="waterfall-row">
@@ -137,16 +141,14 @@ export const renderStatsModal = (data) => {
     }
 
     // 3. Pool Distribution
-    const sourcesListEl = $('stats-sources-list');
-    const poolMetaEl = $('stats-pool-meta');
     const lists = data.stats.lists || [];
     const modeTag = data.stats.sampling_mode === 'equal' ? ' (Equal Odds)' : ' (Proportional)';
-    if (poolMetaEl) poolMetaEl.textContent = `${lists.length} source${lists.length === 1 ? '' : 's'}${modeTag}`;
+    if (els.poolMeta) els.poolMeta.textContent = `${lists.length} source${lists.length === 1 ? '' : 's'}${modeTag}`;
 
-    if (sourcesListEl) {
+    if (els.sourcesList) {
         if (lists.length === 0 && data.list) {
             const typeLabel = data.list.is_watchlist ? 'Watchlist' : 'List';
-            sourcesListEl.innerHTML = `
+            els.sourcesList.innerHTML = `
                 <div class="source-item is-winner">
                     <div class="source-item-header">
                         <div class="source-item-title-group">
@@ -165,7 +167,7 @@ export const renderStatsModal = (data) => {
                 </div>
             `;
         } else {
-            sourcesListEl.innerHTML = lists.map(l => {
+            els.sourcesList.innerHTML = lists.map(l => {
                 const isSelected = l.is_winner;
                 const typeLabel = l.is_watchlist ? 'Watchlist' : 'List';
                 return `
@@ -191,12 +193,11 @@ export const renderStatsModal = (data) => {
     }
 
     // 4. Movie Specs Grid
-    const specsEl = $('stats-specs-grid');
-    if (specsEl && data.movie) {
+    if (els.specsGrid && data.movie) {
         const m = data.movie;
         const genresStr = m.genres ? (Array.isArray(m.genres) ? m.genres.map(g => g.name || g).join(', ') : m.genres) : '-';
         const directorsStr = m.directors?.length ? m.directors.map(d => d.name || d).join(', ') : (m.director || 'N/A');
-        specsEl.innerHTML = `
+        els.specsGrid.innerHTML = `
             <div class="spec-tile">
                 <span class="spec-label">Title & Year</span>
                 <span class="spec-val">${escapeHtml(m.name)} (${escapeHtml(m.year || 'N/A')})</span>
@@ -223,8 +224,7 @@ export const renderStatsModal = (data) => {
     }
 
     // 5. Raw JSON
-    const jsonEl = $('stats-json');
-    if (jsonEl) {
+    if (els.json) {
         const fullAuditData = {
             selected_film: {
                 title: data.movie.name,
@@ -256,6 +256,35 @@ export const renderStatsModal = (data) => {
                 input_sources: data.stats.inputs || []
             }
         };
-        jsonEl.textContent = JSON.stringify(fullAuditData, null, 2);
+        els.json.textContent = JSON.stringify(fullAuditData, null, 2);
+    }
+
+    refreshIcons(elements.statsModal);
+};
+
+export const initStatsModal = (setView) => {
+    setViewHandler = setView;
+
+    if (elements.statsBtn) {
+        elements.statsBtn.addEventListener('click', () => {
+            if (lastResult) {
+                populateStatsModal(lastResult);
+                setView('stats');
+            }
+        });
+    }
+
+    if (elements.statsModal) {
+        elements.statsModal.addEventListener('click', (e) => {
+            if (e.target === elements.statsModal) setView('result');
+        });
+    }
+};
+
+export const renderStatsModal = (data) => {
+    if (!data || !data.stats) return;
+    lastResult = data;
+    if (statsEls) {
+        populateStatsModal(data);
     }
 };

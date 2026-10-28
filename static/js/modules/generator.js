@@ -1,8 +1,9 @@
+import { $, elements, hydrateModal, refreshIcons } from './dom.js';
 import { escapeHtml } from './utils.js';
 
 const displayToast = (msg, type = 'success') => {
-    const toast = typeof document !== 'undefined' ? document.getElementById('error-msg') : null;
-    const text = typeof document !== 'undefined' ? document.getElementById('error-text') : null;
+    const toast = elements.error || $('error-msg');
+    const text = elements.errorText || $('error-text');
     if (toast && text) {
         text.textContent = msg;
         toast.className = `toast is-visible ${type === 'success' ? 'toast--success' : ''}`;
@@ -119,7 +120,7 @@ export const renderSourceList = (sourcesListEl, sourcesCountEl, sourceBadgeEl, p
                 <span>No sources detected yet. Enter usernames or list links above.</span>
             </div>
         `;
-        if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
+        refreshIcons(sourcesListEl);
         return;
     }
 
@@ -138,7 +139,7 @@ export const renderSourceList = (sourcesListEl, sourcesCountEl, sourceBadgeEl, p
         </div>
     `).join('');
 
-    if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
+    refreshIcons(sourcesListEl);
 };
 
 export const buildGeneratorOutput = ({
@@ -329,10 +330,6 @@ export const initDocsPagination = (modal) => {
         if (nextBtn) {
             nextBtn.disabled = currentIndex === pages.length - 1;
         }
-
-        if (typeof window !== 'undefined' && window.lucide) {
-            window.lucide.createIcons();
-        }
     };
 
     tabs.forEach((tab, idx) => {
@@ -360,183 +357,16 @@ export const initDocsPagination = (modal) => {
 };
 
 export const initGenerator = () => {
-    const modal = document.getElementById('generator-modal');
-    const openBtn = document.getElementById('generator-btn');
-    const closeBtn = document.getElementById('close-generator-btn');
+    const modal = elements.generatorModal || $('generator-modal');
+    const openBtn = elements.generatorBtn || $('generator-btn');
 
     if (!modal) return;
 
-    const docsPagination = initDocsPagination(modal);
-
-    const sourcesInput = document.getElementById('gen-sources-input');
-    const sourcesListEl = document.getElementById('gen-sources-list');
-    const sourcesCountEl = document.getElementById('gen-sources-count');
-    const sourceBadgeEl = document.getElementById('gen-source-badge');
-    const countInput = document.getElementById('gen-count-input');
-    const actionSelect = document.getElementById('gen-action-type');
-    const shuffleCheck = document.getElementById('gen-shuffle');
-    const modeSelect = document.getElementById('gen-mode');
-    const autoRollCheck = document.getElementById('gen-autoroll');
-    const formatCheck = document.getElementById('gen-format');
-    const labelInput = document.getElementById('gen-label-input');
-    const useActiveBtn = document.getElementById('gen-use-active-btn');
-
-    if (sourcesListEl) {
-        sourcesListEl.addEventListener('click', (e) => {
-            const removeBtn = e.target.closest('.generator-source-remove-btn');
-            if (!removeBtn || !sourcesInput) return;
-            const targetNormalized = removeBtn.getAttribute('data-remove');
-            if (!targetNormalized) return;
-
-            const currentTokens = sourcesInput.value
-                .split(/[\n,]+/)
-                .map(t => t.trim())
-                .filter(Boolean);
-
-            const remaining = currentTokens.filter(t => normalizeItem(t) !== targetNormalized);
-            sourcesInput.value = remaining.join(', ');
-            updatePreview();
-        });
-    }
-
-    const resultUrlEl = document.getElementById('gen-result-url');
-    const resultHtmlEl = document.getElementById('gen-result-html');
-    const resultMarkdownEl = document.getElementById('gen-result-markdown');
-    const testLinkEl = document.getElementById('gen-test-link');
-
-    const copyUrlBtn = document.getElementById('gen-copy-url-btn');
-    const copyHtmlBtn = document.getElementById('gen-copy-html-btn');
-    const copyMarkdownBtn = document.getElementById('gen-copy-markdown-btn');
-    const copyDocsBtn = document.getElementById('gen-copy-docs-btn');
-    const docsToggleBtn = document.getElementById('gen-toggle-docs-btn');
-    const docsCloseBtn = document.getElementById('gen-close-docs-btn');
-    const docsPane = document.getElementById('gen-docs-pane');
-    const modalContent = modal.querySelector('.modal-content--generator');
-
-    const toggleDocs = (forceState) => {
-        if (!docsPane || !modalContent) return;
-        const isCurrentlyOpen = modalContent.classList.contains('has-docs-open');
-        const nextOpen = typeof forceState === 'boolean' ? forceState : !isCurrentlyOpen;
-
-        modalContent.classList.toggle('has-docs-open', nextOpen);
-        docsPane.setAttribute('aria-hidden', String(!nextOpen));
-        if (docsToggleBtn) {
-            docsToggleBtn.setAttribute('aria-expanded', String(nextOpen));
-            docsToggleBtn.classList.toggle('is-active', nextOpen);
-            docsToggleBtn.setAttribute(
-                'title',
-                nextOpen
-                    ? 'Collapse Documentation (Closes to left)'
-                    : 'Toggle Documentation (Expands right)'
-            );
-        }
-        if (window.lucide) window.lucide.createIcons();
-    };
-
-    if (docsToggleBtn) {
-        docsToggleBtn.addEventListener('click', () => toggleDocs());
-    }
-
-    if (docsCloseBtn) {
-        docsCloseBtn.addEventListener('click', () => toggleDocs(false));
-    }
-
-    const advancedToggle = document.getElementById('gen-advanced-toggle');
-    const advancedPanel = document.getElementById('gen-advanced-panel');
-    const presetBtns = typeof document !== 'undefined'
-        ? Array.from(document.querySelectorAll('.generator-preset-btn'))
-        : [];
-
-    const syncPresetButtons = () => {
-        const isJson = formatCheck && formatCheck.checked;
-        const action = actionSelect ? actionSelect.value : 'redirect';
-        let activePreset = null;
-        if (isJson) {
-            activePreset = 'json';
-        } else if (action === 'app') {
-            activePreset = 'app';
-        } else if (action === 'redirect') {
-            activePreset = 'redirect';
-        }
-        presetBtns.forEach(btn => {
-            btn.classList.toggle('is-active', btn.dataset.preset === activePreset);
-        });
-    };
-
-    const applyPreset = (presetName) => {
-        if (presetName === 'redirect') {
-            if (actionSelect) actionSelect.value = 'redirect';
-            if (formatCheck) formatCheck.checked = false;
-        } else if (presetName === 'app') {
-            if (actionSelect) actionSelect.value = 'app';
-            if (formatCheck) formatCheck.checked = false;
-        } else if (presetName === 'json') {
-            if (actionSelect) actionSelect.value = 'redirect';
-            if (formatCheck) formatCheck.checked = true;
-        }
-        if (shuffleCheck) shuffleCheck.checked = false;
-        presetBtns.forEach(btn => {
-            btn.classList.toggle('is-active', btn.dataset.preset === presetName);
-        });
-        updatePreview();
-    };
-
-    presetBtns.forEach(btn => {
-        btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
-    });
-
-    if (advancedToggle && advancedPanel) {
-        const stateLabel = advancedToggle.querySelector('.generator-advanced-state-label');
-        advancedToggle.addEventListener('click', () => {
-            const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
-            const nextExpanded = !isExpanded;
-            advancedToggle.setAttribute('aria-expanded', String(nextExpanded));
-            advancedPanel.classList.toggle('is-hidden', isExpanded);
-            if (stateLabel) {
-                stateLabel.textContent = nextExpanded ? 'Hide' : 'Show';
-            }
-            if (window.lucide) window.lucide.createIcons();
-        });
-    }
-
-    const updatePreview = () => {
-        const rawSources = sourcesInput ? sourcesInput.value : '';
-        const out = buildGeneratorOutput({
-            sources: rawSources,
-            count: countInput && countInput.value ? parseInt(countInput.value, 10) : null,
-            actionType: actionSelect ? actionSelect.value : 'redirect',
-            shuffle: shuffleCheck ? shuffleCheck.checked : false,
-            mode: modeSelect ? modeSelect.value : 'proportional',
-            autoRoll: autoRollCheck ? autoRollCheck.checked : true,
-            format: formatCheck && formatCheck.checked ? 'json' : 'default',
-            label: labelInput ? labelInput.value : 'Random Movie',
-            origin: window.location.origin
-        });
-
-        if (resultUrlEl) resultUrlEl.textContent = out.url;
-        if (resultHtmlEl) resultHtmlEl.textContent = out.html;
-        if (resultMarkdownEl) resultMarkdownEl.textContent = out.markdown;
-        if (testLinkEl) {
-            testLinkEl.href = out.url;
-        }
-
-        const parsedSources = parseSourceTokens(rawSources);
-        renderSourceList(sourcesListEl, sourcesCountEl, sourceBadgeEl, parsedSources);
-
-        syncPresetButtons();
-    };
-
-    const openModal = () => {
-        modal.classList.remove('is-hidden');
-        updatePreview();
-        const currentParams = new URLSearchParams(window.location.search);
-        if (currentParams.has('docs')) {
-            toggleDocs(true);
-        } else {
-            toggleDocs(false);
-        }
-        if (window.lucide) window.lucide.createIcons();
-    };
+    let isSetup = false;
+    let docsPagination = null;
+    let modalContent = null;
+    let toggleDocs = () => {};
+    let updatePreview = () => {};
 
     const closeModal = () => {
         modal.classList.add('is-hidden');
@@ -546,8 +376,251 @@ export const initGenerator = () => {
         }
     };
 
+    const ensureGeneratorSetup = () => {
+        if (isSetup) return;
+        isSetup = true;
+
+        hydrateModal(modal);
+
+        docsPagination = initDocsPagination(modal);
+
+        const closeBtn = $('close-generator-btn');
+        const sourcesInput = $('gen-sources-input');
+        const sourcesListEl = $('gen-sources-list');
+        const sourcesCountEl = $('gen-sources-count');
+        const sourceBadgeEl = $('gen-source-badge');
+        const countInput = $('gen-count-input');
+        const actionSelect = $('gen-action-type');
+        const shuffleCheck = $('gen-shuffle');
+        const modeSelect = $('gen-mode');
+        const autoRollCheck = $('gen-autoroll');
+        const formatCheck = $('gen-format');
+        const labelInput = $('gen-label-input');
+        const useActiveBtn = $('gen-use-active-btn');
+        const resultUrlEl = $('gen-result-url');
+        const resultHtmlEl = $('gen-result-html');
+        const resultMarkdownEl = $('gen-result-markdown');
+        const testLinkEl = $('gen-test-link');
+        const copyUrlBtn = $('gen-copy-url-btn');
+        const copyHtmlBtn = $('gen-copy-html-btn');
+        const copyMarkdownBtn = $('gen-copy-markdown-btn');
+        const copyDocsBtn = $('gen-copy-docs-btn');
+        const docsToggleBtn = $('gen-toggle-docs-btn');
+        const docsPane = $('gen-docs-pane');
+        const advancedToggle = $('gen-advanced-toggle');
+        const advancedPanel = $('gen-advanced-panel');
+        const presetBtns = Array.from(modal.querySelectorAll('.generator-preset-btn'));
+
+        modalContent = modal.querySelector('.modal-content--generator');
+
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+        if (sourcesListEl) {
+            sourcesListEl.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.generator-source-remove-btn');
+                if (!removeBtn || !sourcesInput) return;
+                const targetNormalized = removeBtn.getAttribute('data-remove');
+                if (!targetNormalized) return;
+
+                const currentTokens = sourcesInput.value
+                    .split(/[\n,]+/)
+                    .map(t => t.trim())
+                    .filter(Boolean);
+
+                const remaining = currentTokens.filter(t => normalizeItem(t) !== targetNormalized);
+                sourcesInput.value = remaining.join(', ');
+                updatePreview();
+            });
+        }
+
+        toggleDocs = (forceState) => {
+            if (!docsPane || !modalContent) return;
+            const isCurrentlyOpen = modalContent.classList.contains('has-docs-open');
+            const nextOpen = typeof forceState === 'boolean' ? forceState : !isCurrentlyOpen;
+
+            modalContent.classList.toggle('has-docs-open', nextOpen);
+            docsPane.setAttribute('aria-hidden', String(!nextOpen));
+            if (docsToggleBtn) {
+                docsToggleBtn.setAttribute('aria-expanded', String(nextOpen));
+                docsToggleBtn.classList.toggle('is-active', nextOpen);
+                docsToggleBtn.setAttribute(
+                    'title',
+                    nextOpen
+                        ? 'Collapse Documentation (Closes to left)'
+                        : 'Toggle Documentation (Expands right)'
+                );
+            }
+        };
+
+        if (docsToggleBtn) {
+            docsToggleBtn.addEventListener('click', () => toggleDocs());
+        }
+
+        const syncPresetButtons = () => {
+            const isJson = formatCheck && formatCheck.checked;
+            const action = actionSelect ? actionSelect.value : 'redirect';
+            let activePreset = null;
+            if (isJson) {
+                activePreset = 'json';
+            } else if (action === 'app') {
+                activePreset = 'app';
+            } else if (action === 'redirect') {
+                activePreset = 'redirect';
+            }
+            presetBtns.forEach(btn => {
+                btn.classList.toggle('is-active', btn.dataset.preset === activePreset);
+            });
+        };
+
+        const applyPreset = (presetName) => {
+            if (presetName === 'redirect') {
+                if (actionSelect) actionSelect.value = 'redirect';
+                if (formatCheck) formatCheck.checked = false;
+            } else if (presetName === 'app') {
+                if (actionSelect) actionSelect.value = 'app';
+                if (formatCheck) formatCheck.checked = false;
+            } else if (presetName === 'json') {
+                if (actionSelect) actionSelect.value = 'redirect';
+                if (formatCheck) formatCheck.checked = true;
+            }
+            if (shuffleCheck) shuffleCheck.checked = false;
+            presetBtns.forEach(btn => {
+                btn.classList.toggle('is-active', btn.dataset.preset === presetName);
+            });
+            updatePreview();
+        };
+
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+        });
+
+        if (advancedToggle && advancedPanel) {
+            const stateLabel = advancedToggle.querySelector('.generator-advanced-state-label');
+            advancedToggle.addEventListener('click', () => {
+                const isExpanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+                const nextExpanded = !isExpanded;
+                advancedToggle.setAttribute('aria-expanded', String(nextExpanded));
+                advancedPanel.classList.toggle('is-hidden', isExpanded);
+                if (stateLabel) {
+                    stateLabel.textContent = nextExpanded ? 'Hide' : 'Show';
+                }
+            });
+        }
+
+        updatePreview = () => {
+            const rawSources = sourcesInput ? sourcesInput.value : '';
+            const out = buildGeneratorOutput({
+                sources: rawSources,
+                count: countInput && countInput.value ? parseInt(countInput.value, 10) : null,
+                actionType: actionSelect ? actionSelect.value : 'redirect',
+                shuffle: shuffleCheck ? shuffleCheck.checked : false,
+                mode: modeSelect ? modeSelect.value : 'proportional',
+                autoRoll: autoRollCheck ? autoRollCheck.checked : true,
+                format: formatCheck && formatCheck.checked ? 'json' : 'default',
+                label: labelInput ? labelInput.value : 'Random Movie',
+                origin: window.location.origin
+            });
+
+            if (resultUrlEl) resultUrlEl.textContent = out.url;
+            if (resultHtmlEl) resultHtmlEl.textContent = out.html;
+            if (resultMarkdownEl) resultMarkdownEl.textContent = out.markdown;
+            if (testLinkEl) {
+                testLinkEl.href = out.url;
+            }
+
+            const parsedSources = parseSourceTokens(rawSources);
+            renderSourceList(sourcesListEl, sourcesCountEl, sourceBadgeEl, parsedSources);
+
+            syncPresetButtons();
+        };
+
+        if (useActiveBtn) {
+            useActiveBtn.addEventListener('click', () => {
+                const fieldInputs = Array.from(document.querySelectorAll('.field__input'))
+                    .map(input => input.value.trim())
+                    .filter(Boolean);
+                if (fieldInputs.length > 0 && sourcesInput) {
+                    sourcesInput.value = fieldInputs.join(', ');
+                    const randomToggle = elements.randomToggle || $('random-toggle');
+                    if (shuffleCheck && randomToggle) {
+                        shuffleCheck.checked = randomToggle.checked;
+                    }
+                    updatePreview();
+                    displayToast('Imported active lists from form');
+                } else {
+                    displayToast('No lists currently entered in form');
+                }
+            });
+        }
+
+        const interactiveEls = [
+            sourcesInput,
+            countInput,
+            actionSelect,
+            shuffleCheck,
+            modeSelect,
+            autoRollCheck,
+            formatCheck,
+            labelInput
+        ];
+
+        interactiveEls.forEach(el => {
+            if (el) {
+                el.addEventListener('input', updatePreview);
+                el.addEventListener('change', updatePreview);
+            }
+        });
+
+        const handleCopy = (btn, text, label) => {
+            if (!text) return;
+            copyToClipboard(text, `${label} copied to clipboard`);
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="check"></i> Copied!';
+            refreshIcons(btn);
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                refreshIcons(btn);
+            }, 1500);
+        };
+
+        if (copyUrlBtn) {
+            copyUrlBtn.addEventListener('click', () => {
+                if (resultUrlEl) handleCopy(copyUrlBtn, resultUrlEl.textContent, 'URL');
+            });
+        }
+
+        if (copyHtmlBtn) {
+            copyHtmlBtn.addEventListener('click', () => {
+                if (resultHtmlEl) handleCopy(copyHtmlBtn, resultHtmlEl.textContent, 'HTML snippet');
+            });
+        }
+
+        if (copyMarkdownBtn) {
+            copyMarkdownBtn.addEventListener('click', () => {
+                if (resultMarkdownEl) handleCopy(copyMarkdownBtn, resultMarkdownEl.textContent, 'Markdown snippet');
+            });
+        }
+
+        if (copyDocsBtn) {
+            copyDocsBtn.addEventListener('click', () => {
+                handleCopy(copyDocsBtn, GENERATOR_DOCS_MARKDOWN, 'Documentation');
+            });
+        }
+    };
+
+    const openModal = () => {
+        ensureGeneratorSetup();
+        modal.classList.remove('is-hidden');
+        updatePreview();
+        const currentParams = new URLSearchParams(window.location.search);
+        if (currentParams.has('docs')) {
+            toggleDocs(true);
+        } else {
+            toggleDocs(false);
+        }
+    };
+
     if (openBtn) openBtn.addEventListener('click', openModal);
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -573,79 +646,6 @@ export const initGenerator = () => {
             }
         }
     });
-
-    if (useActiveBtn) {
-        useActiveBtn.addEventListener('click', () => {
-            const fieldInputs = Array.from(document.querySelectorAll('.field__input'))
-                .map(input => input.value.trim())
-                .filter(Boolean);
-            if (fieldInputs.length > 0 && sourcesInput) {
-                sourcesInput.value = fieldInputs.join(', ');
-                const randomToggle = document.getElementById('random-toggle');
-                if (shuffleCheck && randomToggle) {
-                    shuffleCheck.checked = randomToggle.checked;
-                }
-                updatePreview();
-                displayToast('Imported active lists from form');
-            } else {
-                displayToast('No lists currently entered in form');
-            }
-        });
-    }
-
-    const interactiveEls = [
-        sourcesInput,
-        countInput,
-        actionSelect,
-        shuffleCheck,
-        modeSelect,
-        autoRollCheck,
-        formatCheck,
-        labelInput
-    ];
-
-    interactiveEls.forEach(el => {
-        if (el) {
-            el.addEventListener('input', updatePreview);
-            el.addEventListener('change', updatePreview);
-        }
-    });
-
-    const handleCopy = (btn, text, label) => {
-        if (!text) return;
-        copyToClipboard(text, `${label} copied to clipboard`);
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i data-lucide="check"></i> Copied!';
-        if (window.lucide) window.lucide.createIcons();
-        setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            if (window.lucide) window.lucide.createIcons();
-        }, 1500);
-    };
-
-    if (copyUrlBtn) {
-        copyUrlBtn.addEventListener('click', () => {
-            if (resultUrlEl) handleCopy(copyUrlBtn, resultUrlEl.textContent, 'URL');
-        });
-    }
-
-    if (copyHtmlBtn) {
-        copyHtmlBtn.addEventListener('click', () => {
-            if (resultHtmlEl) handleCopy(copyHtmlBtn, resultHtmlEl.textContent, 'HTML snippet');
-        });
-    }
-
-    if (copyMarkdownBtn) {
-        copyMarkdownBtn.addEventListener('click', () => {
-            if (resultMarkdownEl) handleCopy(copyMarkdownBtn, resultMarkdownEl.textContent, 'Markdown snippet');
-        });
-    }
-
-    if (copyDocsBtn) {
-        copyDocsBtn.addEventListener('click', () => {
-            handleCopy(copyDocsBtn, GENERATOR_DOCS_MARKDOWN, 'Documentation');
-        });
-    }
 
     // Auto-open if navigating directly to /generator or ?generator=1
     const params = new URLSearchParams(window.location.search);
