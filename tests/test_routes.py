@@ -9,6 +9,11 @@ class TestIndexRoute:
         assert res.status_code == 200
         assert b"<!doctype html>" in res.data or b"<html" in res.data
 
+    def test_generator_route_returns_html(self, client):
+        res = client.get("/generator")
+        assert res.status_code == 200
+        assert b"generator-modal" in res.data
+
     def test_static_asset_accessible(self, client):
         res = client.get("/static/css/style.css")
         assert res.status_code == 200

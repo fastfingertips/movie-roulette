@@ -34,6 +34,7 @@ init_routes(app)
 
 @app.route("/")
 @app.route("/index.html")
+@app.route("/generator")
 def index():
     if request.args.get("redirect") in ("1", "true"):
         return handle_redirect_request()
