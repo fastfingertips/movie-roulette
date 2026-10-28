@@ -13,15 +13,24 @@
                 'pine-orchid': 'light',
                 'citron-berry': 'light',
                 'forest-lime': 'light',
+                'letterboxd-light': 'light',
+                'amoled-light': 'light',
                 'classic-dark': 'dark',
                 'amoled': 'dark',
-                'midnight-lime': 'dark'
+                'midnight-lime': 'dark',
+                'letterboxd-dark': 'dark',
+                'pine-orchid-dark': 'dark',
+                'citron-berry-dark': 'dark'
             };
             var saved = localStorage.getItem('theme');
             var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             var theme = (saved && themes[saved]) ? saved : (dark ? 'midnight-lime' : 'forest-lime');
             document.documentElement.setAttribute('data-theme', theme);
             document.documentElement.setAttribute('data-mode', themes[theme]);
+
+            if (localStorage.getItem('movie_roulette_translucent') === 'false') {
+                document.documentElement.setAttribute('data-solid-surfaces', 'true');
+            }
         })();
     </script>
     
@@ -111,7 +120,25 @@
                             <span class="theme-dot theme-dot--forest-lime-2"></span>
                             <span class="theme-dot theme-dot--forest-lime-3"></span>
                         </span>
-                        <span class="theme-option__name">Forest & Lime</span>
+                        <span class="theme-option__name">Forest &amp; Lime</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button type="button" class="theme-option" data-theme-id="letterboxd-light" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot theme-dot--letterboxd-light-1"></span>
+                            <span class="theme-dot theme-dot--letterboxd-light-2"></span>
+                            <span class="theme-dot theme-dot--letterboxd-light-3"></span>
+                        </span>
+                        <span class="theme-option__name">Letterboxd Light</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button type="button" class="theme-option" data-theme-id="amoled-light" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot theme-dot--amoled-light-1"></span>
+                            <span class="theme-dot theme-dot--amoled-light-2"></span>
+                            <span class="theme-dot theme-dot--amoled-light-3"></span>
+                        </span>
+                        <span class="theme-option__name">AMOLED Light</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
                     <div class="theme-menu__divider"></div>
@@ -123,6 +150,24 @@
                             <span class="theme-dot theme-dot--classic-dark-3"></span>
                         </span>
                         <span class="theme-option__name">Classic Dark</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button type="button" class="theme-option" data-theme-id="pine-orchid-dark" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot theme-dot--pine-orchid-dark-1"></span>
+                            <span class="theme-dot theme-dot--pine-orchid-dark-2"></span>
+                            <span class="theme-dot theme-dot--pine-orchid-dark-3"></span>
+                        </span>
+                        <span class="theme-option__name">Pine &amp; Orchid Dark</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <button type="button" class="theme-option" data-theme-id="citron-berry-dark" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot theme-dot--citron-berry-dark-1"></span>
+                            <span class="theme-dot theme-dot--citron-berry-dark-2"></span>
+                            <span class="theme-dot theme-dot--citron-berry-dark-3"></span>
+                        </span>
+                        <span class="theme-option__name">Citron &amp; Berry Dark</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
                     <button type="button" class="theme-option" data-theme-id="amoled" role="menuitem">
@@ -143,6 +188,26 @@
                         <span class="theme-option__name">Midnight Lime</span>
                         <i data-lucide="check" class="theme-option__check"></i>
                     </button>
+                    <button type="button" class="theme-option" data-theme-id="letterboxd-dark" role="menuitem">
+                        <span class="theme-option__swatches">
+                            <span class="theme-dot theme-dot--letterboxd-dark-1"></span>
+                            <span class="theme-dot theme-dot--letterboxd-dark-2"></span>
+                            <span class="theme-dot theme-dot--letterboxd-dark-3"></span>
+                        </span>
+                        <span class="theme-option__name">Letterboxd Dark</span>
+                        <i data-lucide="check" class="theme-option__check"></i>
+                    </button>
+                    <div class="theme-menu__divider"></div>
+                    <div class="theme-menu__toggle-item" id="theme-menu-translucent-row" title="Toggle translucent glassmorphism surfaces">
+                        <span class="theme-menu__toggle-label">
+                            <i data-lucide="sparkles"></i>
+                            <span>Translucent UI</span>
+                        </span>
+                        <label class="switch switch--sm" for="theme-menu-translucent-toggle" aria-label="Toggle Translucent UI">
+                            <input type="checkbox" id="theme-menu-translucent-toggle" checked />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
             <button type="button" class="icon-btn" id="generator-btn" title="URL Generator" aria-label="URL Generator">
@@ -437,11 +502,11 @@
                         <div class="workflow-step">
                             <div class="step-num">8</div>
                             <div class="step-body">
-                                <h4>Privacy & 7 Custom Themes</h4>
+                                <h4>Privacy & 12 Custom Themes</h4>
                                 <p>Fast, lightweight, and customizable:</p>
                                 <ul class="step-list">
                                     <li><strong>100% Local Storage:</strong> Zero tracking, zero third-party analytics, and no server cookies.</li>
-                                    <li><strong>7 Curated Themes:</strong> Switch between Classic Light/Dark, Pine & Orchid, Citron & Berry, Forest & Lime, AMOLED Black, and Midnight Lime.</li>
+                                    <li><strong>12 Curated Themes:</strong> Switch between Classic, Pine &amp; Orchid, Citron &amp; Berry, Forest &amp; Midnight Lime, Letterboxd, and AMOLED (Light &amp; Dark pairs) with optional solid or translucent surfaces.</li>
                                     <li><strong>Open Source:</strong> Transparent and publicly hosted on <a href="https://github.com/fastfingertips/movie-roulette" target="_blank" rel="noopener" class="inline-link">GitHub</a>.</li>
                                 </ul>
                             </div>

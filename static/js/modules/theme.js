@@ -4,10 +4,42 @@ export const THEMES = [
     { id: 'pine-orchid', name: 'Pine & Orchid', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
     { id: 'citron-berry', name: 'Citron & Berry', mode: 'light', bg: '#f5f3e6', colors: ['#3f7483', '#b32459', '#f5f3e6'] },
     { id: 'forest-lime', name: 'Forest & Lime', mode: 'light', bg: '#f6f8f5', colors: ['#163300', '#9fe870', '#f6f8f5'] },
+    { id: 'letterboxd-light', name: 'Letterboxd Light', mode: 'light', bg: '#f4f6f8', colors: ['#00a63e', '#ff8000', '#f4f6f8'] },
+    { id: 'amoled-light', name: 'AMOLED Light', mode: 'light', bg: '#ffffff', colors: ['#1a7f37', '#0969da', '#ffffff'] },
     { id: 'classic-dark', name: 'Classic Dark', mode: 'dark', bg: '#0f1117', colors: ['#3d7e5e', '#58a6ff', '#0f1117'] },
     { id: 'amoled', name: 'AMOLED Black', mode: 'dark', bg: '#000000', colors: ['#2ea043', '#40a9ff', '#000000'] },
-    { id: 'midnight-lime', name: 'Midnight Lime', mode: 'dark', bg: '#121511', colors: ['#9fe870', '#a0e1e1', '#121511'] }
+    { id: 'midnight-lime', name: 'Midnight Lime', mode: 'dark', bg: '#121511', colors: ['#9fe870', '#a0e1e1', '#121511'] },
+    { id: 'letterboxd-dark', name: 'Letterboxd Dark', mode: 'dark', bg: '#14181c', colors: ['#00e054', '#ff8000', '#14181c'] },
+    { id: 'pine-orchid-dark', name: 'Pine & Orchid Dark', mode: 'dark', bg: '#141016', colors: ['#6dd32c', '#d384ee', '#141016'] },
+    { id: 'citron-berry-dark', name: 'Citron & Berry Dark', mode: 'dark', bg: '#141512', colors: ['#e83e7c', '#4ea5bb', '#141512'] }
 ];
+
+export const TRANSLUCENT_STORAGE_KEY = 'movie_roulette_translucent';
+
+export const isTranslucent = () => {
+    if (typeof localStorage === 'undefined') return true;
+    return localStorage.getItem(TRANSLUCENT_STORAGE_KEY) !== 'false';
+};
+
+export const syncTranslucentToggles = (enabled) => {
+    if (typeof document === 'undefined') return;
+    const toggle = document.getElementById('theme-menu-translucent-toggle');
+    if (toggle) toggle.checked = enabled;
+};
+
+export const setTranslucent = (enabled, persist = true) => {
+    if (typeof document !== 'undefined') {
+        if (enabled) {
+            document.documentElement.removeAttribute('data-solid-surfaces');
+        } else {
+            document.documentElement.setAttribute('data-solid-surfaces', 'true');
+        }
+    }
+    if (persist && typeof localStorage !== 'undefined') {
+        localStorage.setItem(TRANSLUCENT_STORAGE_KEY, enabled ? 'true' : 'false');
+    }
+    syncTranslucentToggles(enabled);
+};
 
 const updateActiveThemeInMenu = (themeId) => {
     const options = document.querySelectorAll('.theme-option');
@@ -178,4 +210,28 @@ export const initTheme = () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeThemeMenu();
     });
+
+    // Initialize translucency (defaults to true)
+    const initialTranslucent = isTranslucent();
+    setTranslucent(initialTranslucent, false);
+
+    const handleTranslucentChange = (checked) => {
+        setTranslucent(checked, true);
+    };
+
+    const menuTranslucent = document.getElementById('theme-menu-translucent-toggle');
+    if (menuTranslucent) {
+        menuTranslucent.addEventListener('change', () => {
+            handleTranslucentChange(menuTranslucent.checked);
+        });
+    }
+
+    const menuRow = document.getElementById('theme-menu-translucent-row');
+    if (menuRow) {
+        menuRow.addEventListener('click', (e) => {
+            if (e.target.closest('.switch')) return;
+            const next = !isTranslucent();
+            handleTranslucentChange(next);
+        });
+    }
 };
