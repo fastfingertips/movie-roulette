@@ -2,39 +2,47 @@ import { elements, refreshIcons } from './dom.js';
 import { escapeHtml } from './utils.js';
 
 export const THEMES = [
-    { id: 'classic-light', name: 'Classic Light', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
-    { id: 'pine-orchid', name: 'Pine & Orchid', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
-    { id: 'citron-berry', name: 'Citron & Berry', mode: 'light', bg: '#f5f3e6', colors: ['#3f7483', '#b32459', '#f5f3e6'] },
-    { id: 'forest-lime', name: 'Forest & Lime', mode: 'light', bg: '#f6f8f5', colors: ['#163300', '#9fe870', '#f6f8f5'] },
-    { id: 'letterboxd-light', name: 'Letterboxd Light', mode: 'light', bg: '#f4f6f8', colors: ['#00a63e', '#ff8000', '#f4f6f8'] },
-    { id: 'amoled-light', name: 'AMOLED Light', mode: 'light', bg: '#ffffff', colors: ['#1a7f37', '#0969da', '#ffffff'] },
-    { id: 'classic-dark', name: 'Classic Dark', mode: 'dark', bg: '#0f1117', colors: ['#3d7e5e', '#58a6ff', '#0f1117'] },
-    { id: 'amoled', name: 'AMOLED Black', mode: 'dark', bg: '#000000', colors: ['#2ea043', '#40a9ff', '#000000'] },
-    { id: 'midnight-lime', name: 'Midnight Lime', mode: 'dark', bg: '#121511', colors: ['#9fe870', '#a0e1e1', '#121511'] },
-    { id: 'letterboxd-dark', name: 'Letterboxd Dark', mode: 'dark', bg: '#14181c', colors: ['#00e054', '#ff8000', '#14181c'] },
-    { id: 'pine-orchid-dark', name: 'Pine & Orchid Dark', mode: 'dark', bg: '#141016', colors: ['#6dd32c', '#d384ee', '#141016'] },
-    { id: 'citron-berry-dark', name: 'Citron & Berry Dark', mode: 'dark', bg: '#141512', colors: ['#e83e7c', '#4ea5bb', '#141512'] }
+    { id: 'classic-light', name: 'Classic Light', label: 'Classic', pair: 'classic-dark', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
+    { id: 'pine-orchid', name: 'Pine & Orchid', label: 'Pine & Orchid', pair: 'pine-orchid-dark', mode: 'light', bg: '#faeef5', colors: ['#2c6058', '#d384ee', '#faeef5'] },
+    { id: 'citron-berry', name: 'Citron & Berry', label: 'Citron & Berry', pair: 'citron-berry-dark', mode: 'light', bg: '#f5f3e6', colors: ['#3f7483', '#b32459', '#f5f3e6'] },
+    { id: 'forest-lime', name: 'Forest & Lime', label: 'Forest & Lime', pair: 'midnight-lime', mode: 'light', bg: '#f6f8f5', colors: ['#163300', '#9fe870', '#f6f8f5'] },
+    { id: 'letterboxd-light', name: 'Letterboxd Light', label: 'Letterboxd', pair: 'letterboxd-dark', mode: 'light', bg: '#f4f6f8', colors: ['#00a63e', '#ff8000', '#f4f6f8'] },
+    { id: 'amoled-light', name: 'AMOLED Light', label: 'AMOLED', pair: 'amoled', mode: 'light', bg: '#ffffff', colors: ['#1a7f37', '#0969da', '#ffffff'] },
+    { id: 'classic-dark', name: 'Classic Dark', label: 'Classic', pair: 'classic-light', mode: 'dark', bg: '#0f1117', colors: ['#3d7e5e', '#58a6ff', '#0f1117'] },
+    { id: 'amoled', name: 'AMOLED Black', label: 'AMOLED', pair: 'amoled-light', mode: 'dark', bg: '#000000', colors: ['#2ea043', '#40a9ff', '#000000'] },
+    { id: 'midnight-lime', name: 'Midnight Lime', label: 'Forest & Lime', pair: 'forest-lime', mode: 'dark', bg: '#121511', colors: ['#9fe870', '#a0e1e1', '#121511'] },
+    { id: 'letterboxd-dark', name: 'Letterboxd Dark', label: 'Letterboxd', pair: 'letterboxd-light', mode: 'dark', bg: '#14181c', colors: ['#00e054', '#ff8000', '#14181c'] },
+    { id: 'pine-orchid-dark', name: 'Pine & Orchid Dark', label: 'Pine & Orchid', pair: 'pine-orchid', mode: 'dark', bg: '#141016', colors: ['#6dd32c', '#d384ee', '#141016'] },
+    { id: 'citron-berry-dark', name: 'Citron & Berry Dark', label: 'Citron & Berry', pair: 'citron-berry', mode: 'dark', bg: '#141512', colors: ['#e83e7c', '#4ea5bb', '#141512'] }
 ];
 
-const renderThemeOptionHtml = (theme) => {
+const renderThemeOptionHtml = (theme, idx, isActive = false) => {
     const swatches = theme.colors
-        .map((color, idx) => {
-            const bgClass = idx === 2 ? ' theme-dot--bg' : '';
+        .map((color, colorIdx) => {
+            const bgClass = colorIdx === 2 ? ' theme-dot--bg' : '';
             return `<span class="theme-dot${bgClass}" style="background: ${color}"></span>`;
         })
         .join('');
-    return `<button type="button" class="theme-option" data-theme-id="${escapeHtml(theme.id)}" role="menuitem"><span class="theme-option__swatches">${swatches}</span><span class="theme-option__name">${escapeHtml(theme.name)}</span><i data-lucide="check" class="theme-option__check"></i></button>`;
+    const displayLabel = theme.label || theme.name;
+    const activeClass = isActive ? ' is-active' : '';
+    return `<button type="button" class="theme-option${activeClass}" data-theme-id="${escapeHtml(theme.id)}" data-palette-index="${idx}" role="menuitem" aria-selected="${isActive}"><span class="theme-option__swatches">${swatches}</span><span class="theme-option__name">${escapeHtml(displayLabel)}</span><i data-lucide="check" class="theme-option__check"></i></button>`;
 };
 
-export const buildThemeMenuHtml = (themes = THEMES) => {
-    const lightThemes = themes.filter(t => t.mode === 'light');
-    const darkThemes = themes.filter(t => t.mode === 'dark');
+export const buildThemeMenuHtml = (themes = THEMES, activeMode = 'light', activeThemeId = null) => {
+    const basePalettes = themes.filter(t => t.mode === 'light');
+    const modeThemes = basePalettes.map(t => {
+        if (activeMode === 'dark' && t.pair) {
+            return themes.find(d => d.id === t.pair) || t;
+        }
+        return t;
+    });
+
+    const isLight = activeMode !== 'dark';
+    const modeSwitchHtml = `<div class="theme-mode-switch" role="group" aria-label="Color mode"><button type="button" class="theme-mode-btn${isLight ? ' is-active' : ''}" data-mode-value="light" aria-pressed="${isLight}"><i data-lucide="sun"></i><span>Light</span></button><button type="button" class="theme-mode-btn${!isLight ? ' is-active' : ''}" data-mode-value="dark" aria-pressed="${!isLight}"><i data-lucide="moon"></i><span>Dark</span></button></div><div class="theme-menu__divider"></div>`;
+
     return [
-        '<div class="theme-menu__section-title">Light Themes</div>',
-        ...lightThemes.map(renderThemeOptionHtml),
-        '<div class="theme-menu__divider"></div>',
-        '<div class="theme-menu__section-title">Dark Themes</div>',
-        ...darkThemes.map(renderThemeOptionHtml)
+        modeSwitchHtml,
+        ...modeThemes.map((t, idx) => renderThemeOptionHtml(t, idx, t.id === activeThemeId))
     ].join('');
 };
 
@@ -64,16 +72,6 @@ export const setTranslucent = (enabled, persist = true) => {
     syncTranslucentToggles(enabled);
 };
 
-const updateActiveThemeInMenu = (themeId) => {
-    const root = elements.themeMenu || document;
-    const options = root.querySelectorAll('.theme-option');
-    options.forEach(opt => {
-        const isActive = opt.getAttribute('data-theme-id') === themeId;
-        opt.classList.toggle('is-active', isActive);
-        opt.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-};
-
 const THEME_STORAGE_KEY = 'theme';
 
 /** Default light and dark themes (used for system scheme and quick toggle) */
@@ -88,11 +86,60 @@ export const resolveTheme = (themeId) => {
     return THEMES.find(t => t.id === themeId) || null;
 };
 
+export const getCounterpartTheme = (themeId, targetMode = null) => {
+    const current = resolveTheme(themeId);
+    if (!current) {
+        return targetMode === 'dark' ? SYSTEM_THEME.dark : SYSTEM_THEME.light;
+    }
+    if (targetMode && current.mode === targetMode) {
+        return current.id;
+    }
+    return current.pair || (current.mode === 'light' ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
+};
+
 export const getStoredTheme = () => {
     if (typeof localStorage === 'undefined') return null;
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     const resolved = resolveTheme(stored);
     return resolved ? resolved.id : null;
+};
+
+const updateActiveThemeInMenu = (themeId) => {
+    if (typeof document === 'undefined') return;
+    const root = elements.themeMenu || document;
+    const activeTheme = resolveTheme(themeId) || resolveTheme(SYSTEM_THEME.light);
+    const activeMode = activeTheme ? activeTheme.mode : 'light';
+    const basePalettes = THEMES.filter(t => t.mode === 'light');
+
+    const modeBtns = root.querySelectorAll('.theme-mode-btn');
+    modeBtns.forEach(btn => {
+        const isCurrentMode = btn.getAttribute('data-mode-value') === activeMode;
+        btn.classList.toggle('is-active', isCurrentMode);
+        btn.setAttribute('aria-pressed', isCurrentMode ? 'true' : 'false');
+    });
+
+    const options = root.querySelectorAll('.theme-option');
+    options.forEach((opt, index) => {
+        const paletteIdx = Number(opt.getAttribute('data-palette-index') ?? index);
+        const lightTheme = basePalettes[paletteIdx];
+        if (!lightTheme) return;
+
+        const targetTheme = activeMode === 'dark' && lightTheme.pair
+            ? (resolveTheme(lightTheme.pair) || lightTheme)
+            : lightTheme;
+
+        opt.setAttribute('data-theme-id', targetTheme.id);
+        const isActive = targetTheme.id === activeTheme.id;
+        opt.classList.toggle('is-active', isActive);
+        opt.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+        const dots = opt.querySelectorAll('.theme-dot');
+        dots.forEach((dot, dotIdx) => {
+            if (targetTheme.colors[dotIdx]) {
+                dot.style.background = targetTheme.colors[dotIdx];
+            }
+        });
+    });
 };
 
 /**
@@ -190,15 +237,15 @@ const closeThemeMenu = () => {
 };
 
 export const initTheme = () => {
-    const optionsContainer = elements.themeMenuOptions || document.getElementById('theme-menu-options');
-    if (optionsContainer) {
-        optionsContainer.innerHTML = buildThemeMenuHtml(THEMES);
-    }
-
     // Explicit user choice wins; otherwise follow the system color scheme
     const initialTheme = getStoredTheme() || getSystemTheme();
     const resolved = resolveTheme(initialTheme);
     const mode = resolved ? resolved.mode : 'light';
+
+    const optionsContainer = elements.themeMenuOptions || document.getElementById('theme-menu-options');
+    if (optionsContainer) {
+        optionsContainer.innerHTML = buildThemeMenuHtml(THEMES, mode, initialTheme);
+    }
 
     document.documentElement.setAttribute('data-theme', initialTheme);
     document.documentElement.setAttribute('data-mode', mode);
@@ -223,6 +270,19 @@ export const initTheme = () => {
     const menuEl = elements.themeMenu || document.getElementById('theme-menu');
     if (menuEl) {
         menuEl.addEventListener('click', (e) => {
+            const modeBtn = e.target.closest('.theme-mode-btn');
+            if (modeBtn) {
+                const targetMode = modeBtn.getAttribute('data-mode-value');
+                const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
+                const nextTheme = getCounterpartTheme(currentTheme, targetMode);
+                const rect = modeBtn.getBoundingClientRect();
+                applyTheme(nextTheme, {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                });
+                return;
+            }
+
             const opt = e.target.closest('.theme-option');
             if (!opt) return;
             const themeId = opt.getAttribute('data-theme-id');
