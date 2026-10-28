@@ -6,25 +6,7 @@ Thank you for contributing to **Movie Roulette**. This document outlines our dev
 
 ## Development Setup
 
-### Prerequisites
-- **Python 3.12+**
-- **Node.js 24+** and **npm**
-
-### Installation
-```bash
-git clone https://github.com/fastfingertips/movie-roulette.git
-cd movie-roulette
-
-# Install dependencies
-pip install -r requirements.txt
-npm install
-```
-
-### Running Locally
-```bash
-python -m api.index
-```
-Open **[http://127.0.0.1:5050](http://127.0.0.1:5050)** in your browser.
+See [Local Development](README.md#local-development) in the README for prerequisites, installation, and running the server locally.
 
 ---
 
