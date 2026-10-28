@@ -22,11 +22,35 @@
                 'pine-orchid-dark': 'dark',
                 'citron-berry-dark': 'dark'
             };
+            var pairs = {
+                'classic-light': 'classic-dark',
+                'classic-dark': 'classic-light',
+                'pine-orchid': 'pine-orchid-dark',
+                'pine-orchid-dark': 'pine-orchid',
+                'citron-berry': 'citron-berry-dark',
+                'citron-berry-dark': 'citron-berry',
+                'forest-lime': 'midnight-lime',
+                'midnight-lime': 'forest-lime',
+                'letterboxd-light': 'letterboxd-dark',
+                'letterboxd-dark': 'letterboxd-light',
+                'amoled-light': 'amoled',
+                'amoled': 'amoled-light'
+            };
+            var savedMode = localStorage.getItem('theme_mode');
+            var modePref = (savedMode === 'light' || savedMode === 'dark') ? savedMode : 'system';
+            var darkOS = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var effectiveMode = modePref === 'system' ? (darkOS ? 'dark' : 'light') : modePref;
+
             var saved = localStorage.getItem('theme');
-            var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            var theme = (saved && themes[saved]) ? saved : (dark ? 'midnight-lime' : 'forest-lime');
+            var theme = (saved && themes[saved]) ? saved : (effectiveMode === 'dark' ? 'midnight-lime' : 'forest-lime');
+
+            if (themes[theme] !== effectiveMode && pairs[theme]) {
+                theme = pairs[theme];
+            }
+
             document.documentElement.setAttribute('data-theme', theme);
-            document.documentElement.setAttribute('data-mode', themes[theme]);
+            document.documentElement.setAttribute('data-mode', effectiveMode);
+            document.documentElement.setAttribute('data-theme-mode', modePref);
 
             if (localStorage.getItem('movie_roulette_translucent') === 'false') {
                 document.documentElement.setAttribute('data-solid-surfaces', 'true');

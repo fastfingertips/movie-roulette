@@ -388,8 +388,8 @@
 
 .theme-mode-switch {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
     padding: 3px;
     background: rgb(0, 0, 0, 0.05);
     border-radius: 8px;
@@ -404,8 +404,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 6px 8px;
+    gap: 4px;
+    padding: 5px 3px;
     border: none;
     border-radius: 6px;
     background: transparent;
