@@ -1,4 +1,4 @@
-import { $, elements } from './dom.js';
+import { elements, hydrateModal, refreshIcons } from './dom.js';
 import { getHistory, getLists } from './storage.js';
 import { escapeHtml } from './utils.js';
 import { createHistoryItem } from '../components/HistoryItem.js';
@@ -17,18 +17,28 @@ const formatTime = (ts) => {
 export const renderHistory = (useListCallback) => {
     const hist = getHistory();
     const lists = getLists();
-    
-    // Toggle grid visibility if anything exists
-    $('history-grid').classList.toggle('is-hidden', hist.length === 0 && lists.length === 0);
-    
-    $('history-section').classList.toggle('is-hidden', hist.length === 0);
-    elements.historyList.innerHTML = hist.map(item => createHistoryItem(item, formatTime)).join('');
 
-    const currentInputs = Array.from($('randomize-form').querySelectorAll('input')).map(i => i.value.trim());
-    const listSection = $('recent-lists-section');
-    const listTarget = $('recent-lists-list');
-    listSection.classList.toggle('is-hidden', lists.length === 0);
-    
+    // Toggle grid visibility if anything exists
+    if (elements.historyGrid) {
+        elements.historyGrid.classList.toggle('is-hidden', hist.length === 0 && lists.length === 0);
+    }
+
+    if (elements.historySection) {
+        elements.historySection.classList.toggle('is-hidden', hist.length === 0);
+    }
+    if (elements.historyList) {
+        elements.historyList.innerHTML = hist.map(item => createHistoryItem(item, formatTime)).join('');
+    }
+
+    const form = elements.randomizeForm;
+    const currentInputs = form ? Array.from(form.querySelectorAll('input')).map(i => i.value.trim()) : [];
+    const listSection = elements.recentListsSection;
+    const listTarget = elements.recentListsList;
+    if (listSection) {
+        listSection.classList.toggle('is-hidden', lists.length === 0);
+    }
+    if (!listTarget) return;
+
     // Build lists HTML first
     listTarget.innerHTML = lists.map(url => {
         const activeIndex = currentInputs.indexOf(url);
@@ -41,9 +51,7 @@ export const renderHistory = (useListCallback) => {
     });
 
     const setPendingRemoval = (url, isPending) => {
-        if (!url) return;
-        const form = $('randomize-form');
-        if (!form) return;
+        if (!url || !form) return;
         const inputs = form.querySelectorAll('.field__input');
         inputs.forEach(input => {
             if (input.value.trim() === url) {
@@ -82,7 +90,7 @@ export const renderHistory = (useListCallback) => {
         }
     });
 
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons(elements.historyGrid);
 };
 
 const encodeTextFragment = (text) => {
@@ -105,12 +113,12 @@ const getListHighlightUrl = (list, movie, page = 1) => {
     if (!list || !list.user) return null;
     const isWatchlist = list.is_watchlist !== undefined ? list.is_watchlist : list.slug === 'watchlist';
     const pagePart = page && page > 1 ? `page/${page}/` : '';
-    
+
     if (isWatchlist) {
         const hash = movie?.slug ? `#${movie.slug}` : '';
         return `https://letterboxd.com/${list.user}/watchlist/${pagePart}${hash}`;
     }
-    
+
     const targetText = movie?.name ? `${movie.name}${movie.year || ''}` : '';
     const fragment = targetText ? `#:~:text=${encodeTextFragment(targetText)}` : '';
     return `https://letterboxd.com/${list.user}/list/${list.slug}/detail/${pagePart}${fragment}`;
@@ -124,7 +132,7 @@ export const renderResult = (data) => {
 
     // Render name and year inline (like Letterboxd)
     elements.resMovie.innerHTML = `${escapeHtml(data.movie.name)} <span class="result-year">${data.movie.year ? escapeHtml(data.movie.year) : ''}</span>`;
-    
+
     const listLabel = isWatchlist ? 'Watchlist' : (data.list?.title || 'List');
     if (listHomeUrl && data.list?.user) {
         const userUrl = `https://letterboxd.com/${encodeURIComponent(data.list.user)}/`;
@@ -133,11 +141,11 @@ export const renderResult = (data) => {
     } else {
         elements.resMeta.innerHTML = `from ${escapeHtml(data.list?.title || '')}`;
     }
-    
+
     // Director (immediately under meta, styled inline/beautifully)
     if (elements.resDirector) {
         if (data.movie.directors?.length) {
-            const directorLinks = data.movie.directors.map(d => 
+            const directorLinks = data.movie.directors.map(d =>
                 d.url ? `<a href="${d.url}" target="_blank" rel="noopener" class="detail-link">${escapeHtml(d.name)}</a>` : escapeHtml(d.name)
             ).join(', ');
             elements.resDirector.innerHTML = `<span class="detail-label">Directed by</span> ${directorLinks}`;
@@ -166,7 +174,7 @@ export const renderResult = (data) => {
 
     if (elements.resCast) {
         if (data.movie.cast?.length) {
-            const castLinks = data.movie.cast.map(c => 
+            const castLinks = data.movie.cast.map(c =>
                 c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="detail-link">${escapeHtml(c.name)}</a>` : escapeHtml(c.name)
             ).join(', ');
             elements.resCast.innerHTML = `<span class="detail-label">Cast</span> ${castLinks}`;
@@ -204,7 +212,7 @@ export const renderResult = (data) => {
             elements.resListLink.classList.add('is-hidden');
         }
     }
-    
+
     // 2. Stars rendering
     if (data.movie.rating) {
         const rating = parseFloat(data.movie.rating);
@@ -236,7 +244,7 @@ export const renderResult = (data) => {
     } else {
         elements.resPoster.removeAttribute('srcset');
         elements.resPoster.removeAttribute('sizes');
-        elements.resPoster.src = '';
+        elements.resPoster.removeAttribute('src');
         elements.resPoster.classList.add('is-hidden');
     }
 
@@ -248,30 +256,26 @@ export const renderResult = (data) => {
     if (elements.resBodyBlock) {
         elements.resBodyBlock.classList.toggle('has-no-details', !hasAnyDetails);
     }
-    
-    // 4. Stats
-    if (elements.statPool) elements.statPool.textContent = data.stats.total_pool.toLocaleString();
-    if (elements.statProb) elements.statProb.textContent = data.stats.probability;
 
     // Trigger contextual notification from stats button with a slight delay
-    const popToast = $('stats-pop-toast');
+    const popToast = elements.statsPopToast;
     if (popToast) {
         popToast.textContent = `Chosen from ${data.stats.total_pool.toLocaleString()} movies (${data.stats.probability}%)`;
         popToast.classList.remove('is-active', 'is-closing');
-        
+
         if (window.statsPopTimeout) clearTimeout(window.statsPopTimeout);
-        
+
         // Wait for result view transition to finish
         setTimeout(() => {
             popToast.classList.add('is-active');
-            
+
             window.statsPopTimeout = setTimeout(() => {
                 popToast.classList.remove('is-active');
                 popToast.classList.add('is-closing');
-                
+
                 // Trigger swallow/gulp effect on the icon when toast arrives
                 setTimeout(() => {
-                    const btn = $('stats-btn');
+                    const btn = elements.statsBtn;
                     if (btn) {
                         btn.classList.add('is-gulping');
                         setTimeout(() => btn.classList.remove('is-gulping'), 600);
@@ -283,10 +287,16 @@ export const renderResult = (data) => {
     }
 
     renderStatsModal(data);
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons(elements.resultArea);
 };
 
 export const setView = (view) => {
+    if (view === 'info') {
+        hydrateModal(elements.infoModal);
+    } else if (view === 'stats') {
+        hydrateModal(elements.statsModal);
+    }
+
     elements.infoModal.classList.toggle('is-hidden', view !== 'info');
     elements.statsModal.classList.toggle('is-hidden', view !== 'stats');
     elements.formArea.classList.toggle('is-hidden', view !== 'form');
@@ -296,12 +306,12 @@ export const setView = (view) => {
 
 export const showToast = (msg, type = 'error') => {
     if (!elements.error || !elements.errorText) return;
-    
+
     elements.errorText.textContent = msg;
     elements.error.classList.remove('type-info', 'type-error');
     elements.error.classList.add(`type-${type}`);
     elements.error.classList.add('is-active');
-    
+
     const iconName = type === 'error' ? 'alert-circle' : 'info';
     const icon = elements.error.querySelector('[data-lucide], svg.lucide');
     if (icon) {
@@ -312,7 +322,7 @@ export const showToast = (msg, type = 'error') => {
         } else {
             icon.setAttribute('data-lucide', iconName);
         }
-        if (window.lucide) window.lucide.createIcons();
+        refreshIcons(elements.error);
     }
 
     if (window.toastTimeout) clearTimeout(window.toastTimeout);
@@ -350,7 +360,7 @@ export const updateBackdrop = (url) => {
 };
 
 export const updateShareButtonText = (urlCount) => {
-    const shareBtn = $('share-blend-btn');
+    const shareBtn = elements.shareBlendBtn;
     const btnTextNode = shareBtn?.querySelector('.btn-text');
     if (shareBtn && btnTextNode) {
         const isMix = urlCount > 1;

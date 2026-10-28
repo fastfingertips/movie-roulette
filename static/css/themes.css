@@ -481,53 +481,13 @@
     box-shadow: 0 1px 2px rgb(0, 0, 0, 0.15);
 }
 
-.theme-dot--classic-light-1 { background: #10b981; }
-.theme-dot--classic-light-2 { background: #3b82f6; }
-.theme-dot--classic-light-3 { background: #f8fafc; border: 1px solid rgb(0, 0, 0, 0.15); }
+.theme-dot--bg {
+    border: 1px solid rgb(0, 0, 0, 0.18);
+}
 
-.theme-dot--pine-orchid-1 { background: #2c6058; }
-.theme-dot--pine-orchid-2 { background: #d384ee; }
-.theme-dot--pine-orchid-3 { background: #faeef5; border: 1px solid rgb(0, 0, 0, 0.15); }
-
-.theme-dot--citron-berry-1 { background: #3f7483; }
-.theme-dot--citron-berry-2 { background: #b32459; }
-.theme-dot--citron-berry-3 { background: #f5f3e6; border: 1px solid rgb(0, 0, 0, 0.15); }
-
-.theme-dot--forest-lime-1 { background: #163300; }
-.theme-dot--forest-lime-2 { background: #9fe870; }
-.theme-dot--forest-lime-3 { background: #f6f8f5; border: 1px solid rgb(0, 0, 0, 0.15); }
-
-.theme-dot--letterboxd-light-1 { background: #00a63e; }
-.theme-dot--letterboxd-light-2 { background: #ff8000; }
-.theme-dot--letterboxd-light-3 { background: #f4f6f8; border: 1px solid rgb(0, 0, 0, 0.15); }
-
-.theme-dot--amoled-light-1 { background: #1a7f37; }
-.theme-dot--amoled-light-2 { background: #0969da; }
-.theme-dot--amoled-light-3 { background: #fff; border: 1px solid rgb(0, 0, 0, 0.25); }
-
-.theme-dot--classic-dark-1 { background: #3d7e5e; }
-.theme-dot--classic-dark-2 { background: #58a6ff; }
-.theme-dot--classic-dark-3 { background: #0f1117; border: 1px solid rgb(255, 255, 255, 0.2); }
-
-.theme-dot--pine-orchid-dark-1 { background: #6dd32c; }
-.theme-dot--pine-orchid-dark-2 { background: #d384ee; }
-.theme-dot--pine-orchid-dark-3 { background: #141016; border: 1px solid rgb(255, 255, 255, 0.2); }
-
-.theme-dot--citron-berry-dark-1 { background: #e83e7c; }
-.theme-dot--citron-berry-dark-2 { background: #4ea5bb; }
-.theme-dot--citron-berry-dark-3 { background: #141512; border: 1px solid rgb(255, 255, 255, 0.2); }
-
-.theme-dot--amoled-1 { background: #2ea043; }
-.theme-dot--amoled-2 { background: #40a9ff; }
-.theme-dot--amoled-3 { background: #000; border: 1px solid rgb(255, 255, 255, 0.25); }
-
-.theme-dot--midnight-lime-1 { background: #9fe870; }
-.theme-dot--midnight-lime-2 { background: #a0e1e1; }
-.theme-dot--midnight-lime-3 { background: #121511; border: 1px solid rgb(255, 255, 255, 0.2); }
-
-.theme-dot--letterboxd-dark-1 { background: #00e054; }
-.theme-dot--letterboxd-dark-2 { background: #ff8000; }
-.theme-dot--letterboxd-dark-3 { background: #14181c; border: 1px solid rgb(255, 255, 255, 0.2); }
+[data-mode="dark"] .theme-dot--bg {
+    border: 1px solid rgb(255, 255, 255, 0.22);
+}
 
 .theme-option__name {
     flex: 1;

@@ -1,4 +1,4 @@
-import { $ } from './dom.js';
+import { $, elements, refreshIcons } from './dom.js';
 import { createUrlField } from '../components/UrlField.js';
 import { CONFIG } from '../constants.js';
 import { formatListUrl, canonicalKey, stripOrigin, RESERVED_SLUGS } from './utils.js';
@@ -17,7 +17,10 @@ export const getActiveUrls = () => {
 };
 
 const renumberFields = () => {
-    const fields = Array.from($('url-fields').querySelectorAll('.field'))
+    const urlFieldsEl = elements.urlFields || $('url-fields');
+    if (!urlFieldsEl) return;
+
+    const fields = Array.from(urlFieldsEl.querySelectorAll('.field'))
         .filter(f => !f.classList.contains('is-removing'));
     fields.forEach((field, i) => {
         const numEl = field.querySelector('.field__number');
@@ -30,14 +33,14 @@ const renumberFields = () => {
             setTimeout(() => {
                 numEl.textContent = newNum;
                 numEl.classList.remove('is-shifting');
-            }, 800); 
+            }, 800);
         } else if (!oldNum || oldNum !== newNum) {
             numEl.textContent = newNum;
         }
 
         const input = field.querySelector('input');
         const btn = field.querySelector('.field__remove');
-        
+
         if (i === 0) {
             field.classList.remove('is-optional');
             input.placeholder = "URL, username, or user/list-slug…";
@@ -54,9 +57,10 @@ const renumberFields = () => {
         }
     });
 
-    $('url-fields').classList.toggle('is-single-field', urlCount === 1);
-    $('add-url-btn').classList.toggle('is-hidden', urlCount >= CONFIG.MAX_URLS);
-    const samplingWrapper = $('sampling-toggle-wrapper');
+    urlFieldsEl.classList.toggle('is-single-field', urlCount === 1);
+    const addBtn = elements.addUrlBtn || $('add-url-btn');
+    if (addBtn) addBtn.classList.toggle('is-hidden', urlCount >= CONFIG.MAX_URLS);
+    const samplingWrapper = elements.samplingToggleWrapper || $('sampling-toggle-wrapper');
     if (samplingWrapper) {
         samplingWrapper.classList.toggle('is-hidden', urlCount <= 1);
     }
@@ -88,18 +92,23 @@ const bindFieldEvents = (fieldEl, callback) => {
 export const addField = (callback, value = '') => {
     if (urlCount >= CONFIG.MAX_URLS) return null;
 
+    const urlFieldsEl = elements.urlFields || $('url-fields');
+    if (!urlFieldsEl) return null;
+
     const div = createUrlField(urlCount + 1, value);
-    $('url-fields').appendChild(div);
+    urlFieldsEl.appendChild(div);
     urlCount++;
     renumberFields();
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons(div);
 
     bindFieldEvents(div, callback);
     return div.querySelector('input');
 };
 
 export const toggleFieldUrl = (url, updateUICallback) => {
-    const inputs = Array.from($('randomize-form').querySelectorAll('input'));
+    const form = elements.randomizeForm || $('randomize-form');
+    if (!form) return;
+    const inputs = Array.from(form.querySelectorAll('input'));
     const existingInput = inputs.find(i => i.value.trim() === url);
 
     if (existingInput) {
@@ -172,7 +181,7 @@ const animateShorten = (inputEl, shortForm) => {
     isAnimating = true;
     const eraseSpeed = 30;
     const typeSpeed = 80;
-    
+
     const wrapper = inputEl.closest('.field__input-wrapper');
     const metaEl = wrapper ? wrapper.querySelector('.field__meta') : null;
     const originalValue = inputEl.value;
@@ -188,7 +197,7 @@ const animateShorten = (inputEl, shortForm) => {
             inputEl.value = inputEl.value.slice(0, -1);
         } else {
             clearInterval(eraseInterval);
-            
+
             // Small pause before typing
             setTimeout(() => {
                 let i = 0;
@@ -307,7 +316,9 @@ export const initFieldStats = (updateUICallback) => {
         bindFieldEvents(primaryField, updateUICallback);
     }
 
-    $('url-fields').addEventListener('focusout', (e) => {
+    const urlFieldsEl = elements.urlFields || $('url-fields');
+    if (!urlFieldsEl) return;
+    urlFieldsEl.addEventListener('focusout', (e) => {
         if (isAnimating || !e.target.matches('.field__input')) return;
         const inputEl = e.target;
         const parts = stripOrigin(inputEl.value).split('/').filter(Boolean);
@@ -327,9 +338,9 @@ export const detectFieldType = (inputEl) => {
     const wrapper = inputEl.closest('.field__input-wrapper');
     const statusEl = wrapper ? wrapper.querySelector('.field__status') : null;
     const metaEl = wrapper ? wrapper.querySelector('.field__meta') : null;
-    
+
     if (!statusEl) return;
-    
+
     if (!rawVal) {
         clearServerError(inputEl);
         statusEl.classList.remove('is-visible', 'is-invalid');
@@ -358,7 +369,7 @@ export const detectFieldType = (inputEl) => {
     // Identify external domains (not letterboxd)
     const isUrl = rawVal.includes('.') || rawVal.includes('http');
     const isLetterboxd = rawVal.includes('letterboxd.com');
-    
+
     if (isUrl && !isLetterboxd) {
         statusEl.textContent = 'Invalid';
         statusEl.title = 'Please enter a valid Letterboxd URL or username';
@@ -376,7 +387,7 @@ export const detectFieldType = (inputEl) => {
     // 1. Single word + slash (e.g. nmcassa/)
     // 2. Ends with /list/ (incomplete)
     const isIncomplete = (parts.length === 1 && rawVal.endsWith('/')) || rawVal.endsWith('/list/');
-    
+
     if (isIncomplete || (parts.length > 1 && !isExplicitList && parts.length !== 2)) {
         statusEl.textContent = 'Invalid';
         statusEl.title = 'Incomplete list path';

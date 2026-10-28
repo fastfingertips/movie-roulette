@@ -1,3 +1,5 @@
+import { elements, refreshIcons } from './dom.js';
+import { escapeHtml } from './utils.js';
 
 export const THEMES = [
     { id: 'classic-light', name: 'Classic Light', mode: 'light', bg: '#f8fafc', colors: ['#10b981', '#3b82f6', '#f8fafc'] },
@@ -14,6 +16,28 @@ export const THEMES = [
     { id: 'citron-berry-dark', name: 'Citron & Berry Dark', mode: 'dark', bg: '#141512', colors: ['#e83e7c', '#4ea5bb', '#141512'] }
 ];
 
+const renderThemeOptionHtml = (theme) => {
+    const swatches = theme.colors
+        .map((color, idx) => {
+            const bgClass = idx === 2 ? ' theme-dot--bg' : '';
+            return `<span class="theme-dot${bgClass}" style="background: ${color}"></span>`;
+        })
+        .join('');
+    return `<button type="button" class="theme-option" data-theme-id="${escapeHtml(theme.id)}" role="menuitem"><span class="theme-option__swatches">${swatches}</span><span class="theme-option__name">${escapeHtml(theme.name)}</span><i data-lucide="check" class="theme-option__check"></i></button>`;
+};
+
+export const buildThemeMenuHtml = (themes = THEMES) => {
+    const lightThemes = themes.filter(t => t.mode === 'light');
+    const darkThemes = themes.filter(t => t.mode === 'dark');
+    return [
+        '<div class="theme-menu__section-title">Light Themes</div>',
+        ...lightThemes.map(renderThemeOptionHtml),
+        '<div class="theme-menu__divider"></div>',
+        '<div class="theme-menu__section-title">Dark Themes</div>',
+        ...darkThemes.map(renderThemeOptionHtml)
+    ].join('');
+};
+
 export const TRANSLUCENT_STORAGE_KEY = 'movie_roulette_translucent';
 
 export const isTranslucent = () => {
@@ -22,8 +46,7 @@ export const isTranslucent = () => {
 };
 
 export const syncTranslucentToggles = (enabled) => {
-    if (typeof document === 'undefined') return;
-    const toggle = document.getElementById('theme-menu-translucent-toggle');
+    const toggle = elements.themeTranslucentToggle || (typeof document !== 'undefined' ? document.getElementById('theme-menu-translucent-toggle') : null);
     if (toggle) toggle.checked = enabled;
 };
 
@@ -42,7 +65,8 @@ export const setTranslucent = (enabled, persist = true) => {
 };
 
 const updateActiveThemeInMenu = (themeId) => {
-    const options = document.querySelectorAll('.theme-option');
+    const root = elements.themeMenu || document;
+    const options = root.querySelectorAll('.theme-option');
     options.forEach(opt => {
         const isActive = opt.getAttribute('data-theme-id') === themeId;
         opt.classList.toggle('is-active', isActive);
@@ -90,7 +114,7 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
         x = originCoords.x;
         y = originCoords.y;
     } else {
-        const toggleBtn = document.getElementById('theme-toggle');
+        const toggleBtn = elements.themeToggle || document.getElementById('theme-toggle');
         if (toggleBtn) {
             const rect = toggleBtn.getBoundingClientRect();
             x = rect.left + rect.width / 2;
@@ -103,7 +127,6 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
         document.documentElement.setAttribute('data-mode', themeObj.mode);
         if (persist) localStorage.setItem(THEME_STORAGE_KEY, themeObj.id);
         updateActiveThemeInMenu(themeObj.id);
-        if (window.lucide) window.lucide.createIcons();
     };
 
     if (!document.startViewTransition) {
@@ -150,13 +173,16 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
 };
 
 const toggleThemeMenu = (force = null) => {
-    const menu = document.getElementById('theme-menu');
-    const btn = document.getElementById('theme-toggle');
+    const menu = elements.themeMenu || document.getElementById('theme-menu');
+    const btn = elements.themeToggle || document.getElementById('theme-toggle');
     if (!menu || !btn) return;
 
     const shouldShow = force !== null ? force : menu.classList.contains('is-hidden');
     menu.classList.toggle('is-hidden', !shouldShow);
     btn.setAttribute('aria-expanded', shouldShow ? 'true' : 'false');
+    if (shouldShow) {
+        refreshIcons(menu);
+    }
 };
 
 const closeThemeMenu = () => {
@@ -164,6 +190,11 @@ const closeThemeMenu = () => {
 };
 
 export const initTheme = () => {
+    const optionsContainer = elements.themeMenuOptions || document.getElementById('theme-menu-options');
+    if (optionsContainer) {
+        optionsContainer.innerHTML = buildThemeMenuHtml(THEMES);
+    }
+
     // Explicit user choice wins; otherwise follow the system color scheme
     const initialTheme = getStoredTheme() || getSystemTheme();
     const resolved = resolveTheme(initialTheme);
@@ -181,7 +212,7 @@ export const initTheme = () => {
         });
     }
 
-    const themeBtn = document.getElementById('theme-toggle');
+    const themeBtn = elements.themeToggle || document.getElementById('theme-toggle');
     if (themeBtn) {
         themeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -189,9 +220,11 @@ export const initTheme = () => {
         });
     }
 
-    const options = document.querySelectorAll('.theme-option');
-    options.forEach(opt => {
-        opt.addEventListener('click', () => {
+    const menuEl = elements.themeMenu || document.getElementById('theme-menu');
+    if (menuEl) {
+        menuEl.addEventListener('click', (e) => {
+            const opt = e.target.closest('.theme-option');
+            if (!opt) return;
             const themeId = opt.getAttribute('data-theme-id');
             const rect = opt.getBoundingClientRect();
             closeThemeMenu();
@@ -200,7 +233,7 @@ export const initTheme = () => {
                 y: rect.top + rect.height / 2
             });
         });
-    });
+    }
 
     document.addEventListener('click', (e) => {
         const wrapper = e.target.closest('.theme-picker-wrapper');
@@ -219,14 +252,14 @@ export const initTheme = () => {
         setTranslucent(checked, true);
     };
 
-    const menuTranslucent = document.getElementById('theme-menu-translucent-toggle');
+    const menuTranslucent = elements.themeTranslucentToggle || document.getElementById('theme-menu-translucent-toggle');
     if (menuTranslucent) {
         menuTranslucent.addEventListener('change', () => {
             handleTranslucentChange(menuTranslucent.checked);
         });
     }
 
-    const menuRow = document.getElementById('theme-menu-translucent-row');
+    const menuRow = elements.themeTranslucentRow || document.getElementById('theme-menu-translucent-row');
     if (menuRow) {
         menuRow.addEventListener('click', (e) => {
             if (e.target.closest('.switch')) return;

@@ -1,13 +1,12 @@
-import { $ } from './dom.js';
+import { $, elements } from './dom.js';
 import { fetchMetadata } from './api.js';
 import { applyServerError, classifyError } from './fieldErrors.js';
+import { canonicalKey } from './utils.js';
 
 // Film counts per list, keyed by a canonical identifier so that
 // "user/slug" and the full Letterboxd URL share one cache entry.
 const counts = new Map();
 const pending = new Set();
-
-import { canonicalKey } from './utils.js';
 
 const getStatusEl = (input) => {
     const wrapper = input.closest('.field__input-wrapper');
@@ -83,7 +82,8 @@ export const applyRatios = () => {
     const validEntries = entries.filter((e) => isValidField(e.input));
     const loaded = validEntries.filter((e) => e.count !== null);
     const total = loaded.reduce((sum, e) => sum + e.count, 0);
-    const isEqual = !!$('sampling-toggle')?.checked && loaded.length > 1;
+    const samplingToggle = elements.samplingToggle || $('sampling-toggle');
+    const isEqual = !!samplingToggle?.checked && loaded.length > 1;
 
     // When there is only a single list or not enough loaded lists, do not show ratios or ratio borders
     if (validEntries.length <= 1 || loaded.length <= 1) {
@@ -159,7 +159,8 @@ export const loadCount = (input) => {
                 pending.delete(key);
                 if (statusEl) statusEl.classList.remove('is-loading');
                 applyRatios();
-                const submitBtn = document.querySelector('#randomize-form button[type="submit"]');
+                const submitBtn = elements.randomizeForm?.querySelector('button[type="submit"]')
+                    || document.querySelector('#randomize-form button[type="submit"]');
                 const hasInvalid = Array.from(document.querySelectorAll('.field__status.is-invalid')).length > 0;
                 if (submitBtn && hasInvalid) {
                     submitBtn.disabled = true;

@@ -1,4 +1,4 @@
-import { $, elements } from './modules/dom.js';
+import { elements, refreshIcons } from './modules/dom.js';
 import { renderHistory, renderResult, setView, showToast, hideToast, updateBackdrop, updateShareButtonText } from './modules/ui.js';
 import { initStatsModal } from './modules/statsModal.js';
 import { initGenerator } from './modules/generator.js';
@@ -289,8 +289,8 @@ export const performRandomize = async (urls, options = {}) => {
 
 // --- Listeners & Boots ---
 
-const debugCheckbox = $('debug-toggle');
-const debugWrapper = $('console-toggle-wrapper');
+const debugCheckbox = elements.debugToggle;
+const debugWrapper = elements.consoleToggleWrapper;
 
 function syncDebugCheckbox() {
     if (!debugCheckbox) return;
@@ -329,14 +329,23 @@ if (debugCheckbox) {
     }
 }
 
-$('info-btn').addEventListener('click', () => setView('info'));
-$('close-modal-btn').addEventListener('click', () => setView('form'));
-elements.infoModal.addEventListener('click', (e) => { 
-    if(e.target === elements.infoModal) setView('form'); 
-});
+if (elements.infoBtn) {
+    elements.infoBtn.addEventListener('click', () => setView('info'));
+}
+if (elements.infoModal) {
+    elements.infoModal.addEventListener('click', (e) => {
+        if (e.target === elements.infoModal || e.target.closest('#close-modal-btn')) {
+            setView('form');
+        }
+    });
+}
 
-$('clear-history').addEventListener('click', () => { clearHistory(); updateUI(); });
-$('clear-lists').addEventListener('click', () => { clearRecentLists(); updateUI(); });
+if (elements.clearHistoryBtn) {
+    elements.clearHistoryBtn.addEventListener('click', () => { clearHistory(); updateUI(); });
+}
+if (elements.clearListsBtn) {
+    elements.clearListsBtn.addEventListener('click', () => { clearRecentLists(); updateUI(); });
+}
 
 if (elements.randomToggle) {
     const syncRandomToggleUI = (isShuffle) => {
@@ -432,10 +441,12 @@ const handleFormSubmit = async () => {
     await performRandomize(urls);
 };
 
-$('randomize-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    handleFormSubmit();
-});
+if (elements.randomizeForm) {
+    elements.randomizeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleFormSubmit();
+    });
+}
 
 const handleShareMix = async () => {
     const urls = getActiveUrls();
@@ -452,8 +463,8 @@ const handleShareMix = async () => {
         const isMix = urls.length > 1;
         showToast(`${isMix ? 'Mix' : 'Link'} copied to clipboard!`, 'info');
         
-        const shareBtn = $('share-blend-btn');
-        const btnTextNode = shareBtn.querySelector('.btn-text');
+        const shareBtn = elements.shareBlendBtn;
+        const btnTextNode = shareBtn?.querySelector('.btn-text');
         if (btnTextNode) {
             const originalText = btnTextNode.textContent;
             btnTextNode.textContent = 'Copied!';
@@ -464,13 +475,21 @@ const handleShareMix = async () => {
     }
 };
 
-$('share-blend-btn').addEventListener('click', () => handleShareMix());
-$('try-again-btn').addEventListener('click', () => performRandomize(currentUrlsForRetry));
-$('back-btn').addEventListener('click', () => {
-    setView('form');
-    updateBackdrop(null); // Dim the backdrop when returning to form
-});
-$('add-url-btn').addEventListener('click', () => handleAddField());
+if (elements.shareBlendBtn) {
+    elements.shareBlendBtn.addEventListener('click', () => handleShareMix());
+}
+if (elements.tryAgainBtn) {
+    elements.tryAgainBtn.addEventListener('click', () => performRandomize(currentUrlsForRetry));
+}
+if (elements.backBtn) {
+    elements.backBtn.addEventListener('click', () => {
+        setView('form');
+        updateBackdrop(null); // Dim the backdrop when returning to form
+    });
+}
+if (elements.addUrlBtn) {
+    elements.addUrlBtn.addEventListener('click', () => handleAddField());
+}
 
 // --- Initialization ---
 initKeyboardShortcuts({
@@ -480,11 +499,11 @@ initKeyboardShortcuts({
     },
     onRetry: () => performRandomize(currentUrlsForRetry),
     onOpen: () => {
-        const link = $('result-link');
+        const link = elements.resLink;
         if (link && link.href) window.open(link.href, '_blank');
     },
     onViewInList: () => {
-        const listLink = $('result-list-link');
+        const listLink = elements.resListLink;
         if (listLink && listLink.href) window.open(listLink.href, '_blank');
     },
     onShare: () => handleShareMix(),
@@ -512,9 +531,9 @@ const bootstrapFromUrl = () => {
     }
     if (urls.length === 0) return;
 
-    const firstInput = document.querySelector('#randomize-form input');
+    const firstInput = elements.randomizeForm?.querySelector('input');
     urls.forEach((url, index) => {
-        if (index === 0) firstInput.value = url;
+        if (index === 0 && firstInput) firstInput.value = url;
         else addField(updateUI, url);
     });
 
@@ -533,4 +552,4 @@ const bootstrapFromUrl = () => {
 initGenerator();
 bootstrapFromUrl();
 initStatsModal(setView);
-if (window.lucide) window.lucide.createIcons();
+refreshIcons();
