@@ -40,6 +40,7 @@
     },
     { "source": "/r", "destination": "/api/index.py" },
     { "source": "/r/(.*)", "destination": "/api/index.py" },
+    { "source": "/generator", "destination": "/index.html" },
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/api", "destination": "/api/index.py" }
   ]

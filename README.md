@@ -55,6 +55,7 @@ All redirect responses include `Cache-Control: no-cache, no-store, must-revalida
 | `https://roulette.bugra.co/r?url=user1,user2&mode=equal` | Combine multiple lists with equal selection chances |
 | `https://roulette.bugra.co/r?url=<username>&format=json` | Headless JSON output with movie metadata and film URL |
 | `https://roulette.bugra.co/?url=<url>&redirect=1` | Direct redirect via the root URL parameter |
+| `https://roulette.bugra.co/generator` | Interactive URL Generator modal for instant links and embeds |
 
 If a target list is private, empty, or not found, the server automatically bounces back to the web application with `/?url=...&error=...` to display an informative toast alert instead of a broken page.
 
