@@ -145,6 +145,9 @@
                     </button>
                 </div>
             </div>
+            <button type="button" class="icon-btn" id="generator-btn" title="URL Generator" aria-label="URL Generator">
+                <i data-lucide="link"></i>
+            </button>
             <button type="button" class="icon-btn" id="info-btn" title="How it works" aria-label="How it works">
                 <i data-lucide="info"></i>
             </button>
@@ -450,6 +453,396 @@
     </div>
 
 
+
+    <!-- URL Generator Modal -->
+    <div id="generator-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="generator-modal-title">
+        <div class="generator-modal-wrapper">
+            <div class="modal-content modal-content--generator">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="modal-title-icon">
+                            <i data-lucide="link"></i>
+                        </div>
+                        <div>
+                            <h2 class="modal-title" id="generator-modal-title">URL Generator &amp; Docs</h2>
+                            <p class="modal-subtitle">Generate direct 302 redirect links, explore URL parameters and integration docs</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-link" id="close-generator-btn" name="close-modal" aria-label="Close modal">Close</button>
+                </div>
+
+            <div class="generator-body">
+                <!-- Section 1: Interactive Generator -->
+                <div class="generator-pane generator-pane--generator">
+                    <div class="generator-pane-header">
+                        <h3 class="generator-pane-title">
+                            <i data-lucide="sliders"></i> Generator
+                        </h3>
+                        <button type="button" class="generator-import-btn" id="gen-use-active-btn" title="Import current lists from the form">
+                            <i data-lucide="download"></i> Use Form Inputs
+                        </button>
+                    </div>
+
+                    <div class="generator-config">
+                        <div class="generator-field">
+                            <div class="generator-field-header">
+                                <label for="gen-sources-input" class="generator-label">Source Lists or Users</label>
+                                <span class="generator-badge" id="gen-source-badge">0 sources</span>
+                            </div>
+                            <textarea id="gen-sources-input" class="generator-textarea" rows="2" placeholder="e.g. bugracoskun, official/letterboxds-top-500-films"></textarea>
+                            <span class="generator-hint">Enter usernames, list slugs, or full URLs (separated by commas or newlines).</span>
+
+                            <div class="generator-sources-list-container" id="gen-sources-list-container">
+                                <div class="generator-sources-list-header">
+                                    <span class="generator-sources-list-title">
+                                        <i data-lucide="layers"></i>
+                                        <span>Active Sources List</span>
+                                    </span>
+                                    <span class="generator-sources-count" id="gen-sources-count">No sources detected</span>
+                                </div>
+                                <div class="generator-sources-list" id="gen-sources-list" role="list">
+                                    <!-- Populated dynamically in real-time -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="generator-presets-group">
+                            <span class="generator-label">Quick Preset</span>
+                            <div class="generator-presets">
+                                <button type="button" class="generator-preset-btn is-active" data-preset="redirect" title="Instant 302 Redirect to a random movie">
+                                    <div class="generator-preset-title">
+                                        <i data-lucide="zap"></i>
+                                        <span>Direct 302</span>
+                                    </div>
+                                    <span class="generator-preset-desc">Instant movie redirect</span>
+                                </button>
+                                <button type="button" class="generator-preset-btn" data-preset="app" title="Shareable Web App view with roulette wheel">
+                                    <div class="generator-preset-title">
+                                        <i data-lucide="layout"></i>
+                                        <span>Web App Mix</span>
+                                    </div>
+                                    <span class="generator-preset-desc">Interactive wheel UI</span>
+                                </button>
+                                <button type="button" class="generator-preset-btn" data-preset="json" title="Headless JSON API response">
+                                    <div class="generator-preset-title">
+                                        <i data-lucide="code"></i>
+                                        <span>Headless JSON</span>
+                                    </div>
+                                    <span class="generator-preset-desc">Raw API payload</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="generator-advanced-section">
+                            <button type="button" class="generator-advanced-toggle" id="gen-advanced-toggle" aria-expanded="false" aria-controls="gen-advanced-panel">
+                                <span class="generator-advanced-toggle-text">
+                                    <i data-lucide="settings-2"></i> Advanced Power Options
+                                </span>
+                                <span class="generator-advanced-toggle-state">
+                                    <span class="generator-advanced-state-label">Show</span>
+                                    <i data-lucide="chevron-down" class="generator-advanced-toggle-chevron"></i>
+                                </span>
+                            </button>
+
+                            <div id="gen-advanced-panel" class="generator-advanced-panel is-hidden">
+                                <div class="generator-row">
+                                    <div class="generator-field">
+                                        <label for="gen-action-type" class="generator-label">Link Type</label>
+                                        <select id="gen-action-type" class="generator-select">
+                                            <option value="redirect">Direct 302 Redirect (/r/...)</option>
+                                            <option value="app">Web App View (/?url=...)</option>
+                                        </select>
+                                    </div>
+                                    <div class="generator-field">
+                                        <label for="gen-count-input" class="generator-label">Count Hint <span class="generator-badge">Optional</span></label>
+                                        <input type="number" id="gen-count-input" class="generator-input" placeholder="e.g. 500" min="1" />
+                                    </div>
+                                </div>
+
+                                <div class="generator-row">
+                                    <div class="generator-field">
+                                        <label for="gen-mode" class="generator-label">Multi-Source Mode</label>
+                                        <select id="gen-mode" class="generator-select">
+                                            <option value="proportional">Proportional Weights</option>
+                                            <option value="equal">Equal Odds per List</option>
+                                        </select>
+                                    </div>
+                                    <div class="generator-field">
+                                        <label for="gen-label-input" class="generator-label">Link Label / Anchor Text</label>
+                                        <input type="text" id="gen-label-input" class="generator-input" value="Random Movie" placeholder="Anchor text for Markdown and HTML" />
+                                    </div>
+                                </div>
+
+                                <div class="generator-toggles">
+                                    <label class="generator-checkbox-label">
+                                        <input type="checkbox" id="gen-shuffle" />
+                                        <span>Use Letterboxd <code>/shuffle</code> (Page 1 only)</span>
+                                    </label>
+                                    <label class="generator-checkbox-label">
+                                        <input type="checkbox" id="gen-autoroll" checked />
+                                        <span>Auto-roll on Web App open</span>
+                                    </label>
+                                    <label class="generator-checkbox-label">
+                                        <input type="checkbox" id="gen-format" />
+                                        <span>Return Raw JSON (<code>?format=json</code>)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="generator-outputs">
+                        <div class="generator-output-card">
+                            <div class="generator-output-header">
+                                <span class="generator-output-title"><i data-lucide="globe"></i> Generated URL</span>
+                                <div class="generator-output-actions">
+                                    <a href="https://roulette.bugra.co/r" target="_blank" rel="noopener" class="generator-action-btn" id="gen-test-link" title="Test link in new tab">
+                                        <i data-lucide="external-link"></i> Test Link
+                                    </a>
+                                    <button type="button" class="generator-action-btn" id="gen-copy-url-btn">
+                                        <i data-lucide="copy"></i> Copy URL
+                                    </button>
+                                </div>
+                            </div>
+                            <pre class="generator-code-block"><code id="gen-result-url">https://roulette.bugra.co/r</code></pre>
+                        </div>
+
+                        <div class="generator-output-card">
+                            <div class="generator-output-header">
+                                <span class="generator-output-title"><i data-lucide="code"></i> HTML Embed</span>
+                                <div class="generator-output-actions">
+                                    <button type="button" class="generator-action-btn" id="gen-copy-html-btn">
+                                        <i data-lucide="copy"></i> Copy HTML
+                                    </button>
+                                </div>
+                            </div>
+                            <pre class="generator-code-block"><code id="gen-result-html">&lt;a href="https://roulette.bugra.co/r"&gt;Random Movie&lt;/a&gt;</code></pre>
+                        </div>
+
+                        <div class="generator-output-card">
+                            <div class="generator-output-header">
+                                <span class="generator-output-title"><i data-lucide="file-text"></i> Markdown Snippet</span>
+                                <div class="generator-output-actions">
+                                    <button type="button" class="generator-action-btn" id="gen-copy-markdown-btn">
+                                        <i data-lucide="copy"></i> Copy Markdown
+                                    </button>
+                                </div>
+                            </div>
+                            <pre class="generator-code-block"><code id="gen-result-markdown">[Random Movie](https://roulette.bugra.co/r)</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Docs & Specs -->
+                <div class="generator-pane generator-pane--docs" id="gen-docs-pane" aria-hidden="true">
+                    <div class="generator-docs-inner">
+                        <div class="generator-pane-header">
+                            <h3 class="generator-pane-title">
+                                <i data-lucide="book-open"></i> Documentation &amp; Specs
+                            </h3>
+                            <div class="generator-docs-header-actions">
+                                <button type="button" class="generator-copy-docs-btn" id="gen-copy-docs-btn" title="Copy documentation as Markdown for AI prompts or notes">
+                                    <i data-lucide="copy"></i> Copy Docs for AI
+                                </button>
+                            </div>
+                        </div>
+
+                        <nav class="generator-docs-nav" role="tablist" aria-label="Documentation pages">
+                            <button type="button" class="generator-docs-tab is-active" role="tab" id="gen-tab-0" aria-selected="true" aria-controls="gen-page-0" data-page="0">
+                                <i data-lucide="zap"></i> How It Works
+                            </button>
+                            <button type="button" class="generator-docs-tab" role="tab" id="gen-tab-1" aria-selected="false" aria-controls="gen-page-1" data-page="1">
+                                <i data-lucide="route"></i> Endpoints
+                            </button>
+                            <button type="button" class="generator-docs-tab" role="tab" id="gen-tab-2" aria-selected="false" aria-controls="gen-page-2" data-page="2">
+                                <i data-lucide="sliders-horizontal"></i> Parameters
+                            </button>
+                            <button type="button" class="generator-docs-tab" role="tab" id="gen-tab-3" aria-selected="false" aria-controls="gen-page-3" data-page="3">
+                                <i data-lucide="terminal"></i> CLI &amp; API
+                            </button>
+                        </nav>
+
+                        <div class="generator-docs-pages" id="gen-docs-pages">
+                            <!-- Page 0: How It Works & Architecture -->
+                            <div class="generator-docs-page is-active" role="tabpanel" id="gen-page-0" aria-labelledby="gen-tab-0" data-page-index="0">
+                                <div class="generator-doc-card">
+                                    <span class="generator-doc-card-title"><i data-lucide="zap"></i> Stateless Redirect Engine</span>
+                                    <p class="generator-doc-text">
+                                        Movie Roulette operates as an ultra-fast, stateless redirect engine. When requesting any <code>/r/...</code> link, the server samples public Letterboxd watchlists or custom lists in real-time and issues an instant <strong>HTTP 302 Found</strong> redirect directly to the chosen film page.
+                                    </p>
+                                </div>
+
+                                <div class="generator-doc-card">
+                                    <span class="generator-doc-card-title"><i data-lucide="workflow"></i> Step-by-Step Lifecycle</span>
+                                    <div class="generator-steps-flow">
+                                        <div class="generator-step-item">
+                                            <div class="generator-step-badge">1</div>
+                                            <div class="generator-step-body">
+                                                <strong>Request &amp; Route Parsing</strong>
+                                                <span>The server receives your username or list slug from the URL without requiring user accounts or logins.</span>
+                                            </div>
+                                        </div>
+                                        <div class="generator-step-item">
+                                            <div class="generator-step-badge">2</div>
+                                            <div class="generator-step-body">
+                                                <strong>Live Sampling &amp; Weighting</strong>
+                                                <span>Fetches real-time Letterboxd list metadata. Blended multi-lists calculate proportional probability across list sizes.</span>
+                                            </div>
+                                        </div>
+                                        <div class="generator-step-item">
+                                            <div class="generator-step-badge">3</div>
+                                            <div class="generator-step-body">
+                                                <strong>Direct 302 Landing</strong>
+                                                <span>Your browser instantly lands on the selected film page on Letterboxd, or receives a headless JSON payload if requested.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="generator-doc-card generator-doc-card--compact">
+                                    <span class="generator-doc-card-title"><i data-lucide="shield-check"></i> Design Principles</span>
+                                    <div class="generator-doc-pills">
+                                        <span class="generator-doc-pill"><i data-lucide="server-off"></i> No Database</span>
+                                        <span class="generator-doc-pill"><i data-lucide="lock"></i> Privacy-First</span>
+                                        <span class="generator-doc-pill"><i data-lucide="gauge"></i> Sub-Second Speed</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Page 1: Clean URL Endpoints -->
+                            <div class="generator-docs-page" role="tabpanel" id="gen-page-1" aria-labelledby="gen-tab-1" data-page-index="1" hidden>
+                                <div class="generator-doc-card">
+                                    <span class="generator-doc-card-title"><i data-lucide="route"></i> Clean URL Endpoints</span>
+                                    <p class="generator-doc-text">
+                                        All endpoints accept Letterboxd usernames, list slugs, or combined comma-separated URLs.
+                                    </p>
+                                    <div class="generator-doc-list">
+                                        <div class="generator-doc-item">
+                                            <code>GET /r/:user</code>
+                                            <span>Picks a random film from <strong>:user</strong>'s public watchlist.</span>
+                                        </div>
+                                        <div class="generator-doc-item">
+                                            <code>GET /r/:user/:list</code>
+                                            <span>Picks from a specific public list (e.g. <code>/r/official/top-250-films</code>).</span>
+                                        </div>
+                                        <div class="generator-doc-item">
+                                            <code>GET /r?url=list1,list2</code>
+                                            <span>Multi-source blend. Samples proportionally across list sizes.</span>
+                                        </div>
+                                        <div class="generator-doc-item">
+                                            <code>GET /?url=list1,list2</code>
+                                            <span>Launches the full interactive wheel interface with sources pre-filled.</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="generator-doc-card generator-doc-card--compact">
+                                    <span class="generator-doc-card-title"><i data-lucide="sparkles"></i> Browser Search Tip</span>
+                                    <p class="generator-doc-text">
+                                        Add <code>https://roulette.bugra.co/r/%s</code> as a custom search engine in Chrome or Firefox with keyword <code>mr</code> to spin from your address bar!
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Page 2: Query Parameters -->
+                            <div class="generator-docs-page" role="tabpanel" id="gen-page-2" aria-labelledby="gen-tab-2" data-page-index="2" hidden>
+                                <div class="generator-doc-card">
+                                    <span class="generator-doc-card-title"><i data-lucide="sliders-horizontal"></i> Query Parameters</span>
+                                    <table class="generator-doc-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Param</th>
+                                                <th>Values</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>count</code></td>
+                                                <td>Number</td>
+                                                <td>Total list count hint. Skips page math for 1-hop sampling.</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>shuffle</code></td>
+                                                <td><code>1</code>, <code>0</code></td>
+                                                <td>Letterboxd native <code>/by/shuffle/</code> view (Page 1 only).</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>mode</code></td>
+                                                <td><code>equal</code>, <code>proportional</code></td>
+                                                <td><code>equal</code> gives 50/50 odds across blended lists (default: proportional).</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>format</code></td>
+                                                <td><code>json</code></td>
+                                                <td>Returns raw JSON payload instead of HTTP 302 redirect.</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>run</code></td>
+                                                <td><code>0</code>, <code>1</code></td>
+                                                <td>In Web App view (<code>/</code>), disables auto-spinning on initial load.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Page 3: CLI & API -->
+                            <div class="generator-docs-page" role="tabpanel" id="gen-page-3" aria-labelledby="gen-tab-3" data-page-index="3" hidden>
+                                <div class="generator-doc-card">
+                                    <span class="generator-doc-card-title"><i data-lucide="terminal"></i> CLI / Headless cURL</span>
+                                    <pre class="generator-code-block"><code>curl -sL "https://roulette.bugra.co/r/bugracoskun?format=json"</code></pre>
+                                    <span class="generator-hint">Returns structured JSON metadata:</span>
+                                    <pre class="generator-code-block"><code>{
+  "movie": "Persona",
+  "year": "1966",
+  "url": "https://letterboxd.com/film/persona/",
+  "source": "bugracoskun"
+}</code></pre>
+                                </div>
+
+                                <div class="generator-doc-card">
+                                    <span class="generator-doc-card-title"><i data-lucide="code-2"></i> Shell &amp; Terminal Alias</span>
+                                    <pre class="generator-code-block"><code>alias randfilm='open $(curl -sL "https://roulette.bugra.co/r/bugracoskun?format=json" | jq -r .url)'</code></pre>
+                                    <span class="generator-hint">Instantly opens a random movie from your watchlist in your default web browser.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pagination Footer Navigation -->
+                        <div class="generator-docs-pagination">
+                            <button type="button" class="generator-page-btn" id="gen-docs-prev" aria-label="Previous documentation page" disabled>
+                                <i data-lucide="chevron-left"></i> Prev
+                            </button>
+
+                            <div class="generator-page-indicators">
+                                <span class="generator-page-counter" id="gen-docs-counter">
+                                    <span class="generator-page-num" id="gen-docs-current-page">1</span>
+                                    <span class="generator-page-divider">/</span>
+                                    <span class="generator-page-total">4</span>
+                                </span>
+                                <div class="generator-page-dots" id="gen-docs-dots" role="tablist" aria-label="Page dots">
+                                    <button type="button" class="generator-page-dot is-active" data-page="0" aria-label="Go to page 1: How It Works"></button>
+                                    <button type="button" class="generator-page-dot" data-page="1" aria-label="Go to page 2: Endpoints"></button>
+                                    <button type="button" class="generator-page-dot" data-page="2" aria-label="Go to page 3: Parameters"></button>
+                                    <button type="button" class="generator-page-dot" data-page="3" aria-label="Go to page 4: CLI &amp; API"></button>
+                                </div>
+                            </div>
+
+                            <button type="button" class="generator-page-btn" id="gen-docs-next" aria-label="Next documentation page">
+                                Next <i data-lucide="chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="footer-toggle generator-docs-tab-btn" id="gen-toggle-docs-btn" aria-expanded="false" aria-controls="gen-docs-pane" title="Toggle Documentation (Expands right)">
+            <span class="footer-toggle-label"><i data-lucide="book-open"></i> Docs</span>
+            <i data-lucide="chevron-right" class="docs-toggle-arrow"></i>
+        </button>
+    </div>
+</div>
 
     <!-- Technical Stats Modal -->
     <div id="stats-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="stats-modal-title">

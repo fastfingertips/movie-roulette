@@ -1,6 +1,7 @@
 import { $, elements } from './modules/dom.js';
 import { renderHistory, renderResult, setView, showToast, hideToast, updateBackdrop, updateShareButtonText } from './modules/ui.js';
 import { initStatsModal } from './modules/statsModal.js';
+import { initGenerator } from './modules/generator.js';
 
 import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getRandomMode, saveRandomMode, getDebugMode, saveDebugMode } from './modules/storage.js';
 import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
@@ -529,6 +530,7 @@ const bootstrapFromUrl = () => {
     }
 };
 
+initGenerator();
 bootstrapFromUrl();
 initStatsModal(setView);
 if (window.lucide) window.lucide.createIcons();
