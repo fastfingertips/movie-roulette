@@ -87,9 +87,16 @@ npm run cpd
 
 ---
 
-## Pull Request Guidelines
+## Workflow
 
-1. Create a feature branch: `git checkout -b feat/your-feature-name`.
-2. Ensure all tests and linters pass (`npm test`, `npm run test:js`, `npm run lint`).
-3. Keep commit messages clear, scoped, and within the 62-character limit.
-4. Open a Pull Request against `master`.
+1. **Open an issue first.** Every change — feature, bug fix, or refactor — must be tracked by an issue before any code is written. PRs without a linked issue will not be merged.
+2. **Create a branch** from `master` using the naming scheme `<type>/issue-<n>-<short-slug>`:
+   ```
+   feat/issue-26-url-generator
+   fix/issue-12-empty-watchlist
+   refactor/issue-39-dom-hydration
+   ```
+3. **Commit on the branch** following the Conventional Commit format above. Reference the issue number in the subject, e.g. `feat: add URL generator modal (#26)`.
+4. **Pass all checks** before opening a PR (`npm test`, `npm run test:js`, `npm run lint`, `npm run lint:css`).
+5. **Open a PR against `master`.** Include `Closes #<issue>` in the PR body so the issue closes automatically on merge.
+6. **Merges are rebase-only.** No merge commits or squash commits. The branch must be rebased onto `master` before merging so the history stays linear.

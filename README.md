@@ -27,14 +27,16 @@ A fast, modern web application and direct redirect engine to pick a random movie
 
 - **Multi-List Aggregation:** Combine up to 5 Letterboxd watchlists and custom lists simultaneously into a single pool.
 - **Dual Randomization Engines:**
-  - **Deep Sample (Default):** Statistically uniform sampling across all pages of large lists, ensuring older entries have equal odds as recent additions.
-  - **Fast Shuffle:** Utilizes Letterboxd native `/by/shuffle/` sorting for fast, single-request picks on watchlists and lists.
-- **Proportional vs. Equal Odds:** Choose between weighting movie probability proportionally by list size or giving each list equal selection chances.
-- **Server-Side Direct Redirect (`/r`):** Instantly redirect directly to a Letterboxd movie page without downloading frontend HTML, CSS, JavaScript, or web fonts.
-- **Automation and Headless Output:** Pass `format=json` or request `Accept: application/json` on redirect routes for iOS Shortcuts, Raycast extensions, and CLI scripts.
-- **Rich Movie Overviews:** Displays high-resolution posters, backdrop banners, community ratings, genres, directors, top cast members, and taglines.
-- **Real-Time Validation:** Automatic detection for private lists, empty watchlists, 404 targets, and duplicate lists with visual field error badges.
-- **Modern Design:** Zero external CSS frameworks, bespoke high-contrast Dark and Light themes with system auto-detection, and keyboard navigation.
+  - **Deep Sample (Default):** Uniform sampling across all pages of large lists, so older entries have equal odds as recent additions.
+  - **Fast Shuffle:** Uses Letterboxd native `/by/shuffle/` sorting for a fast, single-request pick on watchlists and lists.
+- **Proportional vs. Equal Odds:** Choose between weighting movie probability by list size or giving each list equal selection chances.
+- **Server-Side Direct Redirect (`/r`):** Redirects directly to a Letterboxd movie page without loading any frontend assets.
+- **Automation and Headless Output:** Pass `format=json` or `Accept: application/json` on redirect routes for iOS Shortcuts, Raycast extensions, and CLI scripts.
+- **Rich Movie Overviews:** Displays posters, backdrop banners, community ratings, genres, directors, top cast, and taglines.
+- **Real-Time Validation:** Detects private lists, empty watchlists, 404 targets, and duplicate inputs with inline error badges.
+- **Theme System:** Six palette families (Classic, Pine & Orchid, Citron & Berry, Forest & Lime, Letterboxd, AMOLED), each with a paired light and dark variant. Switches between System, Light, and Dark mode. Optional glass/translucency layer.
+- **URL Generator:** Interactive modal at `/generator` that builds shareable pre-configured links and embed snippets without manual parameter editing.
+- **Keyboard Navigation:** Keyboard shortcuts for rolling, opening Letterboxd, copying links, and navigating results.
 
 ---
 
@@ -99,10 +101,16 @@ The web application and redirect endpoints accept the following query parameters
   - `api/routes/metadata.py`: Concurrent multi-list metadata extraction via `ThreadPoolExecutor`.
   - `api/routes/select.py`: Weighted and uniform random movie selection.
   - `api/routes/details.py`: Movie profile enrichment (crew, cast, genres, banner).
-  - `api/routes/redirect.py`: Zero-overhead server-side HTTP 302 redirection.
-  - `api/security.py`: Pydantic v2 schema validation and security headers firewall.
-- **Frontend:** Vanilla JavaScript (ES Modules under `static/js/modules/`) with zero build step required for browser execution.
+  - `api/routes/redirect.py`: Server-side HTTP 302 redirection.
+  - `api/security.py`: Pydantic v2 schema validation and security headers.
+- **Frontend:** Vanilla JavaScript (ES Modules under `static/js/modules/`) with no build step required for browser execution.
 - **Deployment:** Vercel serverless functions with rewrites configured in `vercel.json`.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `LOG_LEVEL` | `INFO` | Python logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
 
 ---
 
