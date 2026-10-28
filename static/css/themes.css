@@ -15,6 +15,7 @@
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --color-bg: #f8fafc;
     --color-surface: rgb(255, 255, 255, 0.7);
+    --color-surface-solid: #fff;
     --color-border: #e2e8f0;
     --color-green: #10b981;
     --color-green-glow: rgb(16, 185, 129, 0.15);
@@ -34,6 +35,7 @@
 [data-theme="classic-dark"] {
     --color-bg: #0f1117;
     --color-surface: rgb(22, 27, 34, 0.65);
+    --color-surface-solid: #161b22;
     --color-border: rgb(255, 255, 255, 0.08);
     --color-green: #3d7e5e;
     --color-green-glow: rgb(61, 126, 94, 0.18);
@@ -55,6 +57,7 @@
 [data-theme="pine-orchid"] {
     --color-bg: #faeef5;
     --color-surface: rgb(255, 255, 255, 0.72);
+    --color-surface-solid: #fff;
     --color-border: rgb(44, 96, 88, 0.2);
     --color-green: #53b019;
     --color-green-glow: rgb(83, 176, 25, 0.25);
@@ -76,6 +79,7 @@
 [data-theme="citron-berry"] {
     --color-bg: #f5f3e6;
     --color-surface: rgb(255, 255, 255, 0.75);
+    --color-surface-solid: #fff;
     --color-border: rgb(63, 116, 131, 0.22);
     --color-green: #b32459;
     --color-green-glow: rgb(179, 36, 89, 0.25);
@@ -97,6 +101,7 @@
 [data-theme="forest-lime"] {
     --color-bg: #f6f8f5;
     --color-surface: rgb(255, 255, 255, 0.8);
+    --color-surface-solid: #fff;
     --color-border: rgb(14, 15, 12, 0.12);
     --color-green: #163300;
     --color-green-glow: rgb(22, 51, 0, 0.16);
@@ -114,10 +119,104 @@
     --color-on-green-hint-bg: rgb(255, 255, 255, 0.18);
 }
 
+/* --- Light Theme: Letterboxd Light --- */
+/* Palette: #F4F6F8 (Soft Slate), #00A63E (Letterboxd Green), #FF8000 (Orange), #0284C7 (Blue), #14181C (Charcoal) */
+[data-theme="letterboxd-light"] {
+    --color-bg: #f4f6f8;
+    --color-surface: rgb(255, 255, 255, 0.88);
+    --color-surface-solid: #fff;
+    --color-border: #d8e0e8;
+    --color-green: #00a63e;
+    --color-green-glow: rgb(0, 166, 62, 0.16);
+    --color-blue: #0284c7;
+    --color-text: #14181c;
+    --color-text-secondary: #567;
+    --color-text-muted: #8899a6;
+    --color-accent-subtle: rgb(255, 128, 0, 0.12);
+    --color-pill-bg: rgb(20, 24, 28, 0.05);
+    --color-pill-text: #567;
+    --color-pill-border: #d8e0e8;
+    --color-stars: #ff8000;
+    --color-grid-line: rgb(20, 24, 28, 0.05);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(0, 224, 84, 0.1), rgb(255, 128, 0, 0.06), transparent 70%);
+    --color-on-green: #fff;
+    --color-on-green-hint-bg: rgb(255, 255, 255, 0.2);
+}
+
+/* --- Light Theme: AMOLED Light (Pure White #fff) --- */
+[data-theme="amoled-light"] {
+    --color-bg: #fff;
+    --color-surface: rgb(246, 248, 250, 0.82);
+    --color-surface-solid: #f6f8fa;
+    --color-border: #d0d7de;
+    --color-green: #1a7f37;
+    --color-green-glow: rgb(26, 127, 55, 0.16);
+    --color-blue: #0969da;
+    --color-text: #000;
+    --color-text-secondary: #57606a;
+    --color-text-muted: #8c959f;
+    --color-accent-subtle: rgb(9, 105, 218, 0.1);
+    --color-pill-bg: rgb(0, 0, 0, 0.05);
+    --color-pill-text: #000;
+    --color-pill-border: #d0d7de;
+    --color-stars: #1a7f37;
+    --color-grid-line: rgb(0, 0, 0, 0.05);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(26, 127, 55, 0.08), rgb(9, 105, 218, 0.04), transparent 70%);
+    --color-on-green: #fff;
+    --color-on-green-hint-bg: rgb(255, 255, 255, 0.2);
+}
+
+/* --- Dark Theme: Pine & Orchid Dark --- */
+[data-theme="pine-orchid-dark"] {
+    --color-bg: #141016;
+    --color-surface: rgb(27, 21, 30, 0.78);
+    --color-surface-solid: #1b151e;
+    --color-border: rgb(211, 132, 238, 0.18);
+    --color-green: #6dd32c;
+    --color-green-glow: rgb(109, 211, 44, 0.22);
+    --color-blue: #d384ee;
+    --color-text: #f5eaf4;
+    --color-text-secondary: #b9a5bd;
+    --color-text-muted: #7d6981;
+    --color-accent-subtle: rgb(211, 132, 238, 0.14);
+    --color-pill-bg: rgb(211, 132, 238, 0.1);
+    --color-pill-text: #e9c4f7;
+    --color-pill-border: rgb(211, 132, 238, 0.25);
+    --color-stars: #6dd32c;
+    --color-grid-line: rgb(211, 132, 238, 0.04);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(211, 132, 238, 0.16), rgb(44, 96, 88, 0.12), transparent 70%);
+    --color-on-green: #0e1808;
+    --color-on-green-hint-bg: rgb(14, 24, 8, 0.25);
+}
+
+/* --- Dark Theme: Citron & Berry Dark --- */
+[data-theme="citron-berry-dark"] {
+    --color-bg: #141512;
+    --color-surface: rgb(28, 29, 24, 0.78);
+    --color-surface-solid: #1c1d18;
+    --color-border: rgb(179, 36, 89, 0.22);
+    --color-green: #e83e7c;
+    --color-green-glow: rgb(232, 62, 124, 0.24);
+    --color-blue: #4ea5bb;
+    --color-text: #f5f4ed;
+    --color-text-secondary: #c4c89c;
+    --color-text-muted: #7d8364;
+    --color-accent-subtle: rgb(182, 197, 20, 0.15);
+    --color-pill-bg: rgb(232, 62, 124, 0.12);
+    --color-pill-text: #fbb3ce;
+    --color-pill-border: rgb(232, 62, 124, 0.3);
+    --color-stars: #b6c514;
+    --color-grid-line: rgb(182, 197, 20, 0.04);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(232, 62, 124, 0.16), rgb(182, 197, 20, 0.1), transparent 70%);
+    --color-on-green: #fff;
+    --color-on-green-hint-bg: rgb(255, 255, 255, 0.2);
+}
+
 /* --- Dark Theme: AMOLED Black (Pure Black #000) --- */
 [data-theme="amoled"] {
     --color-bg: #000;
     --color-surface: rgb(14, 14, 16, 0.72);
+    --color-surface-solid: #0e0e10;
     --color-border: rgb(255, 255, 255, 0.12);
     --color-green: #2ea043;
     --color-green-glow: rgb(46, 160, 67, 0.2);
@@ -139,6 +238,7 @@
 [data-theme="midnight-lime"] {
     --color-bg: #121511;
     --color-surface: rgb(33, 35, 29, 0.72);
+    --color-surface-solid: #181c16;
     --color-border: rgb(159, 232, 112, 0.14);
     --color-green: #9fe870;
     --color-green-glow: rgb(159, 232, 112, 0.25);
@@ -155,6 +255,47 @@
     --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(159, 232, 112, 0.16), rgb(22, 51, 0, 0.35), transparent 70%);
     --color-on-green: #163300;
     --color-on-green-hint-bg: rgb(22, 51, 0, 0.15);
+}
+
+/* --- Dark Theme: Letterboxd Dark (Official Brand Palette) --- */
+/* Palette: #14181C (Letterboxd Dark Base), #1C2228 (Surface), #00E054 (Green), #FF8000 (Orange), #40BCF4 (Cyan) */
+[data-theme="letterboxd-dark"] {
+    --color-bg: #14181c;
+    --color-surface: rgb(28, 34, 40, 0.82);
+    --color-surface-solid: #1c2228;
+    --color-border: #2c3440;
+    --color-green: #00e054;
+    --color-green-glow: rgb(0, 224, 84, 0.22);
+    --color-blue: #40bcf4;
+    --color-text: #fff;
+    --color-text-secondary: #9ab0c0;
+    --color-text-muted: #678;
+    --color-accent-subtle: rgb(255, 128, 0, 0.14);
+    --color-pill-bg: rgb(255, 255, 255, 0.07);
+    --color-pill-text: #9ab0c0;
+    --color-pill-border: #2c3440;
+    --color-stars: #00e054;
+    --color-grid-line: rgb(255, 255, 255, 0.04);
+    --color-ambient-glow: radial-gradient(700px circle at 50% 45%, rgb(0, 224, 84, 0.15), rgb(255, 128, 0, 0.08), transparent 70%);
+    --color-on-green: #14181c;
+    --color-on-green-hint-bg: rgb(20, 24, 28, 0.25);
+}
+
+/* ==========================================================================
+   Solid Surfaces Mode (Transparency / Glassmorphism Disabled)
+   ========================================================================== */
+
+[data-solid-surfaces="true"] {
+    --color-surface: var(--color-surface-solid, #fff);
+}
+
+[data-solid-surfaces="true"] .card,
+[data-solid-surfaces="true"] .modal-content,
+[data-solid-surfaces="true"] .theme-menu,
+[data-solid-surfaces="true"] .footer-toggle,
+[data-solid-surfaces="true"] .toast {
+    backdrop-filter: none;
+    background: var(--color-surface-solid, #fff);
 }
 
 /* ==========================================================================
@@ -182,7 +323,7 @@
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    width: 220px;
+    width: 230px;
     background: var(--color-surface);
     backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid var(--color-border);
@@ -199,6 +340,18 @@
     box-shadow: 0 16px 36px rgb(0, 0, 0, 0.4);
 }
 
+[data-theme="pine-orchid-dark"] .theme-menu {
+    background: rgb(23, 17, 25, 0.95);
+    border-color: rgb(211, 132, 238, 0.22);
+    box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
+}
+
+[data-theme="citron-berry-dark"] .theme-menu {
+    background: rgb(22, 23, 19, 0.95);
+    border-color: rgb(179, 36, 89, 0.25);
+    box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
+}
+
 [data-theme="amoled"] .theme-menu {
     background: rgb(10, 10, 12, 0.95);
     border-color: rgb(255, 255, 255, 0.15);
@@ -209,6 +362,16 @@
     background: rgb(26, 29, 23, 0.95);
     border-color: rgb(159, 232, 112, 0.2);
     box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
+}
+
+[data-theme="letterboxd-dark"] .theme-menu {
+    background: rgb(20, 24, 28, 0.95);
+    border-color: #2c3440;
+    box-shadow: 0 16px 40px rgb(0, 0, 0, 0.6);
+}
+
+[data-solid-surfaces="true"] .theme-menu {
+    background: var(--color-surface-solid, #fff);
 }
 
 @keyframes menu-pop {
@@ -236,6 +399,40 @@
     height: 1px;
     background: var(--color-border);
     margin: 6px 4px;
+}
+
+.theme-menu__toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.theme-menu__toggle-item:hover {
+    background: rgb(0, 0, 0, 0.05);
+}
+
+[data-mode="dark"] .theme-menu__toggle-item:hover {
+    background: rgb(255, 255, 255, 0.06);
+}
+
+.theme-menu__toggle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.theme-menu__toggle-label svg {
+    width: 14px;
+    height: 14px;
+    color: var(--color-green);
 }
 
 .theme-option {
@@ -300,9 +497,25 @@
 .theme-dot--forest-lime-2 { background: #9fe870; }
 .theme-dot--forest-lime-3 { background: #f6f8f5; border: 1px solid rgb(0, 0, 0, 0.15); }
 
+.theme-dot--letterboxd-light-1 { background: #00a63e; }
+.theme-dot--letterboxd-light-2 { background: #ff8000; }
+.theme-dot--letterboxd-light-3 { background: #f4f6f8; border: 1px solid rgb(0, 0, 0, 0.15); }
+
+.theme-dot--amoled-light-1 { background: #1a7f37; }
+.theme-dot--amoled-light-2 { background: #0969da; }
+.theme-dot--amoled-light-3 { background: #fff; border: 1px solid rgb(0, 0, 0, 0.25); }
+
 .theme-dot--classic-dark-1 { background: #3d7e5e; }
 .theme-dot--classic-dark-2 { background: #58a6ff; }
 .theme-dot--classic-dark-3 { background: #0f1117; border: 1px solid rgb(255, 255, 255, 0.2); }
+
+.theme-dot--pine-orchid-dark-1 { background: #6dd32c; }
+.theme-dot--pine-orchid-dark-2 { background: #d384ee; }
+.theme-dot--pine-orchid-dark-3 { background: #141016; border: 1px solid rgb(255, 255, 255, 0.2); }
+
+.theme-dot--citron-berry-dark-1 { background: #e83e7c; }
+.theme-dot--citron-berry-dark-2 { background: #4ea5bb; }
+.theme-dot--citron-berry-dark-3 { background: #141512; border: 1px solid rgb(255, 255, 255, 0.2); }
 
 .theme-dot--amoled-1 { background: #2ea043; }
 .theme-dot--amoled-2 { background: #40a9ff; }
@@ -311,6 +524,10 @@
 .theme-dot--midnight-lime-1 { background: #9fe870; }
 .theme-dot--midnight-lime-2 { background: #a0e1e1; }
 .theme-dot--midnight-lime-3 { background: #121511; border: 1px solid rgb(255, 255, 255, 0.2); }
+
+.theme-dot--letterboxd-dark-1 { background: #00e054; }
+.theme-dot--letterboxd-dark-2 { background: #ff8000; }
+.theme-dot--letterboxd-dark-3 { background: #14181c; border: 1px solid rgb(255, 255, 255, 0.2); }
 
 .theme-option__name {
     flex: 1;

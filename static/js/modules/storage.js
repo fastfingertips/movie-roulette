@@ -26,3 +26,7 @@ export const saveRandomMode = (mode) => localStorage.setItem('lb_random_mode', m
 
 export const getDebugMode = () => localStorage.getItem('movie_roulette_debug') === 'true';
 export const saveDebugMode = (enabled) => localStorage.setItem('movie_roulette_debug', enabled ? 'true' : 'false');
+
+export const getTranslucentMode = () => localStorage.getItem('movie_roulette_translucent') !== 'false';
+export const saveTranslucentMode = (enabled) => localStorage.setItem('movie_roulette_translucent', enabled ? 'true' : 'false');
+
