@@ -28,7 +28,12 @@ const renderThemeOptionHtml = (theme, idx, isActive = false) => {
     return `<button type="button" class="theme-option${activeClass}" data-theme-id="${escapeHtml(theme.id)}" data-palette-index="${idx}" role="menuitem" aria-selected="${isActive}"><span class="theme-option__swatches">${swatches}</span><span class="theme-option__name">${escapeHtml(displayLabel)}</span><i data-lucide="check" class="theme-option__check"></i></button>`;
 };
 
-export const buildThemeMenuHtml = (themes = THEMES, activeMode = 'light', activeThemeId = null) => {
+export const buildThemeMenuHtml = (
+    themes = THEMES,
+    activeMode = 'light',
+    activeThemeId = null,
+    activeThemeMode = 'system'
+) => {
     const basePalettes = themes.filter(t => t.mode === 'light');
     const modeThemes = basePalettes.map(t => {
         if (activeMode === 'dark' && t.pair) {
@@ -37,8 +42,11 @@ export const buildThemeMenuHtml = (themes = THEMES, activeMode = 'light', active
         return t;
     });
 
-    const isLight = activeMode !== 'dark';
-    const modeSwitchHtml = `<div class="theme-mode-switch" role="group" aria-label="Color mode"><button type="button" class="theme-mode-btn${isLight ? ' is-active' : ''}" data-mode-value="light" aria-pressed="${isLight}"><i data-lucide="sun"></i><span>Light</span></button><button type="button" class="theme-mode-btn${!isLight ? ' is-active' : ''}" data-mode-value="dark" aria-pressed="${!isLight}"><i data-lucide="moon"></i><span>Dark</span></button></div><div class="theme-menu__divider"></div>`;
+    const isSystem = activeThemeMode === 'system';
+    const isLight = activeThemeMode === 'light';
+    const isDark = activeThemeMode === 'dark';
+
+    const modeSwitchHtml = `<div class="theme-mode-switch" role="group" aria-label="Theme mode"><button type="button" class="theme-mode-btn${isSystem ? ' is-active' : ''}" data-mode-value="system" aria-pressed="${isSystem}"><i data-lucide="monitor"></i><span>System</span></button><button type="button" class="theme-mode-btn${isLight ? ' is-active' : ''}" data-mode-value="light" aria-pressed="${isLight}"><i data-lucide="sun"></i><span>Light</span></button><button type="button" class="theme-mode-btn${isDark ? ' is-active' : ''}" data-mode-value="dark" aria-pressed="${isDark}"><i data-lucide="moon"></i><span>Dark</span></button></div><div class="theme-menu__divider"></div>`;
 
     return [
         modeSwitchHtml,
@@ -73,17 +81,40 @@ export const setTranslucent = (enabled, persist = true) => {
 };
 
 const THEME_STORAGE_KEY = 'theme';
+export const THEME_MODE_STORAGE_KEY = 'theme_mode';
 
 /** Default light and dark themes (used for system scheme and quick toggle) */
 export const SYSTEM_THEME = { light: 'forest-lime', dark: 'midnight-lime' };
 
 const systemQuery = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-export const getSystemTheme = () => (systemQuery && systemQuery.matches ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
+export const getSystemMode = () => (systemQuery && systemQuery.matches ? 'dark' : 'light');
+
+export const getSystemTheme = () => (getSystemMode() === 'dark' ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
 
 export const resolveTheme = (themeId) => {
     if (!themeId) return null;
     return THEMES.find(t => t.id === themeId) || null;
+};
+
+export const getStoredThemeMode = () => {
+    if (typeof localStorage === 'undefined') return 'system';
+    const stored = localStorage.getItem(THEME_MODE_STORAGE_KEY);
+    return (stored === 'light' || stored === 'dark') ? stored : 'system';
+};
+
+export const setStoredThemeMode = (mode) => {
+    if (typeof localStorage === 'undefined') return;
+    if (mode === 'light' || mode === 'dark') {
+        localStorage.setItem(THEME_MODE_STORAGE_KEY, mode);
+    } else {
+        localStorage.removeItem(THEME_MODE_STORAGE_KEY);
+    }
+};
+
+export const getEffectiveMode = (themeMode = getStoredThemeMode()) => {
+    if (themeMode === 'light' || themeMode === 'dark') return themeMode;
+    return getSystemMode();
 };
 
 export const getCounterpartTheme = (themeId, targetMode = null) => {
@@ -109,13 +140,15 @@ const updateActiveThemeInMenu = (themeId) => {
     const root = elements.themeMenu || document;
     const activeTheme = resolveTheme(themeId) || resolveTheme(SYSTEM_THEME.light);
     const activeMode = activeTheme ? activeTheme.mode : 'light';
+    const themeMode = getStoredThemeMode();
     const basePalettes = THEMES.filter(t => t.mode === 'light');
 
     const modeBtns = root.querySelectorAll('.theme-mode-btn');
     modeBtns.forEach(btn => {
-        const isCurrentMode = btn.getAttribute('data-mode-value') === activeMode;
-        btn.classList.toggle('is-active', isCurrentMode);
-        btn.setAttribute('aria-pressed', isCurrentMode ? 'true' : 'false');
+        const val = btn.getAttribute('data-mode-value');
+        const isActive = val === themeMode;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
 
     const options = root.querySelectorAll('.theme-option');
@@ -146,14 +179,21 @@ const updateActiveThemeInMenu = (themeId) => {
  * Apply a theme with the circular reveal transition.
  * @param {string} newTheme Theme id
  * @param {{x: number, y: number}|null} originCoords Reveal origin; defaults to the toggle button
- * @param {{persist?: boolean}} options Pass persist: false to apply without saving the choice
+ * @param {{persist?: boolean, themeMode?: string}} options Pass persist: false to apply without saving the choice
  */
-export const applyTheme = (newTheme, originCoords = null, { persist = true } = {}) => {
+export const applyTheme = (newTheme, originCoords = null, { persist = true, themeMode = null } = {}) => {
     const themeObj = resolveTheme(newTheme);
     if (!themeObj) return;
 
+    if (themeMode !== null) {
+        setStoredThemeMode(themeMode);
+    }
+
     const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
-    if (themeObj.id === currentTheme) return;
+    const currentModePref = document.documentElement.getAttribute('data-theme-mode') || 'system';
+    const effectiveThemeMode = getStoredThemeMode();
+
+    if (themeObj.id === currentTheme && effectiveThemeMode === currentModePref) return;
 
     let x = window.innerWidth - 40;
     let y = 30;
@@ -172,6 +212,7 @@ export const applyTheme = (newTheme, originCoords = null, { persist = true } = {
     const performToggle = () => {
         document.documentElement.setAttribute('data-theme', themeObj.id);
         document.documentElement.setAttribute('data-mode', themeObj.mode);
+        document.documentElement.setAttribute('data-theme-mode', effectiveThemeMode);
         if (persist) localStorage.setItem(THEME_STORAGE_KEY, themeObj.id);
         updateActiveThemeInMenu(themeObj.id);
     };
@@ -237,25 +278,33 @@ const closeThemeMenu = () => {
 };
 
 export const initTheme = () => {
-    // Explicit user choice wins; otherwise follow the system color scheme
-    const initialTheme = getStoredTheme() || getSystemTheme();
+    const themeMode = getStoredThemeMode();
+    const effectiveMode = getEffectiveMode(themeMode);
+
+    // Initial theme: respect user stored theme adapted to effective mode, or default to system theme
+    const storedTheme = getStoredTheme();
+    let initialTheme = storedTheme ? getCounterpartTheme(storedTheme, effectiveMode) : (effectiveMode === 'dark' ? SYSTEM_THEME.dark : SYSTEM_THEME.light);
     const resolved = resolveTheme(initialTheme);
-    const mode = resolved ? resolved.mode : 'light';
+    const mode = resolved ? resolved.mode : effectiveMode;
 
     const optionsContainer = elements.themeMenuOptions || document.getElementById('theme-menu-options');
     if (optionsContainer) {
-        optionsContainer.innerHTML = buildThemeMenuHtml(THEMES, mode, initialTheme);
+        optionsContainer.innerHTML = buildThemeMenuHtml(THEMES, mode, initialTheme, themeMode);
     }
 
     document.documentElement.setAttribute('data-theme', initialTheme);
     document.documentElement.setAttribute('data-mode', mode);
+    document.documentElement.setAttribute('data-theme-mode', themeMode);
     updateActiveThemeInMenu(initialTheme);
 
-    // Keep following the system until the user picks a theme manually
+    // If in system mode, listen to OS scheme changes
     if (systemQuery) {
         systemQuery.addEventListener('change', () => {
-            if (getStoredTheme()) return;
-            applyTheme(getSystemTheme(), null, { persist: false });
+            if (getStoredThemeMode() !== 'system') return;
+            const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
+            const newMode = systemQuery.matches ? 'dark' : 'light';
+            const targetTheme = getCounterpartTheme(currentTheme, newMode);
+            applyTheme(targetTheme, null, { persist: true });
         });
     }
 
@@ -272,13 +321,17 @@ export const initTheme = () => {
         menuEl.addEventListener('click', (e) => {
             const modeBtn = e.target.closest('.theme-mode-btn');
             if (modeBtn) {
-                const targetMode = modeBtn.getAttribute('data-mode-value');
+                const targetModePref = modeBtn.getAttribute('data-mode-value');
+                const targetEffectiveMode = targetModePref === 'system' ? getSystemMode() : targetModePref;
                 const currentTheme = document.documentElement.getAttribute('data-theme') || SYSTEM_THEME.light;
-                const nextTheme = getCounterpartTheme(currentTheme, targetMode);
+                const nextTheme = getCounterpartTheme(currentTheme, targetEffectiveMode);
                 const rect = modeBtn.getBoundingClientRect();
                 applyTheme(nextTheme, {
                     x: rect.left + rect.width / 2,
                     y: rect.top + rect.height / 2
+                }, {
+                    persist: true,
+                    themeMode: targetModePref
                 });
                 return;
             }
@@ -291,6 +344,8 @@ export const initTheme = () => {
             applyTheme(themeId, {
                 x: rect.left + rect.width / 2,
                 y: rect.top + rect.height / 2
+            }, {
+                persist: true
             });
         });
     }
