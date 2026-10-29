@@ -60,3 +60,6 @@ pnpm-debug.log*
 *.swo
 Thumbs.db
 desktop.ini
+
+# MkDocs build output
+site/

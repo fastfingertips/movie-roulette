@@ -25,6 +25,7 @@ A fast, modern web application and direct redirect engine to pick a random movie
 
 ## Key Features
 
+<!-- --8<-- [start:features] -->
 - **Multi-List Aggregation:** Combine up to 5 Letterboxd watchlists and custom lists simultaneously into a single pool.
 - **Dual Randomization Engines:**
   - **Deep Sample (Default):** Uniform sampling across all pages of large lists, so older entries have equal odds as recent additions.
@@ -37,80 +38,17 @@ A fast, modern web application and direct redirect engine to pick a random movie
 - **Theme System:** Six palette families (Classic, Pine & Orchid, Citron & Berry, Forest & Lime, Letterboxd, AMOLED), each with a paired light and dark variant. Switches between System, Light, and Dark mode. Optional glass/translucency layer.
 - **URL Generator:** Interactive modal at `/generator` that builds shareable pre-configured links and embed snippets without manual parameter editing.
 - **Keyboard Navigation:** Keyboard shortcuts for rolling, opening Letterboxd, copying links, and navigating results.
+<!-- --8<-- [end:features] -->
 
 ---
 
-## Server-Side Direct Redirect (`/r`)
+## Quick Example
 
-Movie Roulette provides a direct backend redirection engine. When hitting redirect endpoints, the server resolves the list, selects a random film, and immediately returns an HTTP `302 Found` header with `Location: https://letterboxd.com/film/<slug>/`.
+```
+https://roulette.bugra.co/r/<username>
+```
 
-All redirect responses include `Cache-Control: no-cache, no-store, must-revalidate` headers so browser bookmarks and triggers always receive a fresh selection.
-
-### Usage Examples
-
-| Route | Description |
-|---|---|
-| `https://roulette.bugra.co/r/<username>` | Pick from a user's watchlist (e.g. `/r/bugracoskun`) |
-| `https://roulette.bugra.co/r/<username>/list/<slug>` | Pick from a specific custom list |
-| `https://roulette.bugra.co/r/<username>/<slug>?count=1200` | Ultra-fast single-request deep sample by providing approximate film count |
-| `https://roulette.bugra.co/r?url=<url>&shuffle=1` | Fast single-request pick using Letterboxd shuffle |
-| `https://roulette.bugra.co/r?url=user1,user2&mode=equal` | Combine multiple lists with equal selection chances |
-| `https://roulette.bugra.co/r?url=<username>&format=json` | Headless JSON output with movie metadata and film URL |
-| `https://roulette.bugra.co/?url=<url>&redirect=1` | Direct redirect via the root URL parameter |
-| `https://roulette.bugra.co/generator` | Interactive URL Generator modal for instant links and embeds |
-
-If a target list is private, empty, or not found, the server automatically bounces back to the web application with `/?url=...&error=...` to display an informative toast alert instead of a broken page.
-
----
-
-## URL Query Parameters
-
-The web application and redirect endpoints accept the following query parameters:
-
-| Parameter | Accepted Values | Description |
-|---|---|---|
-| `url`, `urls`, `list`, `src` | Strings (comma-separated or multiple) | Letterboxd URLs or usernames (up to 5 sources) |
-| `count`, `total` | Positive integer (e.g. `1200`) | Bypasses initial metadata request on `/r` for 50% faster deep sampling |
-| `redirect` | `1`, `true` | Bypasses the UI and performs an immediate server-side 302 redirect |
-| `shuffle` | `1`, `true` | Enables the Fast Letterboxd `/by/shuffle/` engine |
-| `random` | `custom`, `deep`, `letterboxd`, `shuffle` | Explicitly chooses the selection strategy |
-| `mode` | `proportional`, `equal` | Balances candidate probability across multi-list pools |
-| `format` | `json` | Returns JSON payload instead of HTTP 302 redirect |
-| `run`, `auto` | `0` | Disables automatic rolling when opening shareable links |
-| `debug` | `1`, `true` | Enables verbose client console logging |
-
----
-
-## Keyboard Shortcuts
-
-| Shortcut | Context | Action |
-|---|---|---|
-| <kbd>Enter</kbd> | Form | Submit and roll movie |
-| <kbd>Shift</kbd> + <kbd>Enter</kbd> | Form | Add another list source input |
-| <kbd>Esc</kbd> | Any | Back to form / close modals |
-| <kbd>R</kbd> | Result | Roll again |
-| <kbd>L</kbd> | Result | Open movie page on Letterboxd |
-| <kbd>V</kbd> | Result | View movie in its source list |
-| <kbd>S</kbd> | Result | Copy shareable link to clipboard |
-
----
-
-## Architecture
-
-- **Backend:** Modular Python 3.12 service built with Flask Blueprints under `api/routes/`:
-  - `api/routes/metadata.py`: Concurrent multi-list metadata extraction via `ThreadPoolExecutor`.
-  - `api/routes/select.py`: Weighted and uniform random movie selection.
-  - `api/routes/details.py`: Movie profile enrichment (crew, cast, genres, banner).
-  - `api/routes/redirect.py`: Server-side HTTP 302 redirection.
-  - `api/security.py`: Pydantic v2 schema validation and security headers.
-- **Frontend:** Vanilla JavaScript (ES Modules under `static/js/modules/`) with no build step required for browser execution.
-- **Deployment:** Vercel serverless functions with rewrites configured in `vercel.json`.
-
-### Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `LOG_LEVEL` | `INFO` | Python logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+Redirects straight to a random film from the user's watchlist. See the [documentation](https://fastfingertips.github.io/movie-roulette/) for all routes, URL parameters, keyboard shortcuts, and API details.
 
 ---
 
@@ -134,26 +72,6 @@ npm install
 python -m api.index
 ```
 Open **[http://127.0.0.1:5050](http://127.0.0.1:5050)** in your browser.
-
----
-
-## Testing & Quality Assurance
-
-```bash
-# Python test suite
-npm test                          # or: pytest tests
-
-# JavaScript unit tests (Vitest)
-npm run test:js
-
-# Linters and style validation
-npm run lint                      # ESLint (JavaScript)
-npm run lint:css                  # Stylelint (CSS)
-ruff check api tests              # Ruff (Python)
-
-# Duplicate code clone detection
-npm run cpd                       # jscpd
-```
 
 ---
 
