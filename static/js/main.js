@@ -3,7 +3,7 @@ import { renderHistory, renderResult, setView, showToast, hideToast, updateBackd
 import { initStatsModal } from './modules/statsModal.js';
 import { initGenerator } from './modules/generator.js';
 
-import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getRandomMode, saveRandomMode, getDebugMode, saveDebugMode } from './modules/storage.js';
+import { saveHistory, saveRecentLists, clearHistory, clearRecentLists, getSamplingMode, saveSamplingMode, getRandomMode, saveRandomMode, getDebugMode, saveDebugMode, getHistoryDisabled, saveHistoryDisabled } from './modules/storage.js';
 import { addField, cleanEmptyFields, toggleFieldUrl, detectFieldType, getActiveUrls, initFieldStats, checkAndResolveWatchlistSuffix } from './modules/fields.js';
 import { applyRatios, refreshAllCounts, primeCounts } from './modules/listStats.js';
 import { parseUrlParams, stripOrigin, copyToClipboard, buildSpinResult } from './modules/utils.js';
@@ -345,6 +345,40 @@ if (elements.clearHistoryBtn) {
 }
 if (elements.clearListsBtn) {
     elements.clearListsBtn.addEventListener('click', () => { clearRecentLists(); updateUI(); });
+}
+
+if (elements.historyToggle) {
+    const syncHistoryToggleUI = (disabled) => {
+        elements.historyToggle.checked = disabled;
+        if (elements.historyToggleWrapper) {
+            elements.historyToggleWrapper.classList.toggle('is-active', disabled);
+            elements.historyToggleWrapper.title = disabled
+                ? 'Disable History: Active (click to enable saving history)'
+                : 'Disable History: Off (click to disable saving history)';
+        }
+    };
+
+    elements.historyToggle.addEventListener('change', () => {
+        const isDisabled = elements.historyToggle.checked;
+        saveHistoryDisabled(isDisabled);
+        syncHistoryToggleUI(isDisabled);
+        if (isDisabled) {
+            clearHistory();
+            clearRecentLists();
+            updateUI();
+        }
+    });
+
+    const isHistoryDisabled = getHistoryDisabled();
+    syncHistoryToggleUI(isHistoryDisabled);
+
+    if (elements.historyToggleWrapper) {
+        elements.historyToggleWrapper.addEventListener('click', (e) => {
+            if (e.target.closest('.switch')) return;
+            elements.historyToggle.checked = !elements.historyToggle.checked;
+            elements.historyToggle.dispatchEvent(new Event('change'));
+        });
+    }
 }
 
 if (elements.randomToggle) {

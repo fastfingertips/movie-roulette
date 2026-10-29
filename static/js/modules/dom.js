@@ -76,6 +76,8 @@ export const elements = {
     randomToggle: $('random-toggle'),
     consoleToggleWrapper: $('console-toggle-wrapper'),
     debugToggle: $('debug-toggle'),
+    historyToggleWrapper: $('history-toggle-wrapper'),
+    historyToggle: $('history-toggle'),
     error: $('error-msg'),
     errorText: $('error-text'),
     backdrop: $('backdrop'),
