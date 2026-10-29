@@ -1,23 +1,43 @@
 # Direct Redirect (`/r`)
 
-The `/r` endpoint resolves the list, selects a random film, and immediately returns an HTTP `302 Found` with `Location: https://letterboxd.com/film/<slug>/` — no frontend assets are loaded.
+`/r` picks a film on the server and responds with `302 Found` to `https://letterboxd.com/film/<slug>/`. The browser never loads the app.
 
-All responses include `Cache-Control: no-cache, no-store, must-revalidate` so bookmarks and automation triggers always receive a fresh pick.
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant S as roulette.bugra.co
+    participant L as Letterboxd
+    B->>S: GET /r/bugracoskun
+    S->>L: Read list size and a random page
+    L-->>S: Films
+    S-->>B: 302 Location: letterboxd.com/film/...
+    B->>L: Film page
+```
+
+Responses carry `Cache-Control: no-cache, no-store, must-revalidate`, so a bookmark returns a new film on every visit.
+
+## Routes
+
+| Route | Picks from |
+|---|---|
+| `/r/<user>` | The user's watchlist |
+| `/r/<user>/list/<slug>` | A custom list |
+| `/r?url=<a>,<b>` | Several lists combined (up to 5) |
+| `/?url=<a>&redirect=1` | Same as `/r`, via the root URL |
 
 ## Examples
 
-| Route | Description |
-|---|---|
-| `/r/<username>` | Pick from a user's watchlist (e.g. `/r/bugracoskun`) |
-| `/r/<username>/list/<slug>` | Pick from a specific custom list |
-| `/r/<username>/<slug>?count=1200` | Deep sample with known film count — skips the metadata request |
-| `/r?url=<url>&shuffle=1` | Fast single-request pick using Letterboxd shuffle |
-| `/r?url=user1,user2&mode=equal` | Combine multiple lists with equal selection chances |
-| `/r?url=<username>&format=json` | JSON output with movie metadata and film URL |
-| `/?url=<url>&redirect=1` | Direct redirect via the root URL parameter |
-| `/generator` | Interactive URL Generator for building shareable links |
+```text
+/r/bugracoskun
+/r/official/list/top-250-films
+/r/bugracoskun?shuffle=1
+/r/bugracoskun/list/top-films?count=1200
+/r?url=user1,user2&mode=equal
+/r/bugracoskun?format=json
+```
 
-## Error Handling
+All [URL parameters](parameters.md) apply.
 
-If a target list is private, empty, or not found, the server redirects to `/?url=...&error=...` and displays an informative toast alert instead of returning a broken response.
+## Errors
 
+If a list is private, empty, or missing, `/r` redirects to `/?url=...&error=...` and the app shows the reason instead of a broken page.

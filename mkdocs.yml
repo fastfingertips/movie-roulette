@@ -1,6 +1,6 @@
 site_name: Movie Roulette
 site_url: https://docs.roulette.bugra.co/
-site_description: Pick a random movie from a Letterboxd list and redirect to a streaming platform.
+site_description: Pick a random movie from one or more Letterboxd lists.
 site_author: fastfingertips
 repo_url: https://github.com/fastfingertips/movie-roulette
 repo_name: fastfingertips/movie-roulette
@@ -8,6 +8,8 @@ edit_uri: edit/master/docs/
 
 theme:
   name: material
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -25,6 +27,8 @@ theme:
         name: Switch to light mode
   features:
     - navigation.instant
+    - navigation.tabs
+    - navigation.footer
     - navigation.sections
     - navigation.top
     - search.suggest
@@ -33,13 +37,16 @@ theme:
     - content.action.edit
 
 nav:
-  - Overview: index.md
+  - Home: index.md
   - Usage:
-    - URL Parameters: usage/parameters.md
+    - Getting Started: usage/getting-started.md
     - Direct Redirect: usage/redirect.md
+    - URL Parameters: usage/parameters.md
+    - Integrations: usage/integrations.md
     - Keyboard Shortcuts: usage/keyboard.md
-  - API:
-    - Routes: api/routes.md
+  - Reference:
+    - JSON Response: reference/json.md
+    - Internal API: reference/api.md
   - Self-Hosting:
     - Local Development: self-hosting/local.md
     - Vercel Deployment: self-hosting/vercel.md
@@ -48,7 +55,12 @@ nav:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.keys
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
