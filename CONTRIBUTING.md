@@ -6,7 +6,7 @@ Thank you for contributing to **Movie Roulette**. This document outlines our dev
 
 ## Development Setup
 
-See [Local Development](README.md#local-development) in the README for prerequisites, installation, and running the server locally.
+See [Local Development](https://github.com/fastfingertips/movie-roulette#local-development) in the README for prerequisites, installation, and running the server locally.
 
 ---
 

@@ -1,0 +1,64 @@
+site_name: Movie Roulette
+site_url: https://fastfingertips.github.io/movie-roulette/
+site_description: Pick a random movie from a Letterboxd list and redirect to a streaming platform.
+site_author: fastfingertips
+repo_url: https://github.com/fastfingertips/movie-roulette
+repo_name: fastfingertips/movie-roulette
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep orange
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep orange
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+nav:
+  - Overview: index.md
+  - Usage:
+    - URL Parameters: usage/parameters.md
+    - Direct Redirect: usage/redirect.md
+    - Keyboard Shortcuts: usage/keyboard.md
+  - API:
+    - Routes: api/routes.md
+  - Self-Hosting:
+    - Local Development: self-hosting/local.md
+    - Vercel Deployment: self-hosting/vercel.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - pymdownx.snippets:
+      check_paths: true
+
+plugins:
+  - search
+
