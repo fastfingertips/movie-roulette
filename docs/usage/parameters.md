@@ -1,16 +1,27 @@
 # URL Parameters
 
-The web application and redirect endpoints accept the following query parameters.
+Accepted by both the web app (`/`) and the redirect endpoint (`/r`).
 
-| Parameter | Accepted Values | Description |
+## Sources
+
+| Parameter | Value | Description |
 |---|---|---|
-| `url`, `urls`, `list`, `src` | Strings (comma-separated or multiple) | Letterboxd URLs or usernames (up to 5 sources) |
-| `count`, `total` | Positive integer (e.g. `1200`) | Bypasses initial metadata request on `/r` for faster deep sampling |
-| `redirect` | `1`, `true` | Bypasses the UI and performs an immediate server-side 302 redirect |
-| `shuffle` | `1`, `true` | Enables the Fast Letterboxd `/by/shuffle/` engine |
-| `random` | `custom`, `deep`, `letterboxd`, `shuffle` | Explicitly chooses the selection strategy |
-| `mode` | `proportional`, `equal` | Balances candidate probability across multi-list pools |
-| `format` | `json` | Returns JSON payload instead of HTTP 302 redirect |
-| `run`, `auto` | `0` | Disables automatic rolling when opening a shareable link |
-| `debug` | `1`, `true` | Enables verbose client console logging |
+| `url` | Username, list path, or URL | One or more lists, comma-separated or repeated. Aliases: `urls`, `list`, `lists`, `src`, `sources` |
 
+## Selection
+
+| Parameter | Value | Default | Description |
+|---|---|---|---|
+| `shuffle` | `1`, `true` | off | Use Fast Shuffle instead of Deep Sample |
+| `random` | `custom`, `deep`, `letterboxd`, `shuffle` | `custom` | Explicit engine choice; `letterboxd` and `shuffle` equal `shuffle=1` |
+| `mode` | `proportional`, `equal` | `proportional` | How lists are weighted when combined |
+| `count` | Positive integer | none | Known film count for a single list. Skips the size lookup on `/r`. Alias: `total` |
+
+## Output and behavior
+
+| Parameter | Value | Description |
+|---|---|---|
+| `redirect` | `1`, `true` | On `/`, redirect to the film instead of showing the app |
+| `format` | `json` | On `/r`, return [JSON](../reference/json.md) instead of a redirect |
+| `run` | `0` | On `/`, pre-fill inputs without rolling. Alias: `auto` |
+| `debug` | `1`, `true` | Verbose logs in the browser console |
