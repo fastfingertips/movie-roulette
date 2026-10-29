@@ -48,7 +48,7 @@ A fast, modern web application and direct redirect engine to pick a random movie
 https://roulette.bugra.co/r/<username>
 ```
 
-Redirects straight to a random film from the user's watchlist. See the [documentation](https://fastfingertips.github.io/movie-roulette/) for all routes, URL parameters, keyboard shortcuts, and API details.
+Redirects straight to a random film from the user's watchlist. See the [documentation](https://docs.roulette.bugra.co/) for all routes, URL parameters, keyboard shortcuts, and API details.
 
 ---
 
