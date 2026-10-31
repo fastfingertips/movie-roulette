@@ -329,17 +329,6 @@ if (debugCheckbox) {
     }
 }
 
-if (elements.infoBtn) {
-    elements.infoBtn.addEventListener('click', () => setView('info'));
-}
-if (elements.infoModal) {
-    elements.infoModal.addEventListener('click', (e) => {
-        if (e.target === elements.infoModal || e.target.closest('#close-modal-btn')) {
-            setView('form');
-        }
-    });
-}
-
 if (elements.clearHistoryBtn) {
     elements.clearHistoryBtn.addEventListener('click', () => { clearHistory(); updateUI(); });
 }

@@ -9,12 +9,10 @@ export const initKeyboardShortcuts = (handlers) => {
     window.addEventListener('keydown', (e) => {
         // Navigation & Modal Controls
         if (e.key === 'Escape') {
-            const isInfoVisible = !elements.infoModal.classList.contains('is-hidden');
             const isStatsVisible = !elements.statsModal.classList.contains('is-hidden');
             const isResultVisible = !elements.resultArea.classList.contains('is-hidden');
             
-            if (isInfoVisible) setView('form');
-            else if (isStatsVisible) setView('result');
+            if (isStatsVisible) setView('result');
             else if (isResultVisible && handlers.onBack) {
                 handlers.onBack();
             }

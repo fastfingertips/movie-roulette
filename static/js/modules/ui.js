@@ -291,13 +291,10 @@ export const renderResult = (data) => {
 };
 
 export const setView = (view) => {
-    if (view === 'info') {
-        hydrateModal(elements.infoModal);
-    } else if (view === 'stats') {
+    if (view === 'stats') {
         hydrateModal(elements.statsModal);
     }
 
-    elements.infoModal.classList.toggle('is-hidden', view !== 'info');
     elements.statsModal.classList.toggle('is-hidden', view !== 'stats');
     elements.formArea.classList.toggle('is-hidden', view !== 'form');
     elements.loadingArea.classList.toggle('is-hidden', view !== 'loading');

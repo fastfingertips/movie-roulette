@@ -127,9 +127,9 @@
             <button type="button" class="icon-btn" id="generator-btn" title="URL Generator" aria-label="URL Generator">
                 <i data-lucide="link"></i>
             </button>
-            <button type="button" class="icon-btn" id="info-btn" title="How it works" aria-label="How it works">
-                <i data-lucide="info"></i>
-            </button>
+            <a href="https://docs.roulette.bugra.co" target="_blank" rel="noopener" class="icon-btn" id="info-btn" title="Documentation" aria-label="Documentation">
+                <i data-lucide="book-open"></i>
+            </a>
         </div>
     </header>
 
@@ -308,7 +308,7 @@
                     </label>
                 </div>
                 <div class="footer-toggle" id="history-toggle-wrapper" title="Disable saving roll history and recent lists">
-                    <span class="footer-toggle-label"><i data-lucide="clock-off"></i> Disable History</span>
+                    <span class="footer-toggle-label"><i data-lucide="timer-off"></i> Disable History</span>
                     <label class="switch switch--sm" for="history-toggle" aria-label="Toggle Disable History">
                         <input type="checkbox" id="history-toggle" />
                         <span class="slider"></span>
@@ -318,128 +318,6 @@
         </div>
     </main>
 
-    <!-- How it Works Popup -->
-    <div id="info-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
-        <template id="info-modal-tpl">
-            <div class="modal-content modal-content--wide">
-                <div class="modal-header">
-                    <h2 class="modal-title" id="info-modal-title">How it Works</h2>
-                    <button type="button" class="btn-link" id="close-modal-btn" name="close-modal">Close</button>
-                </div>
-                <div class="modal-grid">
-                    <div class="modal-panel">
-                        <div class="workflow">
-                            <div class="workflow-step">
-                                <div class="step-num">1</div>
-                                <div class="step-body">
-                                    <h3>Flexible Input Formats</h3>
-                                    <p>You can mix up to 5 sources using any format:</p>
-                                    <ul class="step-list">
-                                        <li><strong>Username:</strong> <a href="https://letterboxd.com/bugracoskun/" target="_blank" rel="noopener" class="inline-link">bugracoskun</a> → spins from their Watchlist.</li>
-                                        <li><strong>Shorthand:</strong> <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" rel="noopener" class="inline-link">official/letterboxds-top-500-films</a> → loads a specific list.</li>
-                                        <li><strong>Full URL:</strong> Paste any full <a href="https://letterboxd.com/official/list/letterboxds-top-500-films/" target="_blank" rel="noopener" class="inline-link">letterboxd.com</a> link directly.</li>
-                                        <li><strong>Watchlist vs List:</strong> Distinguishes standard watchlists from custom lists named <code>watchlist</code>.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-num">2</div>
-                                <div class="step-body">
-                                    <h3>Live Badges & Ratio Borders</h3>
-                                    <p>Each field is inspected and enriched as you type:</p>
-                                    <ul class="step-list">
-                                        <li>Shows real-time <strong>Watchlist</strong> or <strong>List</strong> badges with live film counts.</li>
-                                        <li>Displays dynamic <strong>odds percentages</strong> and animated <strong>ratio border bars</strong>.</li>
-                                        <li>Surfaces detailed error tooltips if a user or list is private or not found.</li>
-                                        <li>Automatically catches and warns about duplicate list entries.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-num">3</div>
-                                <div class="step-body">
-                                    <h3>Dual Random & Sampling Modes</h3>
-                                    <p>Control your selection algorithm and list odds:</p>
-                                    <ul class="step-list">
-                                        <li><strong>Deep Sample (Default):</strong> Multi-page uniform sampling across the entire catalog depth. Fast, reliable, and Cloudflare-safe.</li>
-                                        <li><strong>Use /shuffle (Toggle):</strong> Opt-in to Letterboxd's native <code>/by/shuffle</code> view (samples from Page 1).</li>
-                                        <li><strong>Equal Odds (Scale Toggle):</strong> Each list gets an equal 1/N chance of being selected first when combining multiple lists.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-num">4</div>
-                                <div class="step-body">
-                                    <h3>Auto-Shorten & Sync</h3>
-                                    <p>Pasted full URLs are neatly formatted:</p>
-                                    <ul class="step-list">
-                                        <li>Long URLs are automatically shortened using a smooth typewriter animation.</li>
-                                        <li>The canonical URL is preserved below the input for reference.</li>
-                                        <li>Your active mix automatically syncs to the address bar for easy bookmarking.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-panel">
-                        <div class="workflow">
-                            <div class="workflow-step">
-                                <div class="step-num">5</div>
-                                <div class="step-body">
-                                    <h3>Mixes & Share Links</h3>
-                                    <p>Combine favorite lists to create custom cinematic blends:</p>
-                                    <ul class="step-list">
-                                        <li><strong>Combine Sources:</strong> Add up to 5 lists to draw random picks across multiple tastes simultaneously.</li>
-                                        <li><strong>Share Mix:</strong> Click <strong>Share Mix</strong> to copy a shareable blend link to your clipboard.</li>
-                                        <li><strong>URL Parameter:</strong> Instant sharing with clean parameter syntax: <a href="?url=official/letterboxds-top-500-films,official/top-250-horror-films" class="inline-link">?url=official/letterboxds-top-500-films,...</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-num">6</div>
-                                <div class="step-body">
-                                    <h3>Recent Lists & History</h3>
-                                    <p>Your activity is persisted locally in your browser:</p>
-                                    <ul class="step-list">
-                                        <li><strong>Recent Lists:</strong> Quick-access chips show inclusion status (<code>#1</code>, <code>#2</code>) — click to add or remove.</li>
-                                        <li><strong>Activity Log:</strong> Saves your last 4 spins with timestamps, list sources, and Letterboxd links.</li>
-                                        <li><strong>Keyboard Support:</strong> Navigate recent chips with <kbd>Tab</kbd> and toggle with <kbd>Enter</kbd> or <kbd>Space</kbd>.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-num">7</div>
-                                <div class="step-body">
-                                    <h3>Technical Logs & Waterfall</h3>
-                                    <p>Inspect exact diagnostics for every spin:</p>
-                                    <ul class="step-list">
-                                        <li>Click the <strong>info icon</strong> on the result card to view technical logs.</li>
-                                        <li>Review exact probability percentages, pool breakdown, and winner verification.</li>
-                                        <li>Inspect pipeline execution waterfall timings (Metadata → Selection → Film Enrichment).</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="workflow-step">
-                                <div class="step-num">8</div>
-                                <div class="step-body">
-                                    <h3>Privacy & 12 Custom Themes</h3>
-                                    <p>Fast, lightweight, and customizable:</p>
-                                    <ul class="step-list">
-                                        <li><strong>100% Local Storage:</strong> Zero tracking, zero third-party analytics, and no server cookies.</li>
-                                        <li><strong>12 Curated Themes:</strong> Switch between Classic, Pine &amp; Orchid, Citron &amp; Berry, Forest &amp; Midnight Lime, Letterboxd, and AMOLED (Light &amp; Dark pairs) with optional solid or translucent surfaces.</li>
-                                        <li><strong>Open Source:</strong> Transparent and publicly hosted on <a href="https://github.com/fastfingertips/movie-roulette" target="_blank" rel="noopener" class="inline-link">GitHub</a>.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-    </div>
-
-
-
     <!-- URL Generator Modal -->
     <div id="generator-modal" class="modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="generator-modal-title">
         <template id="generator-modal-tpl">
@@ -447,9 +325,6 @@
             <div class="modal-content modal-content--generator">
                 <div class="modal-header">
                     <div class="modal-title-group">
-                        <div class="modal-title-icon">
-                            <i data-lucide="link"></i>
-                        </div>
                         <div>
                             <h2 class="modal-title" id="generator-modal-title">URL Generator &amp; Docs</h2>
                             <p class="modal-subtitle">Generate direct 302 redirect links, explore URL parameters and integration docs</p>
@@ -844,9 +719,6 @@
         <div class="modal-content modal-content--stats">
             <div class="modal-header">
                 <div class="modal-title-group">
-                    <div class="modal-title-icon">
-                        <i data-lucide="activity"></i>
-                    </div>
                     <div>
                         <h2 class="modal-title" id="stats-modal-title">Technical Logs</h2>
                         <p class="modal-subtitle">Sampling metrics & execution pipeline diagnostics</p>
