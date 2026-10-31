@@ -84,7 +84,6 @@ export const elements = {
     backdropImg: typeof document !== 'undefined' ? document.querySelector('.backdropimage') : null,
 
     // Modals
-    infoModal: $('info-modal'),
     generatorModal: $('generator-modal'),
     statsModal: $('stats-modal')
 };
