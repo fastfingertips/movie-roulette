@@ -20,8 +20,8 @@
     "husky": "^9.1.7",
     "jscpd": "^5.4.2",
     "lint-staged": "^17.6.0",
-    "stylelint": "^17.16.0",
-    "stylelint-config-standard": "^40.0.0",
+    "stylelint": "^18.0.0",
+    "stylelint-config-standard": "^41.0.0",
     "vitest": "^5.0.5"
   },
   "lint-staged": {
@@ -38,7 +38,6 @@
       "custom-property-pattern": null,
       "color-function-notation": "legacy",
       "alpha-value-notation": "number",
-      "declaration-block-single-line-max-declarations": null,
       "declaration-empty-line-before": null,
       "rule-empty-line-before": null,
       "at-rule-empty-line-before": null,
